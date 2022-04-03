@@ -1,0 +1,154 @@
+
+
+Std
+Std means GLib
+
+Hello world
+print ("hello, world\n"); 
+//If you don't need to allocate memory in the heap then main is not needed
+
+User Input
+stdout.printf (@"Your name is : $(stdin.read_line ())");
+
+Mathematics
+stdout.printf ("Please enter the radius of a circle: ");
+double radius = double.parse (stdin.read_line ());
+stdout.printf ("Circumference: %g\n", 2 * Math.PI * radius);
+stdout.printf ("sin(pi/2) = %g\n", Math.sin (Math.PI / 2));
+
+Random Numbers
+var rand = Random.int_range (1, 49);
+Copied!
+Reading and Writing Text File Content
+// Writing
+string content = "hello, world";
+FileUtils.set_contents ("data.txt", content);
+// Reading
+string read;
+FileUtils.get_contents ("data.txt", out read);
+
+Spawning Processes
+string output;
+Process.spawn_command_line_sync ("ls", ref output); // now output is result of ls
+
+Timer
+Timer timer = new Timer ();
+stdout.printf (@"$(timer.elapsed()) sec elapsed");// 0 sec elapsed
+Copied!
+OS Specific
+Environment.get_current_dir();
+Environment.get_real_name();
+Environment.get_system_config_dirs();
+Environment.get_user_config_dir();
+Environment.get_application_name();
+Environment.get_home_dir();
+...
+//Windows specific
+Win32.is_nt_based();
+Win32.OSType.SERVER;//enum
+Win32.get_windows_version();
+Win32.getlocale();
+Win32.get_package_installation_directory_of_module(hmodule);//hmodule is pointer
+...
+//Linux specific
+Linux.Network.ifMap.port;
+Linux. anything from linux.h;
+
+Network
+Get Twitter Status
+
+Soup Library
+using Soup;
+void main () {
+// add your twitter username
+string username = "gnome";
+// format the URL to use the username as the filename
+string url = "http://twitter.com/users/%s.xml".printf (username);
+// create an HTTP session to twitter
+var session = new Soup.Session ();
+var message = new Soup.Message ("GET", url);
+// send the HTTP request and wait for response
+session.send_message (message);
+// output the XML result to stdout 
+stdout.write (message.response_body.data);
+}// to run: vala --pkg libsoup-2.4 filename
+
+GIO (Vala standart input output library)
+Async Server Example
+bool on_incoming_connection (SocketConnection conn) {
+stdout.printf ("Got incoming connection\n");
+// Process the request asynchronously
+process_request.begin (conn);// u can call .begin on async funcs
+return true;
+}
+// Note the async keyword
+async void process_request (SocketConnection conn) {
+try {
+var dis = new DataInputStream (conn.input_stream);
+var dos = new DataOutputStream (conn.output_stream);
+string req = yield dis.read_line_async (Priority.HIGH_IDLE);
+dos.put_string ("Got: %s\n".printf (req));
+} catch (Error e) {
+stderr.printf ("%s\n", e.message);
+}
+}
+void main () {
+try {
+var srv = new SocketService ();
+srv.add_inet_port (3333, null);
+srv.incoming.connect (on_incoming_connection);
+srv.start ();
+new MainLoop ().run ();
+} catch (Error e) {
+stderr.printf ("%s\n", e.message);
+}
+}
+//
+Copied!
+Connect to localhost via netcat or telnet on port 3333 and issue a command ending with a newline. echo "blub" | nc localhost 3333
+
+Signals with data (Qt like)
+public class SignalTest: Object {
+public signal void sig_1(int a);
+string to_string(){ return "hello from SignalTest\n";}
+}
+//The first argument is always the object that caused the signal.
+void main() {
+var t1 = new SignalTest();
+t1.sig_1.connect((t, a) => { print(@"$a $t\n"); });
+t1.sig_1(5);
+}
+
+Native Regular Expression Literals
+string email = "tux@kernel.org";
+if (/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.match(email))
+stdout.printf("Valid email address\n");
+var r = /(foo|bar|cow)/;
+var o = r.replace ("this foo is great", -1, 0, "thing");
+print (o);//this thing is great
+
+Structs
+Структуры выделяются на стеке Memory for structs is allocated on the Stack.
+
+struct Klass{
+int a;
+int b;
+public Klass(){print("Constructor\n");}
+}
+struct Sas: Klass{
+public Sas.with_args(int _a = 2, int _b = 3){a = _a; b = _b;}
+public int sum(){return base.a + base.b;}//base here mean Klass
+}
+void main () {
+Sas sas = {5,6};
+var sus = Sas() {a = 5,b = 6};
+var ses = Sas.with_args(5,6);
+prin(sas.sum()," ",sus.sum()," ",ses.sum());
+}
+
+
+
+
+
+
+

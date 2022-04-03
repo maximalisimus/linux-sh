@@ -1,0 +1,117 @@
+
+
+mylib.go
+
+package main
+
+import "C"
+
+func main() {}
+
+//export doSmth
+func doSmth() {
+	println("Hello from Golang!: 3")
+}
+
+//export getSomeNumber
+func getSomeNumber() int8 {
+	return 32
+}
+
+
+
+$ go build -buildmode=c-shared mylib.go
+// $ go build -o mylib.so -buildmode=c-shared mylib.go
+
+script.py
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import ctypes
+
+def main():
+	mylib = ctypes.CDLL("./mylib.so")
+	mylib.doSmth()
+	number = mylib.getSomeNumber()
+	print("Number is: " + str(number))
+	#pass
+
+if __name__ == '__main__':
+	main()
+
+
+
+
+
+
+
+
+
+package main
+
+import (
+    "fmt"
+    "log"
+    "os/exec"
+)
+
+func main() {
+    out, err := exec.Command("date").Output()
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("The date is %s\n", out)
+}
+Где out является выходом стандарта. Это в формате []byte, но вы можете легко изменить его на строку с помощью:
+
+string(out)
+Вы также можете использовать CombinedOutput() вместо Output() который возвращает стандартный вывод и стандартную ошибку.
+
+
+
+
+
+
+
+
+
+test.go:
+
+package main
+
+import (
+    "log"
+    "os"
+    "os/exec"
+)
+
+func main() {
+    log.Println(os.Args)
+    if len(os.Args) == 1 {
+        return
+    }
+    cmd := exec.Command(os.Args[1], os.Args[2:]...)
+    cmd.Stdout = os.Stdout
+    cmd.Stderr = os.Stderr
+    log.Println(cmd.Run())
+}
+test.py:
+
+import sys
+print sys.argv
+usage:
+
+$ go run test.go python test.py 1 two 3 four
+2016/02/20 21:45:42 [/tmp/go-build772613382/command-line-arguments/_obj/exe/test python test.py 1 two 3 four]
+['test.py', '1', 'two', '3', 'four']
+2016/02/20 21:45:42 <nil>
+
+
+
+
+
+
+
+
+

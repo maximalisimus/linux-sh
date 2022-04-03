@@ -1,0 +1,566 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 7.1.3.2 (Linux)"/>
+	<meta name="created" content="2020-04-09T22:39:19"/>
+	<meta name="changed" content="2021-07-23T18:41:32"/>
+	<meta name="AppVersion" content="15.0000"/>
+	<style type="text/css">
+		@page { size: 21.59cm 27.94cm; margin: 2cm }
+		p { margin-bottom: 0.25cm; direction: ltr; color: #000000; line-height: 115%; text-align: left; orphans: 2; widows: 2; background: transparent }
+		p.western { font-family: "Liberation Serif", serif; font-size: 12pt; so-language: ru-RU }
+		p.cjk { font-family: "AR PL New Sung"; font-size: 12pt; so-language: zh-CN }
+		p.ctl { font-family: "DejaVu Sans"; font-size: 12pt; so-language: hi-IN }
+		h1 { margin-bottom: 0.21cm; direction: ltr; color: #000000; text-align: left; orphans: 2; widows: 2; background: transparent; page-break-after: avoid }
+		h1.western { font-family: "Liberation Serif", sans-serif; font-size: 24pt; so-language: ru-RU; font-weight: bold }
+		h1.cjk { font-family: "AR PL New Sung"; font-size: 24pt; so-language: zh-CN; font-weight: bold }
+		h1.ctl { font-family: "DejaVu Sans"; font-size: 24pt; so-language: hi-IN; font-weight: bold }
+		h3 { margin-top: 0.25cm; margin-bottom: 0.21cm; direction: ltr; color: #000000; text-align: left; orphans: 2; widows: 2; background: transparent; page-break-after: avoid }
+		h3.western { font-family: "Liberation Serif", sans-serif; font-size: 14pt; so-language: ru-RU; font-weight: bold }
+		h3.cjk { font-family: "AR PL New Sung"; font-size: 14pt; so-language: zh-CN; font-weight: bold }
+		h3.ctl { font-family: "DejaVu Sans"; font-size: 14pt; so-language: hi-IN; font-weight: bold }
+		h4 { margin-top: 0.21cm; margin-bottom: 0.21cm; direction: ltr; color: #000000; text-align: left; orphans: 2; widows: 2; background: transparent; page-break-after: avoid }
+		h4.western { font-family: "Liberation Serif", sans-serif; font-size: 12pt; so-language: ru-RU; font-weight: bold }
+		h4.cjk { font-family: "AR PL New Sung"; font-size: 12pt; so-language: zh-CN; font-weight: bold }
+		h4.ctl { font-family: "DejaVu Sans"; font-size: 12pt; so-language: hi-IN; font-weight: bold }
+		strong { font-weight: bold }
+		em { font-style: italic }
+		a:link { color: #000080; so-language: zxx; text-decoration: underline }
+		code.western { font-family: "Liberation Mono", serif }
+		code.cjk { font-family: "Liberation Mono" }
+		code.ctl { font-family: "Liberation Mono" }
+	</style>
+</head>
+<body lang="ru-RU" text="#000000" link="#000080" vlink="#800000" dir="ltr"><h1 class="western" align="left">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Mono, monospace"><font size="3" style="font-size: 12pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Extending
+Python 3 in Go</span></span></span></font></font></font></span></h1>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<img src="Extending_Python_in_Golang_html_3ee60173924e4cac.png" name="Изображение1" align="left" width="665" height="247" border="0"/>
+<br/>
+
+</p>
+<p class="western" align="left"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Extending
+Python has been a core feature of the platform for decades, the
+Python runtime provides a “C API”, which is a set of headers and
+core types for writing extensions in C and compiling them into Python
+modules.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">But,
+do you </span></span></span></font></font></font></span><em><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><b>really</b></span></span></font></font></font></span></em><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+have to write extensions to Python in C? Why can’t we use something
+a tad more modern, like Go.</span></span></span></font></font></font></span></p>
+<h3 class="western" style="line-height: 140%; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Mono, monospace"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Background
+research — hasn’t this been done before?</span></span></span></font></font></span></h3>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Extending
+Python has been a core feature of the platform for decades, the
+Python runtime provides a “C API”, which is a set of headers and
+core types for writing extensions in C and compiling them into Python
+modules.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">But,
+do you </span></span></span></font></font></font></span><em><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><b>really</b></span></span></font></font></font></span></em><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+have to write extensions to Python in C? Why can’t we use something
+a tad more modern, like Go.</span></span></span></font></font></font></span></p>
+<h3 class="western" style="line-height: 140%; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Mono, monospace"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Background
+research — hasn’t this been done before?</span></span></span></font></font></span></h3>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">I
+found a number of old articles written in 2015 either for </span></span></span></font></font></font></span><strong><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><b>Python
+2</b></span></span></font></font></font></span></strong><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+or for Go 1.5. Go has changed a lot since then so finding something
+up to date and well maintained was hard.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><a href="https://blog.filippo.io/building-python-modules-with-go-1-5/" target="_blank"><span style="font-variant: normal"><font color="#000000"><span style="text-decoration: none"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal"><span style="background: transparent">This
+article </span></span></span></span></font></font></span></font></span></a><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">was
+for Go 1.5, and uses a mixture of C macros and Go. Also, a big
+limitation of </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">cgo</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+instead of the native Go functions is that it doesn’t support
+variadics (i.e. </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">*args</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">),
+which will be a big issue in most Python modules.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><a href="https://github.com/go-python/gopy" target="_blank"><span style="font-variant: normal"><font color="#000000"><span style="text-decoration: none"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal"><span style="background: transparent">gopy</span></span></span></span></font></font></span></font></span></a><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">,
+a tool for automatically creating modules from Go packages. It seemed
+from a glance like it was going to cause issues because it required a
+</span></span></span></font></font></font></span><a href="https://github.com/go-python/gopy/issues/83" target="_blank"><span style="font-variant: normal"><font color="#000000"><span style="text-decoration: none"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal"><span style="background: transparent">particular</span></span></span></span></font></font></span></font></span></a><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+flag at compile-time which is not recommended in production. Also, it
+</span></span></span></font></font></font></span><a href="_blank"><span style="font-variant: normal"><font color="#000000"><span style="text-decoration: none"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal"><span style="background: transparent">doesn’t
+support Python 3</span></span></span></span></font></font></span></font></span></a><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><a href="https://github.com/sbinet/go-python" target="_blank"><span style="font-variant: normal"><font color="#000000"><span style="text-decoration: none"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal"><span style="background: transparent">go-python
+looked</span></span></span></span></font></font></span></font></span></a><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+like a good candidate but was written for the Python 2 bindings.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><a href="https://github.com/go-python/py" target="_blank"><span style="font-variant: normal"><font color="#000000"><span style="text-decoration: none"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal"><span style="background: transparent">py</span></span></span></span></font></font></span></font></span></a><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+looked very incomplete, only covering some of the basic Python API.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Other
+examples I found </span></span></span></font></font></font></span><a href="https://dustymabe.com/2016/09/13/sharing-a-go-library-to-python-using-cffi/" target="_blank"><span style="font-variant: normal"><font color="#000000"><span style="text-decoration: none"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal"><span style="background: transparent">used
+the cffi package</span></span></span></span></font></font></span></font></span></a><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">,
+so consumption of the code doesn’t feel like a module, it’s just
+a way to call Go compiled methods. Neither does it have native
+bindings.</span></span></span></font></font></font></span></p>
+<h3 class="western" style="line-height: 140%; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Mono, monospace"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Building
+shared libraries in Go</span></span></span></font></font></span></h3>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">In
+the Go SDK, there is a toolset called </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">cgo</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">,
+which is a way to import C headers and access the types and methods
+described in external libraries.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">It
+also enables you to build shared libraries from Go, and build C
+headers automatically from your methods in Go lang</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Take
+this really simple Go package</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">package
+main</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">import
+&quot;C&quot;</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">//export
+Sum</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">func
+Sum(a, b int) int {</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">	return
+(a + b)</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">}</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">func
+main() {</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">}</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">By
+then running </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">go
+build -buildmode=c-shared -o sum.so sum.go</span></span></span></font></font></font></span></code></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">You
+will see 3 files, </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">sum.go
+sum.h and sum.so</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">.
+The sum.so file is the compiled binary and </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">sum.h</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+is the header to describe what methods and types are defined within
+the binary.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">To
+extend Python by writing modules in C, you need to start by importing
+</span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Python.h</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+and describe a set of boiler plate code in C. Because we’re in Go,
+this becomes trickier and as previous authors have shown, requires C
+macros in Go, or lots of Go code to wrap the methods.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Or
+does it?</span></span></span></font></font></font></span></p>
+<h3 class="western" style="line-height: 140%; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Mono, monospace"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">PyBindGen</span></span></span></font></font></span></h3>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">A
+lot of the work in Filippo’s original article was about the
+bindings. Bindings are like using a HTTP REST API, you need to know
+the names of the methods, the expected parameters and responses.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><a href="_blank"><span style="font-variant: normal"><font color="#000000"><span style="text-decoration: none"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal"><span style="background: transparent">PyBindGen</span></span></span></span></font></font></span></font></span></a><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">,
+a tool which has been around for ages, can create Python module
+bindings for 2 or 3, based on a C or C++ header file. You can include
+the source code in your package and even compile and embed in
+setuptools.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">As
+shown before, we have already built that header file from the Go
+compiler.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">By
+writing a simple </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">build.py</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+script, importing PyBindGen we can ask it to load the </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">sum.h</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">.
+Add it as an import and describe a method in the module called Sum,
+that takes 2 integers, a and b and returns an integer value.</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">from
+pybindgen import retval, param, Module</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">import
+sys</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">mod
+= Module('testsum')</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">mod.add_include('&quot;sum.h&quot;')</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">mod.add_function('Sum',
+retval('int'), [param('int', 'a'), param('int', 'b')])</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">mod.generate(sys.stdout)</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Calling
+build.py will write a Python module in C to the screen. Once this
+module is compiled, it will import the Go-compiled binary and offer
+it as a native Python module. Pipe that to </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">sum.c</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+to create the source code that wraps our binary into a Python module.
+Make sure you </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">pip
+install pybindgen</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+first.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">python
+build.py &gt; sum.c</span></span></span></font></font></font></span></code></p>
+<h3 class="western" style="line-height: 140%; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Mono, monospace"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Compiling
+the module</span></span></span></font></font></span></h3>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Gcc
+needs more flags than the gates of the United Nations, so let’s
+start collecting those. The paths and options for our Python runtime,
+in my case Python 3.6 can be fetched by running </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">python3.6-config
+--cflags</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+and</span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">python3.6-config
+--ldflags</span></span></span></font></font></font></span></code></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Then
+call the GCC compiler to compile the C code, generated by PyBindGen,
+which imports the methods defined in sum.h, which in turn are in the
+sum.so binary.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">gcc
+sum.c -dynamiclib sum.so -o testsum.so {python-flags}</span></span></span></font></font></font></span></code></p>
+<h3 class="western" style="line-height: 140%; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Mono, monospace"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Importing
+and testing the module</span></span></span></font></font></span></h3>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Our
+module has a single method, which sum’s 2 numbers together and
+returns a number. Nice and simple.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">(env)
+bash-3.2$ python<br/>
+Python 3.6.1 (v3.6.1:69c0db5050, Mar 21 2017,
+01:21:04)<br/>
+[GCC 4.2.1 (Apple Inc. build 5666) (dot 3)] on
+darwin<br/>
+Type “help”, “copyright”, “credits” or
+“license” for more information.<br/>
+&gt;&gt;&gt; import
+testsum<br/>
+&gt;&gt;&gt; testsum.Sum(1,2)<br/>
+3</span></span></span></font></font></font></span></code></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">It
+works! Also, </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">help(testsum.Sum)</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+actually tells you what the parameters are and what types they are.</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<img src="Extending_Python_in_Golang_html_850fdbac8d021cbc.png" name="Изображение3" align="left" width="665" height="247" border="0"/>
+<br/>
+
+</p>
+<h3 class="western" align="left"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Mono, monospace"><font size="3" style="font-size: 12pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Something
+a little more complex</span></span></span></font></font></font></span></h3>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">All
+of the tutorials online show a basic sum or arithmetic function,
+which isn’t really that useful. If you read the </span></span></span></font></font></font></span><a href="https://docs.python.org/3/c-api/intro.html" target="_blank"><span style="font-variant: normal"><font color="#000000"><span style="text-decoration: none"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal"><span style="background: transparent">C-API
+documentation</span></span></span></span></font></font></span></font></span></a><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">,
+you’ll see you have access to the common Python types.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">A
+big limitation of </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">cgo</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+is that you can’t export complex types like </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">struct</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+from a function, but who cares! We have Python’s awesome PyObject
+type, which can do </span></span></span></font></font></font></span><a href="https://docs.python.org/3/c-api/structures.html" target="_blank"><span style="font-variant: normal"><font color="#000000"><span style="text-decoration: none"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal"><span style="background: transparent">practically
+anything</span></span></span></span></font></font></span></font></span></a><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">..</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">This
+time around we’re going to write a function which returns a Python
+dictionary. The return type will still be the PyObject pointer, which
+is the catch-all. This time we need to import the types so that the
+Go compiler knows what they are, this is from pkg-config (which we
+referenced earlier in Gcc). Also, because </span></span></span></font></font></font></span><a href="_blank"><span style="font-variant: normal"><font color="#000000"><span style="text-decoration: none"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal"><span style="background: transparent">PyUnicode_FromString</span></span></span></span></font></font></span></font></span></a><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+expects a </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">char
+*</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+we use a function to convert from a Go string.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">We
+will create a key and value of the </span></span></span></font></font></font></span><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">str</span></span></span></font></font></font></span></code><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+Unicode type (this is Python 3 after all).</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">//
+Package sum</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">package
+main</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">//
+#cgo pkg-config: python-3.6</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">//
+#define Py_LIMITED_API</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">//
+#include &lt;Python.h&gt;</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">import
+&quot;C&quot;</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">//export
+Sum</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">func
+Sum(a, b int) int {</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">	return
+(a + b)</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">}</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">//export
+NewDictionary</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">func
+NewDictionary() *C.PyObject {</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">	var
+dict = C.PyDict_New()</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">	C.PyDict_SetItem(</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">		dict,</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">		C.PyUnicode_FromString(C.CString(&quot;key&quot;)),</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">		C.PyUnicode_FromString(C.CString(&quot;value&quot;)))</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">	return
+dict</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">}</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">func
+main() {</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">}</font></font></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="Times Newer Roman, serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Let’s
+test it out, we need to update the build.py file with the new method
+and rebuild the library</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">from
+pybindgen import retval, param, Module</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">import
+sys</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">mod
+= Module('testsum')</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">mod.add_include('&quot;sum.h&quot;')</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">mod.add_function('Sum',
+retval('int'), [param('int', 'a'), param('int', 'b')])</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">mod.add_function('NewDictionary',
+retval('PyObject *', caller_owns_return=False), [])</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">mod.generate(sys.stdout)</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">We
+have specified that the called does not own the return value (i.e.
+the memory) but more information is available on the </span></span></span></font></font></font></span><a href="_blank"><span style="font-variant: normal"><font color="#000000"><span style="text-decoration: none"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal"><span style="background: transparent">documentation</span></span></span></span></font></font></span></font></span></a><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+about how you want to handle garbage collection.</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><code class="western"><span style="font-variant: normal"><font color="#3c3c3b"><font face="monospace, monospace"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">(env)
+bash-3.2$ python<br/>
+Python 3.6.1 (v3.6.1:69c0db5050, Mar 21 2017,
+01:21:04)<br/>
+[GCC 4.2.1 (Apple Inc. build 5666) (dot 3)] on
+darwin<br/>
+Type “help”, “copyright”, “credits” or
+“license” for more information.<br/>
+&gt;&gt;&gt; import
+testsum<br/>
+&gt;&gt;&gt; testsum.NewDictionary()<br/>
+{‘key’:
+‘value’}</span></span></span></font></font></font></span></code></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Next,
+why not see what API’s and packages that are available in Go you
+can start porting across to Python?</span></span></span></font></font></font></span></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">What
+could you achieve with Goroutines? What about the asynchronous API
+that is in Python 3.6? </span></span></span></font></font></font></span><a href="_blank"><span style="font-variant: normal"><font color="#000000"><span style="text-decoration: none"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal"><span style="background: transparent">I
+think it could be possible</span></span></span></span></font></font></span></font></span></a></p>
+<h3 class="western" style="line-height: 140%; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Mono, monospace"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">What
+about performance?</span></span></span></font></font></span></h3>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">I
+put together this slap-dash function to multiply 2 matrixes</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">//export
+MatrixMultiply</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">func
+MatrixMultiply(a, b *C.PyObject) *C.PyObject {</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">	/*</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">	Comments
+- this is slower than in pure Python because of the unpacking</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">	-
+Investigate parallelisation in goroutines</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">	-
+Make sure C.long and C.string's are freed since the pointers are
+owned by Go, not Python</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">	*/</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">	aLen
+:= int(C.PySequence_Length(a))</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">	bLen
+:= int(C.PySequence_Length(b))</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">	outPy
+:= C.PyList_New(C.Py_ssize_t(aLen))</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">	for
+i := 0; i &lt; aLen; i++ {</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">		row
+:= C.PyList_New(C.Py_ssize_t(bLen))</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">		for
+j := 0; j &lt; bLen; j++ {</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">			aRow
+:= C.PySequence_GetItem(a, C.Py_ssize_t(i))</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">			bRow
+:= C.PySequence_GetItem(b, C.Py_ssize_t(j))</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">			var
+val = C.long(C.PyLong_AsLong(C.PySequence_GetItem(aRow,
+C.Py_ssize_t(j))) * C.PyLong_AsLong(C.PySequence_GetItem(bRow,
+C.Py_ssize_t(i))))</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">			C.PyList_SetItem(row,
+C.Py_ssize_t(j), C.PyLong_FromLong(val))</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">		}</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">		C.PyList_SetItem(outPy,
+C.Py_ssize_t(i), row)</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">	}</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">	return
+outPy</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">}</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Interestingly,
+it is </span></span></span></font></font></font></span><em><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">slower</span></span></span></font></font></font></span></em><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">
+in Go/CGo than it is in just native Cpython.</span></span></span></font></font></font></span></p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<br/>
+
+</p>
+<p class="western" align="left" style="margin-bottom: 0cm; line-height: 100%">
+<img src="Extending_Python_in_Golang_html_98b317c3c72880ab.png" name="Изображение4" align="left" width="665" height="111" border="0"/>
+<br/>
+
+</p>
+<p class="western" align="left"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">I’ve
+possibly made some sort of glaring error here. I’m also getting my
+head around the C-API, so this code needs type checks and NULL-ref
+checks, but the idea is there.</span></span></span></font></font></font></span></p>
+<h4 class="western" style="orphans: 2; widows: 2"><span style="font-variant: normal"><font color="#3c3c3b"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal">Still
+stuck on Python 2?</span></span></span></font></font></font></span></h4>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><a href="https://www.pluralsight.com/courses/python-2-to-python-3" target="_blank"><span style="font-variant: normal"><font color="#000000"><span style="text-decoration: none"><font face="IBM Plex Sans, sans-serif"><font size="4" style="font-size: 15pt"><span style="letter-spacing: normal"><span style="font-style: normal"><span style="font-weight: normal"><span style="background: transparent">Check
+out my new course on Pluralsight for moving from Python 2 to 3.</span></span></span></span></font></font></span></font></span></a></p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><br/>
+
+</p>
+<p class="western" style="margin-bottom: 0cm; orphans: 2; widows: 2"><br/>
+
+</p>
+</body>
+</html>

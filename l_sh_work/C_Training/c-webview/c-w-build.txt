@@ -1,0 +1,9 @@
+
+
+# Linux
+$ g++ main.c `pkg-config --cflags --libs gtk+-3.0 webkit2gtk-4.0` -o webview-example
+# MacOS
+$ g++ main.c -std=c++11 -framework WebKit -o webview-example
+# Windows (x64)
+$ g++ main.c -mwindows -L./dll/x64 -lwebview -lWebView2Loader -o webview-example.exe
+

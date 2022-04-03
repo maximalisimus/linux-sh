@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<interface>
+	<requires lib="gtk+" version="2.16"/>
+	<!-- interface-naming-policy project-wide -->
+	<object class="GtkListStore" id="liststore">
+	<columns>
+		<!-- column-name id -->
+		<column type="gint"/>
+		<!-- column-name name -->
+		<column type="gchararray"/>
+		<!-- column-name city -->
+		<column type="gchararray"/>
+		<!-- column-name country -->
+		<column type="gchararray"/>
+	</columns>
+	</object>
+	<object class="GtkWindow" id="window">
+	<property name="title" translatable="yes">TreeView List Example</property>
+	<property name="window_position">center</property>
+	<property name="default_width">440</property>
+	<property name="default_height">250</property>
+	<child>
+	  <object class="GtkVBox" id="vbox1">
+		<property name="visible">True</property>
+		<child>
+		  <object class="GtkScrolledWindow" id="scrolledwindow1">
+			<property name="visible">True</property>
+			<property name="can_focus">True</property>
+			<property name="hscrollbar_policy">automatic</property>
+			<property name="vscrollbar_policy">automatic</property>
+			<child>
+			  <object class="GtkTreeView" id="treeview">
+				<property name="visible">True</property>
+				<property name="can_focus">True</property>
+				<property name="model">liststore</property>
+				<child>
+				  <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+					<property name="title">Name</property>
+					<child>
+					  <object class="GtkCellRendererText" id="cellrenderertext1"/>
+					  <attributes>
+						<attribute name="text">1</attribute>
+					  </attributes>
+					</child>
+				  </object>
+				</child>
+				<child>
+				  <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+					<property name="title">City</property>
+					<child>
+					  <object class="GtkCellRendererText" id="cellrenderertext2"/>
+					  <attributes>
+						<attribute name="text">2</attribute>
+					  </attributes>
+					</child>
+				  </object>
+				</child>
+				<child>
+				  <object class="GtkTreeViewColumn" id="treeviewcolumn3">
+					<property name="title">Country</property>
+					<child>
+					  <object class="GtkCellRendererText" id="cellrenderertext3"/>
+					  <attributes>
+						<attribute name="text">3</attribute>
+					  </attributes>
+					</child>
+				  </object>
+				</child>
+			  </object>
+			</child>
+		  </object>
+		  <packing>
+			<property name="position">0</property>
+		  </packing>
+		</child>
+		<child>
+		  <object class="GtkLabel" id="msg-label">
+			<property name="visible">True</property>
+			<property name="xalign">0</property>
+			<attributes>
+			  <attribute name="weight" value="bold"/>
+			  <attribute name="foreground" value="#30af5549c84f"/>
+			</attributes>
+		  </object>
+		  <packing>
+			<property name="expand">False</property>
+			<property name="padding">2</property>
+			<property name="position">1</property>
+		  </packing>
+		</child>
+	  </object>
+	</child>
+	</object>
+</interface>

@@ -1,0 +1,108 @@
+﻿package main
+
+import (
+    "fmt"
+    "log"
+    "os/exec"
+)
+
+func main() {
+    out, err := exec.Command("date").Output()
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("The date is %s\n", out)
+}
+
+
+
+
+
+package main
+
+import (
+	"fmt"
+	"log"
+	"os/exec"
+	"strings"
+)
+
+func main() {
+
+	cmd := exec.Command("ls", "-lha")
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr    
+	cmd.Run()
+
+	out, err := cmd.Output()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+    fmt.Println(string(out))
+}
+
+
+
+
+
+
+
+func Run(name string, args ...string) os.Error { 
+  cmd := Command(name, args...) 
+  cmd.Stdin = os.Stdin 
+  cmd.Stdout = os.Stdout 
+  cmd.Stderr = os.Stderr 
+  cmd.Env = os.Environ() 
+  return cmd.Run() 
+}
+
+
+
+
+
+import (
+    "os/exec"
+    "os"
+    "syscall"
+)
+
+func main() {
+    mail, lookErr := exec.LookPath("mail")
+    if lookErr != nil {
+        panic(lookErr)
+    }
+
+    args := []string{ "-v -s \"This is the subject\" my@mail.ru <<< 'This is the message'"}
+
+    env := os.Environ()
+
+    execErr := syscall.Exec(mail, args, env)
+    if execErr != nil {
+        panic(execErr)
+    }
+}
+
+
+
+
+
+
+
+
+f, err := os.Open("f1")
+if err != nil {
+    log.Fatal(err)
+}
+defer f.Close()
+
+cmd := exec.Command("mail", "-s", "Subj", "user@example.com")
+cmd.Stdin = f
+cmd.Stdout = os.Stdout
+cmd.Stderr = os.Stderr
+err = cmd.Run()
+if err != nil {
+    log.Fatal(err)
+}

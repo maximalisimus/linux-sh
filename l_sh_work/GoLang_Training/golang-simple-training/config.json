@@ -1,0 +1,10 @@
+{
+  "timeout": 40.42,
+  "pluginsPath": "~/plugins/etc",
+  "window": {
+    "width": 500,
+    "height": 200,
+    "x": 20,
+    "y": 20
+  }
+}

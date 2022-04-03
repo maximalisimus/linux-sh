@@ -1,0 +1,131 @@
+
+
+Go для системных администраторов. Практические примеры. Часть 0
+
+Здравствуйте, меня зовут Виталий и я обезьяна практик — 
+для меня лучше один раз увидеть и скопировать, чем сто раз прочитать абстрактные руководства. 
+Долгое время я был обычным системным администратором — 
+писал скрипты на CMD/BAT, и даже на sh (при помощи busybox для Windows). 
+Но однажды обычного shell мне стало не хватать, и я решил для себя написать собственный RPC-сервер, 
+но так, чтобы он работал при минимуме системных компонентов, и был понятным, и был многопоточным и содержал минимум строк кода. 
+Java и прочее ООП я отмел, так как для профессионалов, и слишком абстрактно, и надо ставить среду для выполнения на целевой компьютер, 
+и мне же, как админу, её обновлять. Долгое время приглядывался к perl, но я боюсь динамической типизации. 
+В статье я расскажу, как человеку мало знакомому с программированием решить некоторые задачи системного администрирования при помощи Go.
+
+Я предполагаю, что вы осилили «Быстрый старт – программируем на Go под Windows — настройка Environment», 
+имеете опыт написания простейших скриптов. А еще я соврал. На целевой машине может потребоваться Microsoft Visual C++.
+
+Для начала мы попробуем превратить простой скрипт в приложение на Go. Для примера возьмем test.bat:
+
+@echo off
+set URL1="ftp://user:pass@88.88.88.88/test.zip"
+set URL2="ftp://user1:pass1@99.99.99.99/exchange/test.zip"
+set SAVE_PATH=".\test\test.zip"
+echo Первый источник
+curl %URL1% -o %SAVE_PATH%
+if %errorlevel% NEQ 0 (
+echo  Загрузка из первого источника закончилась с ошибкой: %errorlevel%
+curl %URL2% -o %SAVE_PATH%
+)
+
+Минутка любви к Microsoft. Если я хочу проверить, скачался ли файл из второго источника, то я должен использовать GOTO, 
+т. к. внутри IF и FOR %errorlevel% и %time% остаются такими же как перед вызовом IF и FOR.
+
+Примерно так будет выглядеть наш скрипт на Go:
+
+package main
+
+import (
+	"fmt"
+	"os"
+	"os/exec"
+)
+
+func main() {
+	url1 := "ftp://user:pass@88.88.88.88/test.zip"
+	url2 := "ftp://user1:pass1@99.99.99.99/exchange/test.zip"
+	out_file := ".\\test\\test.zip"     //В Go бэкслэш используется для экранирования, так что в пути windows его придется удваивать.
+	err := start_curl(url1, out_file)
+	if err != nil {
+		fmt.Printf("Загрузка из первого источника закончилась с ошибкой: %v\r\n", err)
+		err = start_curl(url2, out_file)
+		if err != nil {
+			fmt.Printf("Загрузка из второго источника закончилась с ошибкой: %v\r\n", err)
+			os.Exit(1)
+		}
+	}
+	fmt.Printf("Загрузка успешно завершена\r\n")
+}
+
+func start_curl(url string, out_file string) error {
+	cmd := exec.Command("curl", url, "-o", out_file)
+	err := cmd.Run()
+	return err
+}
+
+Запустить мы запустили, но для отладки неплохо было бы увидеть, что выдает curl в stderr/stdout. 
+
+Кстати, curl все выдает в stderr:
+
+func start_curl(url string, out_file string) error {
+	cmd := exec.Command("curl", url, "-o", out_file)
+	//cmd.Stdout = os.Stdout     //Закомментировать строку можно можно двумя слэшами.
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	return err
+}
+
+При ошибке функция start_curl() возвращает что-то вроде «exit code 7». 
+А нам бы хотелось получить код возврата в виде числа. 
+Мы можем отрезать строку «exit_code » и и преобразовать строку «7» в число7. 
+Для этого придется импортировать пакеты «strings» и «strconv». 
+
+Но есть более простой, и менее понятный способ:
+
+package main
+
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"syscall"
+)
+
+func main() {
+	url1 := "ftp://user:pass@88.88.88.88/test.zip"
+	url2 := "ftp://user1:pass1@99.99.99.99/exchange/test.zip"
+	out_file := ".\\test\\test.zip"
+	int_err := start_curl(url1, out_file)
+	if int_err != 0 {
+		fmt.Printf("Загрузка из первого источника закончилась с ошибкой: %d\r\n", int_err)
+		int_err = start_curl(url2, out_file)
+		if int_err != 0 {
+			fmt.Printf("Загрузка из второго источника закончилась с ошибкой: %d\r\n", int_err)
+			os.Exit(int_err)
+		}
+	}
+	fmt.Printf("Загрузка успешно завершена\r\n")
+}
+
+func start_curl(url string, out_file string) int {
+	var exit_code int
+	cmd := exec.Command("curl", url, "-o", out_file)
+	//cmd.Stdout = os.Stdout
+	//cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		exit_code = int(err.(*exec.ExitError).Sys().(syscall.WaitStatus).ExitCode)
+	} else {
+		exit_code = 0
+	}
+	return exit_code
+}
+
+На сегодня все. Компилятор соберет нам готовый exe-файл. Бояться большого размера (несколько мегабайт) не нужно. 
+В этот файл будут собраны минимальная среда исполнения и все необходимые пакеты. 
+Потребление памяти приложением на Go раза в два меньше чем у perl или python(если мы конечно говорим о небольших приложениях). 
+
+
+
+
+

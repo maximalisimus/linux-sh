@@ -1,0 +1,12 @@
+
+
+export GO111MODULE=on
+
+# go mod init MyAppProjectName
+# Example:
+go mod init myapp
+go mod tidy
+
+
+
+

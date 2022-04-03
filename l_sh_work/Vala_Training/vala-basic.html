@@ -1,0 +1,359 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 7.2.2.2 (Linux)"/>
+	<meta name="created" content="2020-04-09T22:39:19"/>
+	<meta name="changed" content="2021-11-17T21:52:58"/>
+	<meta name="AppVersion" content="15.0000"/>
+	<style type="text/css">
+		@page { size: 21.59cm 27.94cm; margin: 2cm }
+		p { color: #000000; line-height: 115%; text-align: left; orphans: 2; widows: 2; margin-bottom: 0.25cm; direction: ltr; background: transparent }
+		p.western { font-family: "Liberation Serif", serif; font-size: 12pt; so-language: ru-RU }
+		p.cjk { font-family: "AR PL New Sung"; font-size: 12pt; so-language: zh-CN }
+		p.ctl { font-family: "DejaVu Sans"; font-size: 12pt; so-language: hi-IN }
+		h1 { color: #000000; text-align: left; orphans: 2; widows: 2; margin-bottom: 0.21cm; direction: ltr; background: transparent; page-break-after: avoid }
+		h1.western { font-family: "Liberation Serif", sans-serif; font-size: 24pt; so-language: ru-RU; font-weight: bold }
+		h1.cjk { font-family: "AR PL New Sung"; font-size: 24pt; so-language: zh-CN; font-weight: bold }
+		h1.ctl { font-family: "DejaVu Sans"; font-size: 24pt; so-language: hi-IN; font-weight: bold }
+		h2 { color: #000000; text-align: left; orphans: 2; widows: 2; margin-top: 0.35cm; margin-bottom: 0.21cm; direction: ltr; background: transparent; page-break-after: avoid }
+		h2.western { font-family: "Liberation Serif", sans-serif; font-size: 18pt; so-language: ru-RU; font-weight: bold }
+		h2.cjk { font-family: "AR PL New Sung"; font-size: 18pt; so-language: zh-CN; font-weight: bold }
+		h2.ctl { font-family: "DejaVu Sans"; font-size: 18pt; so-language: hi-IN; font-weight: bold }
+		h3 { color: #000000; text-align: left; orphans: 2; widows: 2; margin-top: 0.25cm; margin-bottom: 0.21cm; direction: ltr; background: transparent; page-break-after: avoid }
+		h3.western { font-family: "Liberation Serif", sans-serif; font-size: 14pt; so-language: ru-RU; font-weight: bold }
+		h3.cjk { font-family: "AR PL New Sung"; font-size: 14pt; so-language: zh-CN; font-weight: bold }
+		h3.ctl { font-family: "DejaVu Sans"; font-size: 14pt; so-language: hi-IN; font-weight: bold }
+		a:link { color: #000080; so-language: zxx; text-decoration: underline }
+	</style>
+</head>
+<body lang="ru-RU" text="#000000" link="#000080" vlink="#800000" dir="ltr"><h1 class="western" align="left">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Std</font></font></h1>
+<p class="western" style="margin-bottom: 0cm">Std means GLib</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<h2 class="western" align="left"><a name="hello-world"></a><font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Hello
+world</font></font></h2>
+<p class="western" style="margin-bottom: 0cm">print (&quot;hello,
+world\n&quot;); 
+</p>
+<p class="western" style="margin-bottom: 0cm">//If you don't need to
+allocate memory in the heap then main is not needed</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<h2 class="western" align="left"><a name="reading_user_input"></a><font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">User
+Input</font></font></h2>
+<p class="western" style="margin-bottom: 0cm">stdout.printf (@&quot;Your
+name is : $(stdin.read_line ())&quot;);</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<h2 class="western" align="left"><a name="mathematics"></a><font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Mathematics</font></font></h2>
+<p class="western" style="margin-bottom: 0cm">stdout.printf (&quot;Please
+enter the radius of a circle: &quot;);</p>
+<p class="western" style="margin-bottom: 0cm">double radius =
+double.parse (stdin.read_line ());</p>
+<p class="western" style="margin-bottom: 0cm">stdout.printf
+(&quot;Circumference: %g\n&quot;, 2 * Math.PI * radius);</p>
+<p class="western" style="margin-bottom: 0cm">stdout.printf
+(&quot;sin(pi/2) = %g\n&quot;, Math.sin (Math.PI / 2));</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<h2 class="western" align="left"><a name="random-numbers"></a><font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Random
+Numbers</font></font></h2>
+<p class="western" style="margin-bottom: 0cm">var rand =
+Random.int_range (1, 49);</p>
+<p class="western">Copied!</p>
+<h2 class="western"><a name="reading_and_writing_text_file_content"></a>
+Reading and Writing Text File Content</h2>
+<p class="western" style="margin-bottom: 0cm">// Writing</p>
+<p class="western" style="margin-bottom: 0cm">string content =
+&quot;hello, world&quot;;</p>
+<p class="western" style="margin-bottom: 0cm">FileUtils.set_contents
+(&quot;data.txt&quot;, content);</p>
+<p class="western" style="margin-bottom: 0cm">// Reading</p>
+<p class="western" style="margin-bottom: 0cm">string read;</p>
+<p class="western" style="margin-bottom: 0cm">FileUtils.get_contents
+(&quot;data.txt&quot;, out read);</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<h2 class="western" align="left"><a name="spawning_processes"></a><font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Spawning
+Processes</font></font></h2>
+<p class="western" style="margin-bottom: 0cm">string output;</p>
+<p class="western" style="margin-bottom: 0cm">Process.spawn_command_line_sync
+(&quot;ls&quot;, ref output); // now output is result of ls</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<h2 class="western" align="left"><a name="timer"></a><font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Timer</font></font></h2>
+<p class="western" style="margin-bottom: 0cm">Timer timer = new Timer
+();</p>
+<p class="western" style="margin-bottom: 0cm">stdout.printf
+(@&quot;$(timer.elapsed()) sec elapsed&quot;);// 0 sec elapsed</p>
+<p class="western">Copied!</p>
+<h2 class="western"><a name="os-specific"></a>OS Specific</h2>
+<p class="western" style="margin-bottom: 0cm">Environment.get_current_dir();</p>
+<p class="western" style="margin-bottom: 0cm">Environment.get_real_name();</p>
+<p class="western" style="margin-bottom: 0cm">Environment.get_system_config_dirs();</p>
+<p class="western" style="margin-bottom: 0cm">Environment.get_user_config_dir();</p>
+<p class="western" style="margin-bottom: 0cm">Environment.get_application_name();</p>
+<p class="western" style="margin-bottom: 0cm">Environment.get_home_dir();</p>
+<p class="western" style="margin-bottom: 0cm">...</p>
+<p class="western" style="margin-bottom: 0cm">//Windows specific</p>
+<p class="western" style="margin-bottom: 0cm">Win32.is_nt_based();</p>
+<p class="western" style="margin-bottom: 0cm">Win32.OSType.SERVER;//enum</p>
+<p class="western" style="margin-bottom: 0cm">Win32.get_windows_version();</p>
+<p class="western" style="margin-bottom: 0cm">Win32.getlocale();</p>
+<p class="western" style="margin-bottom: 0cm">Win32.get_package_installation_directory_of_module(hmodule);//hmodule
+is pointer</p>
+<p class="western" style="margin-bottom: 0cm">...</p>
+<p class="western" style="margin-bottom: 0cm">//Linux specific</p>
+<p class="western" style="margin-bottom: 0cm">Linux.Network.ifMap.port;</p>
+<p class="western" style="margin-bottom: 0cm">Linux. anything from
+linux.h;</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<h2 class="western" align="left"><a name="network"></a><font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Network</font></font></h2>
+<p class="western" style="margin-bottom: 0cm">Get Twitter Status</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<h3 class="western" align="left"><a name="soup-library"></a><font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Soup
+Library</font></font></h3>
+<p class="western" style="margin-bottom: 0cm">using Soup;</p>
+<p class="western" style="margin-bottom: 0cm">void main () {</p>
+<p class="western" style="margin-bottom: 0cm">// add your twitter
+username</p>
+<p class="western" style="margin-bottom: 0cm">string username =
+&quot;gnome&quot;;</p>
+<p class="western" style="margin-bottom: 0cm">// format the URL to
+use the username as the filename</p>
+<p class="western" style="margin-bottom: 0cm">string url =
+&quot;http://twitter.com/users/%s.xml&quot;.printf (username);</p>
+<p class="western" style="margin-bottom: 0cm">// create an HTTP
+session to twitter</p>
+<p class="western" style="margin-bottom: 0cm">var session = new
+Soup.Session ();</p>
+<p class="western" style="margin-bottom: 0cm">var message = new
+Soup.Message (&quot;GET&quot;, url);</p>
+<p class="western" style="margin-bottom: 0cm">// send the HTTP
+request and wait for response</p>
+<p class="western" style="margin-bottom: 0cm">session.send_message
+(message);</p>
+<p class="western" style="margin-bottom: 0cm">// output the XML
+result to stdout 
+</p>
+<p class="western" style="margin-bottom: 0cm">stdout.write
+(message.response_body.data);</p>
+<p class="western" style="margin-bottom: 0cm">}// to run: vala --pkg
+libsoup-2.4 filename</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<h3 class="western" align="left"><a name="gio-vala-standart-input-output-library"></a>
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">GIO
+(Vala standart input output library)</font></font></h3>
+<p class="western" style="margin-bottom: 0cm">Async Server Example</p>
+<p class="western" style="margin-bottom: 0cm">bool
+on_incoming_connection (SocketConnection conn) {</p>
+<p class="western" style="margin-bottom: 0cm">stdout.printf (&quot;Got
+incoming connection\n&quot;);</p>
+<p class="western" style="margin-bottom: 0cm">// Process the request
+asynchronously</p>
+<p class="western" style="margin-bottom: 0cm">process_request.begin
+(conn);// u can call .begin on async funcs</p>
+<p class="western" style="margin-bottom: 0cm">return true;</p>
+<p class="western" style="margin-bottom: 0cm">}</p>
+<p class="western" style="margin-bottom: 0cm">// Note the async
+keyword</p>
+<p class="western" style="margin-bottom: 0cm">async void
+process_request (SocketConnection conn) {</p>
+<p class="western" style="margin-bottom: 0cm">try {</p>
+<p class="western" style="margin-bottom: 0cm">var dis = new
+DataInputStream (conn.input_stream);</p>
+<p class="western" style="margin-bottom: 0cm">var dos = new
+DataOutputStream (conn.output_stream);</p>
+<p class="western" style="margin-bottom: 0cm">string req = yield
+dis.read_line_async (Priority.HIGH_IDLE);</p>
+<p class="western" style="margin-bottom: 0cm">dos.put_string (&quot;Got:
+%s\n&quot;.printf (req));</p>
+<p class="western" style="margin-bottom: 0cm">} catch (Error e) {</p>
+<p class="western" style="margin-bottom: 0cm">stderr.printf (&quot;%s\n&quot;,
+e.message);</p>
+<p class="western" style="margin-bottom: 0cm">}</p>
+<p class="western" style="margin-bottom: 0cm">}</p>
+<p class="western" style="margin-bottom: 0cm">void main () {</p>
+<p class="western" style="margin-bottom: 0cm">try {</p>
+<p class="western" style="margin-bottom: 0cm">var srv = new
+SocketService ();</p>
+<p class="western" style="margin-bottom: 0cm">srv.add_inet_port
+(3333, null);</p>
+<p class="western" style="margin-bottom: 0cm">srv.incoming.connect
+(on_incoming_connection);</p>
+<p class="western" style="margin-bottom: 0cm">srv.start ();</p>
+<p class="western" style="margin-bottom: 0cm">new MainLoop ().run ();</p>
+<p class="western" style="margin-bottom: 0cm">} catch (Error e) {</p>
+<p class="western" style="margin-bottom: 0cm">stderr.printf (&quot;%s\n&quot;,
+e.message);</p>
+<p class="western" style="margin-bottom: 0cm">}</p>
+<p class="western" style="margin-bottom: 0cm">}</p>
+<p class="western" style="margin-bottom: 0cm">//</p>
+<p class="western" style="margin-bottom: 0cm">Copied!</p>
+<p class="western" style="margin-bottom: 0cm">Connect to localhost
+via netcat or telnet on port 3333 and issue a command ending with a
+newline. echo &quot;blub&quot; | nc localhost 3333</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<h2 class="western" align="left"><a name="signals-with-data-qt-like"></a>
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Signals
+with data (Qt like)</font></font></h2>
+<p class="western" style="margin-bottom: 0cm">public class
+SignalTest: Object {</p>
+<p class="western" style="margin-bottom: 0cm">public signal void
+sig_1(int a);</p>
+<p class="western" style="margin-bottom: 0cm">string to_string(){
+return &quot;hello from SignalTest\n&quot;;}</p>
+<p class="western" style="margin-bottom: 0cm">}</p>
+<p class="western" style="margin-bottom: 0cm">//The first argument is
+always the object that caused the signal.</p>
+<p class="western" style="margin-bottom: 0cm">void main() {</p>
+<p class="western" style="margin-bottom: 0cm">var t1 = new
+SignalTest();</p>
+<p class="western" style="margin-bottom: 0cm">t1.sig_1.connect((t, a)
+=&gt; { print(@&quot;$a $t\n&quot;); });</p>
+<p class="western" style="margin-bottom: 0cm">t1.sig_1(5);</p>
+<p class="western" style="margin-bottom: 0cm">}</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<h2 class="western" align="left"><a name="native-regular-expression-literals"></a>
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Native
+Regular Expression Literals</font></font></h2>
+<p class="western" style="margin-bottom: 0cm">string email =
+&quot;tux@kernel.org&quot;;</p>
+<p class="western" style="margin-bottom: 0cm">if
+(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.match(email))</p>
+<p class="western" style="margin-bottom: 0cm">stdout.printf(&quot;Valid
+email address\n&quot;);</p>
+<p class="western" style="margin-bottom: 0cm">var r =
+/(foo|bar|cow)/;</p>
+<p class="western" style="margin-bottom: 0cm">var o = r.replace
+(&quot;this foo is great&quot;, -1, 0, &quot;thing&quot;);</p>
+<p class="western" style="margin-bottom: 0cm">print (o);//this thing
+is great</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<h2 class="western" align="left"><a name="structs"></a><font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Structs</font></font></h2>
+<p class="western" style="margin-bottom: 0cm">Структуры
+выделяются на стеке Memory for structs is allocated
+on the Stack.</p>
+<p class="western" style="margin-bottom: 0cm"><br/>
+
+</p>
+<p class="western" style="margin-bottom: 0cm">struct Klass{</p>
+<p class="western" style="margin-bottom: 0cm">int a;</p>
+<p class="western" style="margin-bottom: 0cm">int b;</p>
+<p class="western" style="margin-bottom: 0cm">public
+Klass(){print(&quot;Constructor\n&quot;);}</p>
+<p class="western" style="margin-bottom: 0cm">}</p>
+<p class="western" style="margin-bottom: 0cm">struct Sas: Klass{</p>
+<p class="western" style="margin-bottom: 0cm">public
+Sas.with_args(int _a = 2, int _b = 3){a = _a; b = _b;}</p>
+<p class="western" style="margin-bottom: 0cm">public int sum(){return
+base.a + base.b;}//base here mean Klass</p>
+<p class="western" style="margin-bottom: 0cm">}</p>
+<p class="western" style="margin-bottom: 0cm">void main () {</p>
+<p class="western" style="margin-bottom: 0cm">Sas sas = {5,6};</p>
+<p class="western" style="margin-bottom: 0cm">var sus = Sas() {a =
+5,b = 6};</p>
+<p class="western" style="margin-bottom: 0cm">var ses =
+Sas.with_args(5,6);</p>
+<p class="western" style="margin-bottom: 0cm">prin(sas.sum(),&quot;
+&quot;,sus.sum(),&quot; &quot;,ses.sum());</p>
+<p class="western" style="margin-bottom: 0cm">}</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+</body>
+</html>

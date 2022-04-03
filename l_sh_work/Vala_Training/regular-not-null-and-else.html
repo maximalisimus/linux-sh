@@ -1,0 +1,281 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 7.2.2.2 (Linux)"/>
+	<meta name="created" content="2020-04-09T22:39:19"/>
+	<meta name="changed" content="2021-11-18T00:10:12"/>
+	<meta name="AppVersion" content="15.0000"/>
+	<style type="text/css">
+		@page { size: 21.59cm 27.94cm; margin: 2cm }
+		p { color: #000000; line-height: 115%; text-align: left; orphans: 2; widows: 2; margin-bottom: 0.25cm; direction: ltr; background: transparent }
+		p.western { font-family: "Liberation Serif", serif; font-size: 12pt; so-language: ru-RU }
+		p.cjk { font-family: "AR PL New Sung"; font-size: 12pt; so-language: zh-CN }
+		p.ctl { font-family: "DejaVu Sans"; font-size: 12pt; so-language: hi-IN }
+	</style>
+</head>
+<body lang="ru-RU" text="#000000" link="#000080" vlink="#800000" dir="ltr"><p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="center" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt"><b>Строгий
+не null режим(Rust mode)</b></font></font></p>
+<p class="western" align="center" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Если
+вы компилируете ваш код с ключом
+--enable-experimental-non-null, то компилятор Vala будет
+строго проверять каждый тип на не null,
+если только явно не объявлено обратное
+с помощью вопросительного знака:</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Object
+o1 = new Object(); // не может быть null</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Object?
+o2 = new Object(); // может быть null</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Компилятор
+будет следить за тем, чтобы ссылки,
+которые могут содержать null не были
+присвоены ссылкам, которые не могут
+быть null, т.е. такого рода присвоения
+будут невозможны:</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">o1
+= o2;</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">o2
+может быть null, а о1 объявлен нe null, поэтому
+такое присвоение запрещено. Тем не
+менее, вы можете переопределить такое
+поведение с помощью приведения ссылки
+к не null, если есть уверенность, что о2 не
+null:</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">o1
+= (!) o2;</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Строгая
+проверка в не null режиме помогает избежать
+использования нежелательного использования
+null ссылок. Эта возможность покажет свой
+потенциал полностью, если все типы в
+биндингах будут отмечены на предмет
+содержания null ccылок правильным образом,
+что пока еще встречается редко.</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="center" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt"><b>Литералы
+регулярных выражений(regexp)</b></font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Регулярные
+выражения - это мощное средство поиска
+по шаблону в строках. Vala имеет
+экспериментальную поддержку литералов
+для регулярных выражений. Например:</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">string
+email = &quot;tux@kernel.org&quot;;</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">if
+(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.match(email)) {</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+    <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">stdout.printf(&quot;Valid
+email address\n&quot;);</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">}</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">i
+в конце делает выражение не чувствительным
+к регистру. Вы можете хранить регулярное
+выражение в переменной типа Regex:</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Regex
+regex = /foo/;</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">A
+example of regular expression replacement:</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">var
+r = /(foo|bar|cow)/;</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">var
+o = r.replace (&quot;this foo is great&quot;, -1, 0, &quot;thing&quot;);</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">print
+(&quot;%s\n&quot;, o);</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">The
+following trailing characters can be used:</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+• <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">i,
+letters in the pattern match both upper- and lowercase letters</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+• <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">m,
+the &quot;start of line&quot; and &quot;end of line&quot; constructs
+match immediately following or immediately before any newline in the
+string, respectively, as well as at the very start and end.</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+• <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">s,
+a dot metacharater . in the pattern matches all characters, including
+newlines. Without it, newlines are excluded.</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+• <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">x,
+whitespace data characters in the pattern are totally ignored except
+when escaped or inside a character class.</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="center" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt"><b>Цепочки
+связанных выражений</b></font></font></p>
+<p class="western" align="center" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Эта
+возможность позволяет писать сложные
+связанные выражения типа</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">if
+(1 &lt; a &amp;&amp; a &lt; 5) {}</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">if
+(0 &lt; a &amp;&amp; a &lt; b &amp;&amp; b &lt; c &amp;&amp; c &lt; d
+&amp;&amp; d &lt; 255) {</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+    <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">//
+do something</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">}</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">в
+более естественном виде</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">if
+(1 &lt; a &lt; 5) {}</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">if
+(0 &lt; a &lt; b &lt; c &lt; d &lt; 255) {</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+    <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">//
+что-то делаем</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">}</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+</body>
+</html>

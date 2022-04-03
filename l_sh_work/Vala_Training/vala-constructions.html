@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 7.2.2.2 (Linux)"/>
+	<meta name="created" content="2020-04-09T22:39:19"/>
+	<meta name="changed" content="2021-11-17T22:05:15"/>
+	<meta name="AppVersion" content="15.0000"/>
+	<style type="text/css">
+		@page { size: 21.59cm 27.94cm; margin: 2cm }
+		p { color: #000000; line-height: 115%; text-align: left; orphans: 2; widows: 2; margin-bottom: 0.25cm; direction: ltr; background: transparent }
+		p.western { font-family: "Liberation Serif", serif; font-size: 12pt; so-language: ru-RU }
+		p.cjk { font-family: "AR PL New Sung"; font-size: 12pt; so-language: zh-CN }
+		p.ctl { font-family: "DejaVu Sans"; font-size: 12pt; so-language: hi-IN }
+	</style>
+</head>
+<body lang="ru-RU" text="#000000" link="#000080" vlink="#800000" dir="ltr"><p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">while
+(a &gt; b) { a--; }</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">будет
+постоянно уменьшать a , проверяя перед
+каждой итерацией, что a больше b.</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">do
+{ a--; } while (a &gt; b);</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">будет
+постоянно уменьшать a, проверяя после
+каждой итерации, что a больше b.</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">for
+(int a = 0; a &lt; 10; a++) { stdout.printf(&quot;%d\n&quot;, a); }</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">инициализирует
+a нулем, затем постоянно выводит значение
+a до тех пор, пока a меньше десяти,
+увеличивая a в каждой итерации.</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">foreach
+(int a in int_array) { stdout.printf(&quot;%d\n&quot;, a); }</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">будет
+выводить каждое число из массива или
+другой перечисляемой коллекции. Смысл
+слова &quot;перечисляемой&quot; будет описан
+позже.</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Все
+четыре типа циклов могут управляться
+ключевыми словами break и continue. Выражение
+break вызовет немедленное завершение
+цикла, continue указывает, что надо перейти
+к следующей итерации.</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">if
+(a &gt; 0) { stdout.printf(&quot;a is greater than 0\n&quot;); }</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">else
+if (a &lt; 0) { stdout.printf(&quot;a is less than 0\n&quot;); }</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">else
+{ stdout.printf(&quot;a is equal to 0\n&quot;); }</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">выполнит
+определенную часть кода, основываясь
+на наборе условий. Первое условие,
+соответственно, решает, какой код будет
+выполнен; если a больше нуля, то проверка
+меньше ли a нуля производится не будет.
+Можно добавлять любое количество блоков
+else if и один или ноль блоков else.</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">switch
+(a) {</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+    <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">case
+1:</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+        <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">stdout.printf(&quot;one\n&quot;);</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+        <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">break;</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+    <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">case
+2:</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+    <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">case
+3:</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+        <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">stdout.printf(&quot;two
+or three\n&quot;);</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+        <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">break;</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+    <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">default:</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+        <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">stdout.printf(&quot;unknown\n&quot;);</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+    <font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">break;</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">}</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Выражение
+switch выполняет точно одну или ноль секций
+кода, в зависимости от переданного
+значения. В Vala нет &quot;проваливания&quot;
+от одного case к другому, кроме случаев,
+когда после case нет кода. Чтобы обеспечить
+это, каждый непустой case должен заканчиваться
+выражением break, return или throw. Возможно
+использование выражений switch со строками.</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<font face="Times Newer Roman, serif"><font size="3" style="font-size: 12pt">Замечание
+для C-программистов: условия всегда
+должны возвращать логическое значение.
+Это значит, что если вы хотите проверить
+переменную на равенство null или нулю, вы
+должны сделать это явно: if (object != null) { }
+или if (number != 0) { }.</font></font></p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+<p class="western" align="left" style="line-height: 100%; margin-bottom: 0cm">
+<br/>
+
+</p>
+</body>
+</html>
