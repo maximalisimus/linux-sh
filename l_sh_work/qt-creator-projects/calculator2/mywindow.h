@@ -11,6 +11,10 @@
 #include <QLineEdit>
 #include <QEvent>
 
+#ifndef COPY_H
+#define COPY_H "wqkgTWlrbCBBcnRhbW9ub3Y="
+#endif
+
 class QLCDNumber;
 class QLineEdit;
 class QEvent;

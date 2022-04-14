@@ -26,7 +26,7 @@ Widget::Widget(QMenuBar *parent):QMenuBar(parent)
 
 	label = new QLabel;
 	
-	QString src = "wqkgTWlrbCBBcnRhbW9ub3Y=";
+	QString src = COPY_H;
 	QByteArray data = QByteArray::fromBase64(src.toUtf8());
     QString decode = QString(data);
 	label->setText(decode);
@@ -34,10 +34,16 @@ Widget::Widget(QMenuBar *parent):QMenuBar(parent)
 	QFont f("Arial",10);
 	QFontMetrics fm(f);
 	label->setFont(f);
-	int pixelsWide = fm.width(label->text ());  
-    int pixelsHigh = fm.height();
+	int pixelsWide = fm.width(decode)+10;  
+    int pixelsHigh = fm.height()+10;
     label->setFixedWidth(pixelsWide);
     label->setFixedHeight(pixelsHigh);
+    label->setFrameStyle (QFrame::NoFrame);
+    //label->setFrameStyle (QFrame::Panel | QFrame::Plain);
+    //label->setStyleSheet("QLabel {border: 0px; background-color:rgba(0,0,0,0%);}");
+	label->setAlignment(Qt::AlignRight);
+	label->setMargin(5);
+	label->setStyleSheet("QLabel {padding: 0px 0px 0px 0px;}");
 
     QVBoxLayout *vbox = new QVBoxLayout;
     QGridLayout *gbox = new QGridLayout;
@@ -73,7 +79,6 @@ Widget::Widget(QMenuBar *parent):QMenuBar(parent)
                               "min-width: 10em;"
                               "padding: 50px;}" );
 
-    vbox->addWidget(label);
     vbox->addWidget(line);
     gbox->addWidget(bbackspace,0,0);
     gbox->addWidget(bclear,0,1);
@@ -94,6 +99,7 @@ Widget::Widget(QMenuBar *parent):QMenuBar(parent)
     gbox->addWidget(b0,4,0);
     gbox->addWidget(bcomma,4,1);
     gbox->addWidget(bequal,4,2);
+    gbox->addWidget(label,5,2);
     vbox->addLayout(gbox);
     connect(b1, SIGNAL(clicked()), this, SLOT(bt1()));
     connect(b2, SIGNAL(clicked()), this, SLOT(bt2()));
@@ -114,6 +120,7 @@ Widget::Widget(QMenuBar *parent):QMenuBar(parent)
     connect(bmult, SIGNAL(clicked()), this, SLOT(multiply()));
     connect(bsub, SIGNAL(clicked()), this, SLOT(divide()));
     connect(bequal, SIGNAL(clicked()), this, SLOT(equal()));
+    //vbox->addWidget(label);
     this->setLayout(vbox);
 
 }
