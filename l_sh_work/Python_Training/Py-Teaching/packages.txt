@@ -1,0 +1,4 @@
+
+
+numpy scipy matplotlib networkx altgraph pyinstaller pyinstaller-hooks-contrib PyQT5 PyQT5-sip PyQT5-QT PyQT5-QT5
+
