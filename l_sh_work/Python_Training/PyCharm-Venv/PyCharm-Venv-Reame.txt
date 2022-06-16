@@ -14,7 +14,7 @@ if [ -r ".pycharm/term-activate" ]; then
    source activate $PYCHARM_VENV
 fi
 # wait
-# cd cd Project-PyCharm/Project-1/
+# cd Project-PyCharm/Project-1/
 
 
 
