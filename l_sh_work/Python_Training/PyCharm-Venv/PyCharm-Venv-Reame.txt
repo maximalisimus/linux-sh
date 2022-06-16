@@ -1,0 +1,38 @@
+
+
+https://askdev.ru/q/kak-aktivirovat-virtualenv-vnutri-terminala-pycharm-26794/
+
+~/.pycharmrc
+
+if [ -r ".pycharm/term-activate" ]; then
+   echo "Terminal activation hook detected."
+   echo "Loading Bash profile..."
+   source ~/.bash_profile
+   # source ~/.bashrc
+   echo "Activating terminal hook..."
+   source ".pycharm/term-activate"
+   source activate $PYCHARM_VENV
+fi
+# wait
+# cd cd Project-PyCharm/Project-1/
+
+
+
+PyCharm "Tools - > Terminal - > Shell Path"
+/bin/bash --rcfile ~/.pycharmrc
+# /bin/bash --rcfile ~/PyCharm-Projects/vkr/.pycharmrc
+
+
+
+$ cd Project-PyCharm
+$ mkdir .pycharm/
+$ touch .pycharm/term-activate
+
+export PYCHARM_VENV=<your-virtual-env-name>
+
+
+
+
+
+
+
