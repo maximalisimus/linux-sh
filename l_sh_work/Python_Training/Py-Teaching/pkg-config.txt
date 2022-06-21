@@ -1,0 +1,6 @@
+
+
+pkg-config --libs --cflags python3
+
+
+

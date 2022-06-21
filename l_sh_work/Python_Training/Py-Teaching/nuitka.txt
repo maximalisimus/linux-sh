@@ -1,0 +1,8 @@
+
+
+pip install nuitka
+
+nuitka3 hello.py
+
+
+
