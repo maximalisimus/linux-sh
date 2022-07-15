@@ -10,7 +10,10 @@ class A(object):
 	
 	@pole.setter
 	def pole(self, value):
-		self.__pole = value
+		if type(value) == str:
+			self.__pole = value
+		else:
+			raise TypeError('Не верный тип данных! Введите строчный тип данных!')
 
 	@pole.deleter
 	def pole(self):
@@ -27,7 +30,7 @@ class B(A):
 def main():
 	my = B('stroka')
 	my.display()
-	my.pole = 'my string'
+	my.pole = '123'
 	my.display()
 
 if __name__ == '__main__':
