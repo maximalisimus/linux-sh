@@ -19,7 +19,7 @@ class A(object):
 class B(A):
 	
 	def __init__(self, pole):
-		super(B, self).__init__(pole)
+		super(B if type(pole) == str else '', self).__init__(pole)
 	
 	def display(self):
 		print(self.pole)
