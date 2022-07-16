@@ -1,7 +1,7 @@
 
 class A(object):
 	
-	def __init__(self, pole):
+	def __init__(self, pole: str = ''):
 		self.__pole = pole
 	
 	@property
@@ -9,11 +9,8 @@ class A(object):
 		return self.__pole
 	
 	@Pole.setter
-	def Pole(self, value):
-		if type(value) == str:
-			self.__pole = value
-		else:
-			raise TypeError('Не верный тип данных! Введите строчный тип данных!')
+	def Pole(self, value: str):
+		self.__pole = value
 
 	@Pole.deleter
 	def Pole(self):
@@ -22,7 +19,7 @@ class A(object):
 class B(A):
 	
 	def __init__(self, pole):
-		super(B if type(pole) == str else '', self).__init__(pole)
+		super(B, self).__init__(pole)
 	
 	def display(self):
 		print(self.Pole)
