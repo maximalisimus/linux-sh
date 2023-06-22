@@ -11,7 +11,9 @@ $IPTABLES -L > "${iptables_tmp}"
 
 blacklist=""
 net_ip=""
-_count=""
+_count=3
+
+blacklist=$(python "${blacklist_dir}"/read-blacklist.py ${_count})
 
 function start_ban() {
 	for IP in ${blacklist[*]}; do
@@ -70,9 +72,9 @@ function ip_to_net(){
 
 while [ -n "$1" ]; do
 	case "$1" in
-		-c) [[ $2 != "" ]] && _count="${2}"
+		-c) [[ $2 != "" ]] && _count=${2}
 			wait
-			blacklist=$(python "${blacklist_dir}"/read-blacklist.py "${_count}")
+			blacklist=$(python "${blacklist_dir}"/read-blacklist.py ${_count})
 			shift
 			;;
 		-start) echo "Launching the blacklist ..."
