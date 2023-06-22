@@ -1,0 +1,12 @@
+[Unit]
+Description=Blacklist timer for banning and unbanning ip addresses of subnets.
+Wants=fail2ban.service
+After=fail2ban.service
+
+[Timer]
+Unit=blacklist@%i
+OnCalendar=*:0/10:0
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

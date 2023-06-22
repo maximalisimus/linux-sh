@@ -1,0 +1,2 @@
+IPTABLES=iptables
+# IPTABLES=ip6tables

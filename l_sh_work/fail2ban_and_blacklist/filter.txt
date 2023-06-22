@@ -1,0 +1,60 @@
+
+
+/var/log/nginx/access.log
+
+
+sudo nano /etc/fail2ban/filter.d/nginx-full.conf
+
+[Definition]
+
+failregex = ^<HOST>.*"(GET|POST|HEAD).*" (400|403|404|405|444|499|500|503) .*$
+
+ignoreregex = 
+
+
+sudo fail2ban-regex /var/log/nginx/access.log /etc/fail2ban/filter.d/nginx-full.conf /etc/fail2ban/filter.d/nginx-full.conf
+
+
+sudo nano /etc/fail2ban/jail.d/nginx-full.conf
+
+[fullnginx]
+enabled  = false
+port = all
+filter = nginx-full
+logpath = /var/log/nginx/access.log
+action = iptables-allports[name=fullnginx, protocol=all]
+ignoreregex = \.(jpg|jpeg|png|gif|js|css)
+
+
+sudo nano /etc/fail2ban/jail.d/nginx-full-tcp.conf
+
+[FullNginxTCP]
+enabled  = true
+port = http,https
+filter = nginx-full
+logpath = /var/log/nginx/access.log
+action = iptables-multiport[name=FullNginxTCP, port="http,https", protocol=tcp]
+# action = firewallcmd-multiport[name=FullNginxTCP, port="http,https", protocol=tcp]
+ignoreregex = \.(jpg|jpeg|png|gif|js|css)
+
+
+sudo nano /etc/fail2ban/jail.d/nginx-full-udp.conf
+
+[FullNginxUDP]
+enabled  = true
+port = dhcp,dhcpv6,51970
+filter = nginx-full
+logpath = /var/log/nginx/access.log
+action = iptables-multiport[name=FullNginxUDP, port="dhcp,dhcpv6,51970", protocol=udp]
+# action = firewallcmd-multiport[name=FullNginxUDP, port="dhcp,dhcpv6,51970", protocol=udp]
+ignoreregex = \.(jpg|jpeg|png|gif|js|css)
+
+
+
+sudo fail2ban-client restart
+sudo fail2ban-client status
+
+
+
+
+

@@ -1,0 +1,10 @@
+<!-- 
+sudo nano /usr/lib/firewalld/services/dhclient.xml
+-->
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>dhclient</short>
+  <description>This allows a DHCLIENT to accept messages from DHCP server and relay agents.</description>
+  <port protocol="udp" port="67"/>
+  <port protocol="udp" port="68"/>
+</service>
