@@ -17,16 +17,27 @@ blacklist=$(python "${blacklist_dir}"/read-blacklist.py ${_count})
 
 function start_ban() {
 	for IP in ${blacklist[*]}; do
-		if [[ $(cat "${iptables_tmp}" | grep -Ei "${IP[*]}" | wc -l) -eq 0 ]]; then
-			$IPTABLES -t filter -A INPUT -s "${IP[*]}" -j DROP
-			echo " * ban ${IP[*]}"
+		_ip=$(echo "${IP[*]}" | cut -d '/' -f1)
+		_host=$(nslookup ${_ip[*]} | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
+		_mask=$(echo "${IP[*]}" | cut -d '/' -f2)
+		_host_mask="${_host[*]}/${_mask[*]}"
+		if [[ $(cat "${iptables_tmp}" | grep -Ei "${IP[*]}" | wc -l) -eq 0 ]];
+			if [[ $(cat "${iptables_tmp}" | grep -Ei "${_host_mask[*]}" | wc -l) -eq 0 ]]; then
+				$IPTABLES -t filter -A INPUT -s "${IP[*]}" -j DROP
+				echo " * ban ${IP[*]}"
+			fi
 		fi
 	done
 }
 
 function stop_ban() {
 	for IP in ${blacklist[*]}; do
+		ip=$(echo "${IP[*]}" | cut -d '/' -f1)
+		_host=$(nslookup ${_ip[*]} | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
+		_mask=$(echo "${IP[*]}" | cut -d '/' -f2)
+		_host_mask="${_host[*]}/${_mask[*]}"
 		$IPTABLES -t filter -D INPUT -s "${IP[*]}" -j DROP
+		$IPTABLES -t filter -D INPUT -s "${_host_mask[*]}" -j DROP
 		echo " * unban ${IP[*]}"
 	done
 }
@@ -54,6 +65,7 @@ _help() {
 	echo -e -n "\t-stop\t\tStopping the blacklist and removing network\n\t\t\t addresses from IPTABLES.\n"
 	echo -e -n "\t-nostop\t\tStopping the blacklist and skipping network\n\t\t\t addresses from IPTABLES.\n"
 	echo -e -n "\t-update\t\tUpdating the blacklist and adding new network\n\t\t\t addresses to IPTABLES.\n"
+	echo -e -n "\t-show\t\tView the blacklist of ip addresses of subnets.\n"
 	echo -e -n "\t-c\t\tThe number of bans at which the network \n\t\t\tIP address is added to IPTABLES.\n"
 	echo -e -n "\t-ip\t\tThe IP address to add to the blacklist.\n\t\t\tYou can specify both with and without a mask.\n"
 	echo -e -n "\t-net\t\tThe IP address of the network to add to the blacklist.\n\t\t\tYou can specify both with and without a mask.\n"
@@ -89,6 +101,13 @@ while [ -n "$1" ]; do
 		-update) echo "Updating the blacklist ..." 
 				start_ban
 				;;
+		-show)	_count=1
+				wait
+				blacklist=$(python "${blacklist_dir}"/read-blacklist.py ${_count})
+				wait
+				echo "${blacklist[*]}"
+				exit 0
+				;;
 		-ip) [[ $2 != "" ]] && net_ip=$(ip_to_net "${2}")
 			shift
 			;;
@@ -106,5 +125,7 @@ while [ -n "$1" ]; do
 	esac
 	shift
 done
+
+echo "Exit the blacklist ..."
 
 exit 0
