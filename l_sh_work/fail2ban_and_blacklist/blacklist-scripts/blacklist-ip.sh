@@ -7,8 +7,6 @@ source "${blacklist_dir}/blacklist_env"
 
 iptables_tmp="${blacklist_dir}/iptables-tmp.txt"
 
-$IPTABLES -L > "${iptables_tmp}"
-
 blacklist=""
 net_ip=""
 _count=3
@@ -16,6 +14,7 @@ _count=3
 blacklist=$(python "${blacklist_dir}"/read-blacklist.py ${_count})
 
 function start_ban() {
+	$IPTABLES -L > "${iptables_tmp}"
 	for IP in ${blacklist[*]}; do
 		_ip=$(echo "${IP[*]}" | cut -d '/' -f1)
 		_host=$(nslookup ${_ip[*]} | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
@@ -31,6 +30,7 @@ function start_ban() {
 }
 
 function stop_ban() {
+	$IPTABLES -L > "${iptables_tmp}"
 	for IP in ${blacklist[*]}; do
 		ip=$(echo "${IP[*]}" | cut -d '/' -f1)
 		_host=$(nslookup ${_ip[*]} | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
