@@ -21,7 +21,7 @@ function start_ban() {
 		_host=$(nslookup ${_ip[*]} | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
 		_mask=$(echo "${IP[*]}" | cut -d '/' -f2)
 		_host_mask="${_host[*]}/${_mask[*]}"
-		if [[ $(cat "${iptables_tmp}" | grep -Ei "${IP[*]}" | wc -l) -eq 0 ]];
+		if [[ $(cat "${iptables_tmp}" | grep -Ei "${IP[*]}" | wc -l) -eq 0 ]]; then
 			if [[ $(cat "${iptables_tmp}" | grep -Ei "${_host_mask[*]}" | wc -l) -eq 0 ]]; then
 				$IPTABLES -t filter -A INPUT -s "${IP[*]}" -j DROP
 				echo " * ban ${IP[*]}"
@@ -101,9 +101,7 @@ while [ -n "$1" ]; do
 		-update) echo "Updating the blacklist ..." 
 				start_ban
 				;;
-		-show)	_count=1
-				wait
-				blacklist=$(python "${blacklist_dir}"/read-blacklist.py ${_count})
+		-show)	blacklist=$(python "${blacklist_dir}"/read-blacklist.py)
 				wait
 				echo "${blacklist[*]}"
 				exit 0
