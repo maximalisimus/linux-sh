@@ -53,18 +53,27 @@ function add_del_json(){
 	fi
 }
 
+function ip_to_net(){
+	_ip=$(ipcalc "${1}" | grep -Ei "Network" | xargs -0 | awk '{print $2}')
+	echo "${_ip[*]}"
+}
+
 function banied() {
-	$IPTABLES -t filter -A INPUT -s "${1}" -j DROP
+	_out_ip=$(ip_to_net "${1}")
+	$IPTABLES -t filter -A INPUT -s "${_out_ip[*]}" -j DROP
+	# $IPTABLES -t filter -A INPUT -s "${1}" -j DROP
 	wait
-	add_del_json "yes" "${1}" "${2}"
+	# add_del_json "yes" "${1}" "${2}"
 	wait
 	echo " * ban ${1}"
 }
 
 function unbanied() {
-	$IPTABLES -t filter -D INPUT -s "${1}" -j DROP
+	_out_ip=$(ip_to_net "${1}")
+	$IPTABLES -t filter -D INPUT -s "${_out_ip[*]}" -j DROP
+	# $IPTABLES -t filter -D INPUT -s "${1}" -j DROP
 	wait
-	add_del_json "no" "${1}" "${2}"
+	# add_del_json "no" "${1}" "${2}"
 	wait
 	echo " * unban ${1}"
 }
