@@ -3,18 +3,15 @@
 blacklist_dir="/etc/blacklist-scripts"
 #blacklist_dir="."
 
-env_file="${blacklist_dir}/blacklist_env"
-py_blacklist_script="${blacklist_dir}/py-blacklist.py"
-iptables_tmp="${blacklist_dir}/iptables-tmp.txt"
+source "${blacklist_dir}/blacklist_env"
 
-source "${env_file}"
+iptables_tmp="${blacklist_dir}/iptables-tmp.txt"
 
 blacklist=""
 net_ip=""
-net_mask="24"
 _count=3
 
-blacklist=$(python "${py_blacklist_script}" -c ${_count} -s)
+blacklist=$(python "${blacklist_dir}"/read-blacklist.py ${_count})
 
 function start_ban() {
 	$IPTABLES -L > "${iptables_tmp}"
@@ -45,18 +42,10 @@ function stop_ban() {
 	done
 }
 
-function add_del_json(){
-	if [[ "${1}" == 'yes' ]]; then
-		python "${py_blacklist_script}" -ip "${2}" -n "${3}" -a
-	else
-		python "${py_blacklist_script}" -ip "${2}" -n "${3}" -d
-	fi
-}
-
 function banied() {
 	$IPTABLES -t filter -A INPUT -s "${1}" -j DROP
 	wait
-	add_del_json "yes" "${1}" "${2}"
+	python "${blacklist_dir}"/add-blacklist.py "${1}"
 	wait
 	echo " * ban ${1}"
 }
@@ -64,7 +53,7 @@ function banied() {
 function unbanied() {
 	$IPTABLES -t filter -D INPUT -s "${1}" -j DROP
 	wait
-	add_del_json "no" "${1}" "${2}"
+	python "${blacklist_dir}"/del-blacklist.py "${1}"
 	wait
 	echo " * unban ${1}"
 }
@@ -82,17 +71,22 @@ _help() {
 	echo -e -n "\t-net\t\tThe IP address of the network to add to the blacklist.\n\t\t\tYou can specify both with and without a mask.\n"
 	echo -e -n "\t-ban\t\tBan the ip address of the network when specifying \n\t\t\ta single ip address (key -ip) or the ip address \n\t\t\tof the network (key -net).\n"
 	echo -e -n "\t-unban\t\tUnban the ip address of the network, when specifying \n\t\t\ta single ip address (key -ip) or the ip address \n\t\t\tof the network (key -net).\n"
-	echo -e -n "\t-add\t\tAdd an address to the blacklist without being \n\t\t\tbanned in IPTABLES.\n"
-	echo -e -n "\t-del\t\tRemove an address from the blacklist without being \n\t\t\tbanned in IPTABLES.\n"
 	echo -e -n "\t--h\t\tHelp.\n"
 	echo -e -n "\t--help\t\tHelp.\n"
+}
+
+function ip_to_net(){
+	_ip="${1}"
+	_net=$(ipcalc "${_ip[*]}" | grep -Ei "Network" | xargs | cut -d ' ' -f 2)
+	unset _ip
+	echo "${_net[*]}"
 }
 
 while [ -n "$1" ]; do
 	case "$1" in
 		-c) [[ $2 != "" ]] && _count=${2}
 			wait
-			blacklist=$(python "${py_blacklist_script}" -c ${_count} -s)
+			blacklist=$(python "${blacklist_dir}"/read-blacklist.py ${_count})
 			shift
 			;;
 		-start) echo "Launching the blacklist ..."
@@ -107,24 +101,20 @@ while [ -n "$1" ]; do
 		-update) echo "Updating the blacklist ..." 
 				start_ban
 				;;
-		-show)	blacklist=$(python "${py_blacklist_script}" -c 0 -s)
+		-show)	blacklist=$(python "${blacklist_dir}"/read-blacklist.py)
 				wait
 				echo "${blacklist[*]}"
 				exit 0
 				;;
-		-ip) [[ $2 != "" ]] && net_ip="${2}"
+		-ip) [[ $2 != "" ]] && net_ip=$(ip_to_net "${2}")
 			shift
 			;;
-		-net) [[ $2 != "" ]] && net_mask="${2}"
+		-net) [[ $2 != "" ]] && net_ip="${2}"
 			shift
 			;;
-		-ban) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && banied "${net_ip[*]}" "${net_mask[*]}"
+		-ban) [[ "${net_ip[*]}" != "" ]] && banied "${net_ip[*]}"
 				;;
-		-unban) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && unbanied "${net_ip[*]}" "${net_mask[*]}"
-				;;
-		-add) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && add_del_json "yes" "${net_ip[*]}" "${net_mask[*]}"
-				;;
-		-del) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && add_del_json "no" "${net_ip[*]}" "${net_mask[*]}"
+		-unban) [[ "${net_ip[*]}" != "" ]] && unbanied "${net_ip[*]}"
 				;;
 		-[h?] | --help) _help;;
 		*) echo -e -n "\nUnkonwn parameters!\n"

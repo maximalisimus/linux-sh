@@ -14,7 +14,6 @@ def main():
 		json_data = json.load(fp)
 	if len(sys.argv) > 1:
 		myip = str(sys.argv[1]).split('/', 1)[0] + "/24"
-		print(myip)
 		myhost = ipaddress.ip_interface(myip)
 		mynet = f"{myhost.network}"
 		if json_data.get(mynet):
