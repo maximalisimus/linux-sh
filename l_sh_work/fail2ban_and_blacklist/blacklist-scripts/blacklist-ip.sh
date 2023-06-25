@@ -14,6 +14,7 @@ net_ip=""
 net_mask="24"
 _count=3
 _quantity=0
+_ignore=0
 
 blacklist=$(python "${py_blacklist_script}" -c ${_count} -s)
 ignorelist=$(python "${py_blacklist_script}" -i -c 1 -s)
@@ -121,9 +122,17 @@ function reload_ban() {
 
 function add_del_json(){
 	if [[ "${1}" == 'yes' ]]; then
-		python "${py_blacklist_script}" -ip "${2}" -n "${3}" -q "${4}" -a
+		if [[ "${_ignore}" -eq 0 ]]; then
+			python "${py_blacklist_script}" -ip "${2}" -n "${3}" -q "${4}" -a
+		else
+			python "${py_blacklist_script}" -ip "${2}" -i -q "${3}" -a
+		fi
 	else
-		python "${py_blacklist_script}" -ip "${2}" -n "${3}" -d
+		if [[ "${_ignore}" -eq 0 ]]; then
+			python "${py_blacklist_script}" -ip "${2}" -n "${3}" -d
+		else
+			python "${py_blacklist_script}" -ip "${2}" -i -d
+		fi
 	fi
 }
 
@@ -133,23 +142,35 @@ function ip_to_net(){
 }
 
 function banied() {
-	_out_ip=$(ip_to_net "${1}")
-	$IPTABLES -t filter -A INPUT -s "${_out_ip[*]}" -j DROP
-	# $IPTABLES -t filter -A INPUT -s "${1}" -j DROP
-	wait
-	# add_del_json "yes" "${1}" "${2}"
-	wait
-	echo " * ban ${1}"
+	if [[ "${_ignore}" -eq 0 ]]; then
+		_out_ip=$(ip_to_net "${1}")
+		$IPTABLES -t filter -A INPUT -s "${_out_ip[*]}" -j DROP
+		# $IPTABLES -t filter -A INPUT -s "${1}" -j DROP
+		wait
+		# add_del_json "yes" "${1}" "${2}"
+		wait
+		echo " * Ban ${1}"
+	else
+		$IPTABLES -t filter -A INPUT -s "${1}" -j ACCEPT
+		wait
+		echo " * Ignore ${1}"
+	fi
 }
 
 function unbanied() {
-	_out_ip=$(ip_to_net "${1}")
-	$IPTABLES -t filter -D INPUT -s "${_out_ip[*]}" -j DROP
-	# $IPTABLES -t filter -D INPUT -s "${1}" -j DROP
-	wait
-	# add_del_json "no" "${1}" "${2}"
-	wait
-	echo " * unban ${1}"
+	if [[ "${_ignore}" -eq 0 ]]; then
+		_out_ip=$(ip_to_net "${1}")
+		$IPTABLES -t filter -D INPUT -s "${_out_ip[*]}" -j DROP
+		# $IPTABLES -t filter -D INPUT -s "${1}" -j DROP
+		wait
+		# add_del_json "no" "${1}" "${2}"
+		wait
+		echo " * Unban ${1}"		
+	else
+		$IPTABLES -t filter -D INPUT -s "${1}" -j ACCEPT
+		wait
+		echo " * Delete ignore ${1}"
+	fi
 }
 
 _help() {
@@ -160,6 +181,7 @@ _help() {
 	echo -e -n "\t-nostop\t\tStopping the blacklist and skipping network\n\t\t\t addresses from IPTABLES.\n"
 	echo -e -n "\t-reload\t\Reload the blacklist and adding the all network\n\t\t\t addresses to IPTABLES.\n"
 	echo -e -n "\t-show\t\tView the blacklist of ip addresses of subnets.\n"
+	echo -e -n "\t-ignore\t\tIgnore IP.\n"
 	echo -e -n "\t-c\t\tThe number of bans at which the network \n\t\t\tIP address is added to IPTABLES.\n"
 	echo -e -n "\t-q\t\tHow many times the address has been banned.\n"
 	echo -e -n "\t-ip\t\tThe IP address to add to the blacklist.\n\t\t\tYou can specify both with and without a mask.\n"
@@ -194,10 +216,16 @@ while [ -n "$1" ]; do
 		-reload) echo "Updating the blacklist ..."
 				reload_ban
 				;;
-		-show)	blacklist=$(python "${py_blacklist_script}" -c 0 -s)
+		-show)	if [[ "${_ignore}" -eq 0 ]]; then
+					blacklist=$(python "${py_blacklist_script}" -c 0 -s)
+				else
+					blacklist=$(python "${py_blacklist_script}" -c 0 -i -s)
+				fi
 				wait
 				echo "${blacklist[*]}"
 				exit 0
+				;;
+		-ignore) _ignore=1
 				;;
 		-ip) [[ $2 != "" ]] && net_ip="${2}"
 			shift
@@ -205,13 +233,29 @@ while [ -n "$1" ]; do
 		-net) [[ $2 != "" ]] && net_mask="${2}"
 			shift
 			;;
-		-ban) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && banied "${net_ip[*]}" "${net_mask[*]}"
+		-ban) if [[ "${_ignore}" -eq 0 ]]; then
+				[[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && banied "${net_ip[*]}" "${net_mask[*]}"
+			else
+				[[ "${net_ip[*]}" != "" ]] && banied "${net_ip[*]}"
+			fi
 				;;
-		-unban) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && unbanied "${net_ip[*]}" "${net_mask[*]}"
+		-unban) if [[ "${_ignore}" -eq 0 ]]; then
+					[[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && unbanied "${net_ip[*]}" "${net_mask[*]}"
+				else
+					[[ "${net_ip[*]}" != "" ]] && unbanied "${net_ip[*]}"
+				fi
 				;;
-		-add) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && add_del_json "yes" "${net_ip[*]}" "${net_mask[*]}" "${_quantity}"
+		-add) if [[ "${_ignore}" -eq 0 ]]; then
+				[[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && add_del_json "yes" "${net_ip[*]}" "${net_mask[*]}" "${_quantity}"
+			else
+				[[ "${net_ip[*]}" != "" ]] && add_del_json "yes" "${net_ip[*]}" "${_quantity}"
+			fi
 				;;
-		-del) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && add_del_json "no" "${net_ip[*]}" "${net_mask[*]}"
+		-del) if [[ "${_ignore}" -eq 0 ]]; then
+				[[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && add_del_json "no" "${net_ip[*]}" "${net_mask[*]}"
+			else
+				[[ "${net_ip[*]}" != "" ]] && add_del_json "no" "${net_ip[*]}"
+			fi
 				;;
 		-[h?] | --help) _help;;
 		*) echo -e -n "\nUnkonwn parameters!\n"

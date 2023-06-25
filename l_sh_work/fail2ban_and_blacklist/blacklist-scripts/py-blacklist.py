@@ -80,12 +80,14 @@ def main():
 	parser.parse_args(namespace=Arguments)
 	
 	json_data = dict()
+	myip = ""
 	if args.ignore:
 		json_data = read_write_json( json_ignore, 'r')
+		myip = args.ip
 	else:
 		json_data = read_write_json( json_file, 'r')
+		myip = args.ip.split('/', 1)[0] + '/' + str(args.netmask)
 	
-	myip = args.ip.split('/', 1)[0] + '/' + str(args.netmask)
 	myhost = ipaddress.ip_interface(myip)
 	mynet = f"{myhost.network}"
 	
@@ -123,11 +125,11 @@ def main():
 		if args.ignore:
 			if json_data.get(myip):
 				del json_data[myip]
-				read_write_json(json_file, 'w', json_data)
+				read_write_json(json_ignore, 'w', json_data)
 		else:
 			if json_data.get(mynet):
 				del json_data[mynet]
-				read_write_json(json_ignore, 'w', json_data)
+				read_write_json(json_file, 'w', json_data)
 		sys.exit(0)
 	if args.show:
 		if args.count == 0:
