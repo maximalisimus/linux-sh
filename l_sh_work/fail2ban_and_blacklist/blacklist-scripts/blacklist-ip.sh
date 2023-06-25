@@ -72,52 +72,9 @@ function stop_ban() {
 }
 
 function reload_ban() {
-	$IPTABLES -L > "${iptables_tmp}"
-	for IP in ${blacklist[*]}; do
-		ip=$(echo "${IP[*]}" | cut -d '/' -f1)
-		_host=$(nslookup ${_ip[*]} | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
-		_mask=$(echo "${IP[*]}" | cut -d '/' -f2)
-		_host_mask="${_host[*]}/${_mask[*]}"
-		$IPTABLES -t filter -D INPUT -s "${IP[*]}" -j DROP
-		$IPTABLES -t filter -D INPUT -s "${_host_mask[*]}" -j DROP
-		echo " * Unban ${IP[*]}"
-	done
+	stop_ban
 	wait
-	for IIP in ${ignorelist[*]}; do
-		_ip=$(echo "${IIP[*]}" | cut -d '/' -f1)
-		_host=$(nslookup ${_ip[*]} | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
-		_mask=$(echo "${IIP[*]}" | cut -d '/' -f2)
-		_host_mask="${_host[*]}/${_mask[*]}"
-		$IPTABLES -t filter -D INPUT -s "${IIP[*]}" -j ACCEPT
-		$IPTABLES -t filter -D INPUT -s "${_host_mask[*]}" -j ACCEPT
-		echo " * Delete ignore ${IIP[*]}"
-	done
-	wait
-	for IIP in ${ignorelist[*]}; do
-		_ip=$(echo "${IIP[*]}" | cut -d '/' -f1)
-		_host=$(nslookup ${_ip[*]} | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
-		_mask=$(echo "${IIP[*]}" | cut -d '/' -f2)
-		_host_mask="${_host[*]}/${_mask[*]}"
-		if [[ $(cat "${iptables_tmp}" | grep -Ei "${IIP[*]}" | wc -l) -eq 0 ]]; then
-			if [[ $(cat "${iptables_tmp}" | grep -Ei "${_host_mask[*]}" | wc -l) -eq 0 ]]; then
-				$IPTABLES -t filter -A INPUT -s "${IIP[*]}" -j ACCEPT
-				echo " * Ignore ${IIP[*]}"
-			fi
-		fi
-	done
-	wait
-	for IP in ${blacklist[*]}; do
-		_ip=$(echo "${IP[*]}" | cut -d '/' -f1)
-		_host=$(nslookup ${_ip[*]} | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
-		_mask=$(echo "${IP[*]}" | cut -d '/' -f2)
-		_host_mask="${_host[*]}/${_mask[*]}"
-		if [[ $(cat "${iptables_tmp}" | grep -Ei "${IP[*]}" | wc -l) -eq 0 ]]; then
-			if [[ $(cat "${iptables_tmp}" | grep -Ei "${_host_mask[*]}" | wc -l) -eq 0 ]]; then
-				$IPTABLES -t filter -A INPUT -s "${IP[*]}" -j DROP
-				echo " * Ban ${IP[*]}"
-			fi
-		fi
-	done
+	start_ban
 }
 
 function add_del_json(){
