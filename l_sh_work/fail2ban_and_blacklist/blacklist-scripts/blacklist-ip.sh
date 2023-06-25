@@ -111,7 +111,7 @@ _help() {
 	echo -e -n "\t-start\t\tLaunching a blacklist and adding network\n\t\t\t addresses to IPTABLES.\n"
 	echo -e -n "\t-stop\t\tStopping the blacklist and removing network\n\t\t\t addresses from IPTABLES.\n"
 	echo -e -n "\t-nostop\t\tStopping the blacklist and skipping network\n\t\t\t addresses from IPTABLES.\n"
-	echo -e -n "\t-reload\t\tUpdating the blacklist and adding new network\n\t\t\t addresses to IPTABLES.\n"
+	echo -e -n "\t-reload\t\Reload the blacklist and adding the all network\n\t\t\t addresses to IPTABLES.\n"
 	echo -e -n "\t-show\t\tView the blacklist of ip addresses of subnets.\n"
 	echo -e -n "\t-c\t\tThe number of bans at which the network \n\t\t\tIP address is added to IPTABLES.\n"
 	echo -e -n "\t-q\t\tHow many times the address has been banned.\n"
