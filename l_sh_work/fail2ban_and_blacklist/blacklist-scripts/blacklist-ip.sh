@@ -46,6 +46,32 @@ function stop_ban() {
 	done
 }
 
+function reload_ban() {
+	$IPTABLES -L > "${iptables_tmp}"
+	for IP in ${blacklist[*]}; do
+		ip=$(echo "${IP[*]}" | cut -d '/' -f1)
+		_host=$(nslookup ${_ip[*]} | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
+		_mask=$(echo "${IP[*]}" | cut -d '/' -f2)
+		_host_mask="${_host[*]}/${_mask[*]}"
+		$IPTABLES -t filter -D INPUT -s "${IP[*]}" -j DROP
+		$IPTABLES -t filter -D INPUT -s "${_host_mask[*]}" -j DROP
+		echo " * unban ${IP[*]}"
+	done
+	wait
+	for IP in ${blacklist[*]}; do
+		_ip=$(echo "${IP[*]}" | cut -d '/' -f1)
+		_host=$(nslookup ${_ip[*]} | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
+		_mask=$(echo "${IP[*]}" | cut -d '/' -f2)
+		_host_mask="${_host[*]}/${_mask[*]}"
+		if [[ $(cat "${iptables_tmp}" | grep -Ei "${IP[*]}" | wc -l) -eq 0 ]]; then
+			if [[ $(cat "${iptables_tmp}" | grep -Ei "${_host_mask[*]}" | wc -l) -eq 0 ]]; then
+				$IPTABLES -t filter -A INPUT -s "${IP[*]}" -j DROP
+				echo " * ban ${IP[*]}"
+			fi
+		fi
+	done
+}
+
 function add_del_json(){
 	if [[ "${1}" == 'yes' ]]; then
 		python "${py_blacklist_script}" -ip "${2}" -n "${3}" -q "${4}" -a
@@ -85,7 +111,7 @@ _help() {
 	echo -e -n "\t-start\t\tLaunching a blacklist and adding network\n\t\t\t addresses to IPTABLES.\n"
 	echo -e -n "\t-stop\t\tStopping the blacklist and removing network\n\t\t\t addresses from IPTABLES.\n"
 	echo -e -n "\t-nostop\t\tStopping the blacklist and skipping network\n\t\t\t addresses from IPTABLES.\n"
-	echo -e -n "\t-update\t\tUpdating the blacklist and adding new network\n\t\t\t addresses to IPTABLES.\n"
+	echo -e -n "\t-reload\t\tUpdating the blacklist and adding new network\n\t\t\t addresses to IPTABLES.\n"
 	echo -e -n "\t-show\t\tView the blacklist of ip addresses of subnets.\n"
 	echo -e -n "\t-c\t\tThe number of bans at which the network \n\t\t\tIP address is added to IPTABLES.\n"
 	echo -e -n "\t-q\t\tHow many times the address has been banned.\n"
@@ -118,8 +144,8 @@ while [ -n "$1" ]; do
 		-nostop) echo "Stopping the blacklist."
 				echo "The following addresses will not be removed from IPTABLES: ${blacklist[*]}"
 				;;
-		-update) echo "Updating the blacklist ..." 
-				start_ban
+		-reload) echo "Updating the blacklist ..."
+				reload_ban
 				;;
 		-show)	blacklist=$(python "${py_blacklist_script}" -c 0 -s)
 				wait
