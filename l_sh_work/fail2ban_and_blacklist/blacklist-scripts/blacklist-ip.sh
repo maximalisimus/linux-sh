@@ -13,6 +13,7 @@ blacklist=""
 net_ip=""
 net_mask="24"
 _count=3
+_quantity=1
 
 blacklist=$(python "${py_blacklist_script}" -c ${_count} -s)
 
@@ -47,7 +48,7 @@ function stop_ban() {
 
 function add_del_json(){
 	if [[ "${1}" == 'yes' ]]; then
-		python "${py_blacklist_script}" -ip "${2}" -n "${3}" -a
+		python "${py_blacklist_script}" -ip "${2}" -n "${3}" -q "${4}" -a
 	else
 		python "${py_blacklist_script}" -ip "${2}" -n "${3}" -d
 	fi
@@ -87,6 +88,7 @@ _help() {
 	echo -e -n "\t-update\t\tUpdating the blacklist and adding new network\n\t\t\t addresses to IPTABLES.\n"
 	echo -e -n "\t-show\t\tView the blacklist of ip addresses of subnets.\n"
 	echo -e -n "\t-c\t\tThe number of bans at which the network \n\t\t\tIP address is added to IPTABLES.\n"
+	echo -e -n "\t-q\t\tHow many times the address has been banned.\n"
 	echo -e -n "\t-ip\t\tThe IP address to add to the blacklist.\n\t\t\tYou can specify both with and without a mask.\n"
 	echo -e -n "\t-net\t\tThe IP address of the network to add to the blacklist.\n\t\t\tYou can specify both with and without a mask.\n"
 	echo -e -n "\t-ban\t\tBan the ip address of the network when specifying \n\t\t\ta single ip address (key -ip) or the ip address \n\t\t\tof the network (key -net).\n"
@@ -102,6 +104,9 @@ while [ -n "$1" ]; do
 		-c) [[ $2 != "" ]] && _count=${2}
 			wait
 			blacklist=$(python "${py_blacklist_script}" -c ${_count} -s)
+			shift
+			;;
+		-q) [[ $2 != "" ]] && _quantity=${2}
 			shift
 			;;
 		-start) echo "Launching the blacklist ..."
@@ -131,7 +136,7 @@ while [ -n "$1" ]; do
 				;;
 		-unban) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && unbanied "${net_ip[*]}" "${net_mask[*]}"
 				;;
-		-add) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && add_del_json "yes" "${net_ip[*]}" "${net_mask[*]}"
+		-add) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && add_del_json "yes" "${net_ip[*]}" "${net_mask[*]}" "${_quantity}"
 				;;
 		-del) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && add_del_json "no" "${net_ip[*]}" "${net_mask[*]}"
 				;;
