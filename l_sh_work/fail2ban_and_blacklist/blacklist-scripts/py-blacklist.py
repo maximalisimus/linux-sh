@@ -26,7 +26,9 @@ import sys
 import ipaddress
 
 json_file = pathlib.Path('/etc/blacklist-scripts/ip-blacklist.json').resolve()
+json_ignore = pathlib.Path('/etc/blacklist-scripts/ip-ignorelist.json').resolve()
 #json_file = pathlib.Path('./ip-blacklist.json').resolve()
+#json_ignore = pathlib.Path('./ip-ignorelist.json').resolve()
 
 class Arguments:
 	
@@ -39,6 +41,7 @@ class Arguments:
 		return f"{self.__class__}:\n" + \
 				f"\tadd: {self.add},\n" + \
 				f"\tdelete: {self.delete},\n" + \
+				f"\tignore: {self.ignore},\n" + \
 				f"\tshow: {self.show},\n" + \
 				f"\tcount: {self.count},\n" + \
 				f"\tquantity: {self.quantity},\n" + \
@@ -52,6 +55,7 @@ def createParser():
 	parser.add_argument ('-a', '--add', action='store_true', default=False, help='Add to the blacklist.')
 	parser.add_argument ('-d', '--delete', action='store_true', default=False, help='Remove from the blacklist.')
 	parser.add_argument ('-s', '--show', action='store_true', default=False, help='Read the blacklist..')
+	parser.add_argument ('-i', '--ignore', action='store_true', default=False, help='Ignore address.')
 	group1 = parser.add_argument_group('extend', 'Entering the address.')
 	group1.add_argument("-c", '--count', dest="count", metavar='COUNT', type=int, default=0, help='The number of locks after which the address is entered in IPTABLES.')
 	group1.add_argument("-q", '--quantity', dest="quantity", metavar='QUANTITY', type=int, default=0, help='How many times the address has been banned.')
@@ -69,36 +73,61 @@ def read_write_json(jfile, typerw, data = dict()):
 
 def main():
 	global json_file
-	json_data = dict()
-	json_data = read_write_json( json_file, 'r')
+	global json_ignore
 	
 	parser, gr1 = createParser()
 	args = Arguments()
 	parser.parse_args(namespace=Arguments)
+	
+	json_data = dict()
+	if args.ignore:
+		json_data = read_write_json( json_ignore, 'r')
+	else:
+		json_data = read_write_json( json_file, 'r')
 	
 	myip = args.ip.split('/', 1)[0] + '/' + str(args.netmask)
 	myhost = ipaddress.ip_interface(myip)
 	mynet = f"{myhost.network}"
 	
 	if args.add:
-		if not json_data.get(mynet):
-			if args.quantity == 0:
-				json_data[mynet] = 1
+		if args.ignore:
+			if not json_data.get(myip):
+				if args.quantity == 0:
+					json_data[myip] = 1
+				else:
+					json_data[myip] = args.quantity
+				read_write_json(json_ignore, 'w', json_data)
 			else:
-				json_data[mynet] = args.quantity
-			read_write_json(json_file, 'w', json_data)
+				if args.quantity == 0:
+					count = json_data[myip]
+					json_data[myip] = count + 1
+				else:
+					json_data[myip] = args.quantity
+				read_write_json(json_ignore, 'w', json_data)
 		else:
-			if args.quantity == 0:
-				count = json_data[mynet]
-				json_data[mynet] = count + 1
+			if not json_data.get(mynet):
+				if args.quantity == 0:
+					json_data[mynet] = 1
+				else:
+					json_data[mynet] = args.quantity
+				read_write_json(json_file, 'w', json_data)
 			else:
-				json_data[mynet] = args.quantity
-			read_write_json(json_file, 'w', json_data)
+				if args.quantity == 0:
+					count = json_data[mynet]
+					json_data[mynet] = count + 1
+				else:
+					json_data[mynet] = args.quantity
+				read_write_json(json_file, 'w', json_data)
 		sys.exit(0)
 	if args.delete:
-		if json_data.get(mynet):
-			del json_data[mynet]
-			read_write_json(json_file, 'w', json_data)
+		if args.ignore:
+			if json_data.get(myip):
+				del json_data[myip]
+				read_write_json(json_file, 'w', json_data)
+		else:
+			if json_data.get(mynet):
+				del json_data[mynet]
+				read_write_json(json_ignore, 'w', json_data)
 		sys.exit(0)
 	if args.show:
 		if args.count == 0:
