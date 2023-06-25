@@ -13,7 +13,7 @@ blacklist=""
 net_ip=""
 net_mask="24"
 _count=3
-_quantity=1
+_quantity=0
 
 blacklist=$(python "${py_blacklist_script}" -c ${_count} -s)
 

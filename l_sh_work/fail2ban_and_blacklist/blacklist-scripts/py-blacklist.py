@@ -54,7 +54,7 @@ def createParser():
 	parser.add_argument ('-s', '--show', action='store_true', default=False, help='Read the blacklist..')
 	group1 = parser.add_argument_group('extend', 'Entering the address.')
 	group1.add_argument("-c", '--count', dest="count", metavar='COUNT', type=int, default=0, help='The number of locks after which the address is entered in IPTABLES.')
-	group1.add_argument("-q", '--quantity', dest="quantity", metavar='QUANTITY', type=int, default=1, help='How many times the address has been banned.')
+	group1.add_argument("-q", '--quantity', dest="quantity", metavar='QUANTITY', type=int, default=0, help='How many times the address has been banned.')
 	group1.add_argument("-ip", '--ip', dest="ip", metavar='IP', type=str, default='17.253.144.10', help='IP address (single or network).')
 	group1.add_argument("-n", '--netmask', dest="netmask", metavar='NETMASK', type=int, default=24, help='The network mask.')
 	return parser, group1
@@ -82,10 +82,13 @@ def main():
 	
 	if args.add:
 		if not json_data.get(mynet):
-			json_data[mynet] = args.quantity
+			if args.quantity == 0:
+				json_data[mynet] = 1
+			else:
+				json_data[mynet] = args.quantity
 			read_write_json(json_file, 'w', json_data)
 		else:
-			if args.quantity == 1:
+			if args.quantity == 0:
 				count = json_data[mynet]
 				json_data[mynet] = count + 1
 			else:
