@@ -12,11 +12,11 @@ source "${env_file}"
 blacklist=""
 net_ip=""
 net_mask="24"
-_count=3
+_count=0
 _quantity=0
 _ignore=0
 
-blacklist=$(python "${py_blacklist_script}" -c ${_count} -s)
+blacklist=$(python "${py_blacklist_script}" -c 1 -s)
 ignorelist=$(python "${py_blacklist_script}" -i -c 1 -s)
 
 _out_fromat=0
@@ -25,6 +25,7 @@ _input_file=""
 
 function start_ban() {
 	$IPTABLES -L > "${iptables_tmp}"
+	wait
 	for IIP in ${ignorelist[*]}; do
 		_ip=$(echo "${IIP[*]}" | cut -d '/' -f1)
 		_host=$(nslookup ${_ip[*]} | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
@@ -53,7 +54,11 @@ function start_ban() {
 }
 
 function stop_ban() {
+	blacklist=$(python "${py_blacklist_script}" -c 1 -s)
+	ignorelist=$(python "${py_blacklist_script}" -i -c 1 -s)
+	wait
 	$IPTABLES -L > "${iptables_tmp}"
+	wait
 	for IP in ${blacklist[*]}; do
 		ip=$(echo "${IP[*]}" | cut -d '/' -f1)
 		_host=$(nslookup ${_ip[*]} | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
@@ -162,7 +167,7 @@ while [ -n "$1" ]; do
 	case "$1" in
 		-c) [[ $2 != "" ]] && _count=${2}
 			wait
-			blacklist=$(python "${py_blacklist_script}" -c ${_count} -if "${_input_file}" -of "${_output_file}" -s)
+			blacklist=$(python "${py_blacklist_script}" -c ${_count} -if "${_input_file}" -s)
 			shift
 			;;
 		-q) [[ $2 != "" ]] && _quantity=${2}
