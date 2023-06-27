@@ -19,6 +19,10 @@ _ignore=0
 blacklist=$(python "${py_blacklist_script}" -c ${_count} -s)
 ignorelist=$(python "${py_blacklist_script}" -i -c 1 -s)
 
+_out_fromat=0
+_output_file=""
+_input_file=""
+
 function start_ban() {
 	$IPTABLES -L > "${iptables_tmp}"
 	for IIP in ${ignorelist[*]}; do
@@ -80,15 +84,15 @@ function reload_ban() {
 function add_del_json(){
 	if [[ "${1}" == 'yes' ]]; then
 		if [[ "${_ignore}" -eq 0 ]]; then
-			python "${py_blacklist_script}" -ip "${2}" -n "${3}" -q "${4}" -a
+			python "${py_blacklist_script}" -ip "${2}" -n "${3}" -q "${4}" -if "${_input_file}" -of "${_output_file}" -a
 		else
-			python "${py_blacklist_script}" -ip "${2}" -i -q "${3}" -a
+			python "${py_blacklist_script}" -ip "${2}" -i -q "${3}" -if "${_input_file}" -of "${_output_file}" -a
 		fi
 	else
 		if [[ "${_ignore}" -eq 0 ]]; then
-			python "${py_blacklist_script}" -ip "${2}" -n "${3}" -d
+			python "${py_blacklist_script}" -ip "${2}" -n "${3}" -if "${_input_file}" -of "${_output_file}" -d
 		else
-			python "${py_blacklist_script}" -ip "${2}" -i -d
+			python "${py_blacklist_script}" -ip "${2}" -i -if "${_input_file}" -of "${_output_file}" -d
 		fi
 	fi
 }
@@ -136,9 +140,12 @@ _help() {
 	echo -e -n "\t-start\t\tLaunching a blacklist and adding network\n\t\t\t addresses to IPTABLES.\n"
 	echo -e -n "\t-stop\t\tStopping the blacklist and removing network\n\t\t\t addresses from IPTABLES.\n"
 	echo -e -n "\t-nostop\t\tStopping the blacklist and skipping network\n\t\t\t addresses from IPTABLES.\n"
-	echo -e -n "\t-reload\t\Reload the blacklist and adding the all network\n\t\t\t addresses to IPTABLES.\n"
+	echo -e -n "\t-reload\t\tReload the blacklist and adding the all network\n\t\t\t addresses to IPTABLES.\n"
 	echo -e -n "\t-show\t\tView the blacklist of ip addresses of subnets.\n"
-	echo -e -n "\t-ignore\t\Whitelist IP.\n"
+	echo -e -n "\t-ignore\t\tWhitelist IP.\n"
+	echo -e -n "\t-j\t\tShow in json format.\n"
+	echo -e -n "\t-if\t\tInput file.\n"
+	echo -e -n "\t-of\t\tOutput file.\n"
 	echo -e -n "\t-c\t\tThe number of bans at which the network \n\t\t\tIP address is added to IPTABLES.\n"
 	echo -e -n "\t-q\t\tHow many times the address has been banned.\n"
 	echo -e -n "\t-ip\t\tThe IP address to add to the blacklist.\n\t\t\tYou can specify both with and without a mask.\n"
@@ -155,10 +162,18 @@ while [ -n "$1" ]; do
 	case "$1" in
 		-c) [[ $2 != "" ]] && _count=${2}
 			wait
-			blacklist=$(python "${py_blacklist_script}" -c ${_count} -s)
+			blacklist=$(python "${py_blacklist_script}" -c ${_count} -if "${_input_file}" -of "${_output_file}" -s)
 			shift
 			;;
 		-q) [[ $2 != "" ]] && _quantity=${2}
+			shift
+			;;
+		-j) _out_fromat=1
+			;;
+		-if) [[ $2 != "" ]] && _input_file=${2}
+			shift
+			;;
+		-of) [[ $2 != "" ]] && _output_file=${2}
 			shift
 			;;
 		-start) echo "Launching the blacklist ..."
@@ -174,9 +189,17 @@ while [ -n "$1" ]; do
 				reload_ban
 				;;
 		-show)	if [[ "${_ignore}" -eq 0 ]]; then
-					blacklist=$(python "${py_blacklist_script}" -c 0 -s)
+					if [[ "${_out_fromat}" -eq 0 ]]; then
+						blacklist=$(python "${py_blacklist_script}" -c "${_count}" -if "${_input_file}" -of "${_output_file}" -s)
+					else
+						blacklist=$(python "${py_blacklist_script}" -c "${_count}" -j -if "${_input_file}" -of "${_output_file}" -s)
+					fi
 				else
-					blacklist=$(python "${py_blacklist_script}" -c 0 -i -s)
+					if [[ "${_out_fromat}" -eq 0 ]]; then
+						blacklist=$(python "${py_blacklist_script}" -c "${_count}" -i -if "${_input_file}" -of "${_output_file}" -s)
+					else
+						blacklist=$(python "${py_blacklist_script}" -c "${_count}" -i -j -if "${_input_file}" -of "${_output_file}" -s)				
+					fi
 				fi
 				wait
 				echo "${blacklist[*]}"
