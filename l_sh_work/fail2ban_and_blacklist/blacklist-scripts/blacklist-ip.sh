@@ -16,7 +16,7 @@ _count=0
 _quantity=0
 _ignore=0
 
-blacklist=$(python "${py_blacklist_script}" -c 1 -s)
+blacklist=$(python "${py_blacklist_script}" -c 3 -s)
 ignorelist=$(python "${py_blacklist_script}" -i -c 1 -s)
 
 _out_fromat=0
