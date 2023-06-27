@@ -75,6 +75,11 @@ def main():
 	global json_file
 	global json_ignore
 	
+	if not json_file.parent.exists():
+		json_file.parent.mkdir(parents=True)
+	if not json_ignore.parent.exists():
+		json_ignore.parent.mkdir(parents=True)
+	
 	parser, gr1 = createParser()
 	args = Arguments()
 	parser.parse_args(namespace=Arguments)
@@ -82,10 +87,16 @@ def main():
 	json_data = dict()
 	myip = ""
 	if args.ignore:
-		json_data = read_write_json( json_ignore, 'r')
+		if not json_ignore.exists():
+			json_ignore.touch(mode=0o755, exist_ok=True)
+		else:
+			json_data = read_write_json( json_ignore, 'r')
 		myip = args.ip
 	else:
-		json_data = read_write_json( json_file, 'r')
+		if not json_file.exists():
+			json_file.touch(mode=0o755, exist_ok=True)
+		else:
+			json_data = read_write_json( json_file, 'r')
 		myip = args.ip.split('/', 1)[0] + '/' + str(args.netmask)
 	
 	myhost = ipaddress.ip_interface(myip)
