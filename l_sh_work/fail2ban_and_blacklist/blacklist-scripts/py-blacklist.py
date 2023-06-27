@@ -26,9 +26,9 @@ import sys
 import ipaddress
 
 json_file = pathlib.Path('/etc/blacklist-scripts/ip-blacklist.json').resolve()
-json_ignore = pathlib.Path('/etc/blacklist-scripts/ip-ignorelist.json').resolve()
+json_ignore = pathlib.Path('/etc/blacklist-scripts/ip-whitelist.json').resolve()
 #json_file = pathlib.Path('./ip-blacklist.json').resolve()
-#json_ignore = pathlib.Path('./ip-ignorelist.json').resolve()
+#json_ignore = pathlib.Path('./ip-whitelist.json').resolve()
 
 class Arguments:
 	
@@ -55,7 +55,7 @@ def createParser():
 	parser.add_argument ('-a', '--add', action='store_true', default=False, help='Add to the blacklist.')
 	parser.add_argument ('-d', '--delete', action='store_true', default=False, help='Remove from the blacklist.')
 	parser.add_argument ('-s', '--show', action='store_true', default=False, help='Read the blacklist..')
-	parser.add_argument ('-i', '--ignore', action='store_true', default=False, help='Ignore address.')
+	parser.add_argument ('-i', '--ignore', action='store_true', default=False, help='Whitelist address.')
 	group1 = parser.add_argument_group('extend', 'Entering the address.')
 	group1.add_argument("-c", '--count', dest="count", metavar='COUNT', type=int, default=0, help='The number of locks after which the address is entered in IPTABLES.')
 	group1.add_argument("-q", '--quantity', dest="quantity", metavar='QUANTITY', type=int, default=0, help='How many times the address has been banned.')
