@@ -54,9 +54,6 @@ function start_ban() {
 }
 
 function stop_ban() {
-	blacklist=$(python "${py_blacklist_script}" -c 1 -s)
-	ignorelist=$(python "${py_blacklist_script}" -i -c 1 -s)
-	wait
 	$IPTABLES -L > "${iptables_tmp}"
 	wait
 	for IP in ${blacklist[*]}; do
