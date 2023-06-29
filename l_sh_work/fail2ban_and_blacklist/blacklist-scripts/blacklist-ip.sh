@@ -77,7 +77,7 @@ function stop_ban() {
 	$IPTABLES -L > "${iptables_tmp}"
 	wait
 	for IP in ${blacklist[*]}; do
-		ip=$(echo "${IP[*]}" | cut -d '/' -f1)
+		_ip=$(echo "${IP[*]}" | cut -d '/' -f1)
 		_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
 		wait
 		if [[ "${_host[*]}" != "" ]]; then
