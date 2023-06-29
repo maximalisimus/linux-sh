@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-blacklist_dir="/etc/blacklist-scripts"
-#blacklist_dir="."
+#blacklist_dir="/etc/blacklist-scripts"
+blacklist_dir="."
 
 env_file="${blacklist_dir}/blacklist_env"
 py_blacklist_script="${blacklist_dir}/py-blacklist.py"
@@ -24,90 +24,38 @@ _output_file=""
 _input_file=""
 
 function start_ban() {
+	_old_ignore="${_ignore}"
+	_ignore=1
+	wait
 	for IIP in ${ignorelist[*]}; do
-		_ip=$(echo "${IIP[*]}" | cut -d '/' -f1)
-		_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
-		wait
-		if [[ "${_host[*]}" != "" ]]; then
-			_host_mask="${_host[*]}"
-		else
-			_host_mask=""
-		fi
-		wait
-		if [[ $(cat "${iptables_tmp}" | grep -Ei "${IIP[*]}" | wc -l) -eq 0 ]]; then
-			if [[ "${_host_mask}" != "" ]]; then
-				if [[ $(cat "${iptables_tmp}" | grep -Ei "${_host_mask[*]}" | wc -l) -eq 0 ]]; then
-					$IPTABLES -t filter -A INPUT -s "${IIP[*]}" -j ACCEPT
-					echo " * Ignore ${IIP[*]}"
-				fi
-			else
-				$IPTABLES -t filter -A INPUT -s "${IIP[*]}" -j ACCEPT
-				echo " * Ignore ${IIP[*]}"
-			fi
-		fi
+		ban_unban "yes" "${IIP}"
 	done
 	wait
+	_ignore="${_old_ignore}"
+	wait
 	for IP in ${blacklist[*]}; do
-		_ip=$(echo "${IP[*]}" | cut -d '/' -f1)
-		_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
-		wait
-		if [[ "${_host[*]}" != "" ]]; then
-			_host_mask="${_host[*]}"
-		else
-			_host_mask=""
-		fi
-		wait
-		if [[ $(cat "${iptables_tmp}" | grep -Ei "${_ip[*]}" | wc -l) -eq 0 ]]; then
-			if [[ "${_host_mask}" != "" ]]; then
-				if [[ $(cat "${iptables_tmp}" | grep -Ei "${_host_mask[*]}" | wc -l) -eq 0 ]]; then
-					$IPTABLES -t filter -A INPUT -s "${IP[*]}" -j DROP
-					echo " * Ban ${IP[*]}"
-				fi
-			else
-				$IPTABLES -t filter -A INPUT -s "${IP[*]}" -j DROP
-				echo " * Ban ${IP[*]}"
-			fi
-		fi
+		ban_unban "yes" "${IP}"
 	done
 }
 
 function stop_ban() {
+	_old_ignore="${_ignore}"
+	wait
 	for IP in ${blacklist[*]}; do
-		_ip=$(echo "${IP[*]}" | cut -d '/' -f1)
-		_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
-		wait
-		if [[ "${_host[*]}" != "" ]]; then
-			_host_mask="${_host[*]}"
-		else
-			_host_mask=""
-		fi
-		wait
-		$IPTABLES -t filter -D INPUT -s "${IP[*]}" -j DROP
-		if [[ "${_host_mask}" != "" ]]; then
-			$IPTABLES -t filter -D INPUT -s "${_host_mask[*]}" -j DROP
-		fi
-		echo " * Unban ${IP[*]}"
+		ban_unban "no" "${IP}"
 	done
 	wait
+	_ignore=1
+	wait
 	for IIP in ${ignorelist[*]}; do
-		_ip=$(echo "${IIP[*]}" | cut -d '/' -f1)
-		_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
-		wait
-		if [[ "${_host[*]}" != "" ]]; then
-			_host_mask="${_host[*]}"
-		else
-			_host_mask=""
-		fi
-		wait
-		$IPTABLES -t filter -D INPUT -s "${IIP[*]}" -j ACCEPT
-		if [[ "${_host_mask}" != "" ]]; then
-			$IPTABLES -t filter -D INPUT -s "${_host_mask[*]}" -j ACCEPT
-		fi
-		echo " * Delete ignore ${IIP[*]}"
+		ban_unban "no" "${IIP}"
 	done
+	_ignore="${_old_ignore}"
 }
 
 function reload_ban() {
+	$IPTABLES -L > "${iptables_tmp}"
+	wait
 	stop_ban
 	wait
 	$IPTABLES -L > "${iptables_tmp}"
@@ -141,65 +89,58 @@ function ip_to_net(){
 	fi
 }
 
-function banied() {
-	if [[ "${_ignore}" -eq 0 ]]; then
-		_out_ip=$(ip_to_net "${1}")
-		_ip=$(echo "${_out_ip[*]}" | cut -d '/' -f1)
-		_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
-		wait
-		if [[ "${_host[*]}" != "" ]]; then
-			_host_mask="${_host[*]}"
-		else
-			_host_mask=""
-		fi
-		wait
-		if [[ $(cat "${iptables_tmp}" | grep -Ei "${_ip[*]}" | wc -l) -eq 0 ]]; then
-			if [[ "${_host_mask}" != "" ]]; then
-				if [[ $(cat "${iptables_tmp}" | grep -Ei "${_host_mask[*]}" | wc -l) -eq 0 ]]; then
-					$IPTABLES -t filter -A INPUT -s "${_out_ip[*]}" -j DROP
-					echo " * Ban ${_out_ip[*]}"
-				fi
+function question_ban() {
+	if [[ $(cat "${iptables_tmp}" | grep -Ei "${1}" | wc -l) -eq 0 ]]; then
+		if [[ "${2}" != "" ]]; then
+			if [[ $(cat "${iptables_tmp}" | grep -Ei "${2}" | wc -l) -eq 0 ]]; then
+				echo "empty"
 			else
-				$IPTABLES -t filter -A INPUT -s "${_out_ip[*]}" -j DROP
-				echo " * Ban ${_out_ip[*]}"
+				echo "no-empty"
 			fi
+		else
+			echo "empty"
 		fi
 	else
-		_out_ip=$(ip_to_net "${1}")
-		_ip=$(echo "${_out_ip[*]}" | cut -d '/' -f1)
-		_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
-		wait
-		if [[ "${_host[*]}" != "" ]]; then
-			_host_mask="${_host[*]}"
-		else
-			_host_mask=""
-		fi
-		wait
-		if [[ $(cat "${iptables_tmp}" | grep -Ei "${_ip[*]}" | wc -l) -eq 0 ]]; then
-			if [[ "${_host_mask}" != "" ]]; then
-				if [[ $(cat "${iptables_tmp}" | grep -Ei "${_host_mask[*]}" | wc -l) -eq 0 ]]; then
-					$IPTABLES -t filter -A INPUT -s "${_out_ip[*]}" -j ACCEPT
-					echo " * Ignore ${1}"
-				fi
-			else
-				$IPTABLES -t filter -A INPUT -s "${_out_ip[*]}" -j ACCEPT
-				echo " * Ignore ${_out_ip[*]}"
-			fi
-		fi
+		echo "no-empty"
 	fi
 }
 
-function unbanied() {
+function ban_unban() {
+	_add="${1}"
+	_out_ip=$(ip_to_net "${2}")
 	if [[ "${_ignore}" -eq 0 ]]; then
-		_out_ip=$(ip_to_net "${1}")
-		$IPTABLES -t filter -D INPUT -s "${_out_ip[*]}" -j DROP
-		wait
-		echo " * Unban ${_out_ip[*]}"		
+		_ip=$(echo "${_out_ip[*]}" | cut -d '/' -f1)
 	else
-		_out_ip=$(ip_to_net "${1}")
-		$IPTABLES -t filter -D INPUT -s "${_out_ip[*]}" -j ACCEPT
-		wait
-		echo " * Delete ignore ${_out_ip[*]}"
+		_ip=$(echo "${2}" | cut -d '/' -f1)
+	fi
+	_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
+	wait
+	if [[ "${_host[*]}" != "" ]]; then
+		_host_mask="${_host[*]}"
+	else
+		_host_mask=""
+	fi
+	wait
+	if [[ "${_add}" == "yes" ]]; then
+		if [[ $(question_ban "${_ip[*]}" "${_host_mask[*]}") == "empty" ]]; then
+			if [[ "${_ignore}" -eq 0 ]]; then
+				$IPTABLES -t filter -A INPUT -s "${_out_ip[*]}" -j DROP
+				echo " * Ban ${_out_ip[*]}"
+			else
+				$IPTABLES -t filter -A INPUT -s "${2}" -j ACCEPT
+				echo " * Ignore ${2}"
+			fi
+		fi
+	else
+		if [[ $(question_ban "${_ip[*]}" "${_host_mask[*]}") == "no-empty" ]]; then
+			if [[ "${_ignore}" -eq 0 ]]; then
+				$IPTABLES -t filter -D INPUT -s "${_out_ip[*]}" -j DROP
+				echo " * Unban ${_out_ip[*]}"
+			else
+				$IPTABLES -t filter -D INPUT -s "${2}" -j ACCEPT
+				echo " * Delete ignore ${2}"
+			fi
+		fi
 	fi
 }
 
@@ -250,7 +191,9 @@ while [ -n "$1" ]; do
 				echo "Launching the blacklist ..."
 				start_ban
 				;;
-		-stop) echo "Stopping the blacklist ..."
+		-stop)  $IPTABLES -L > "${iptables_tmp}"
+				wait
+				echo "Stopping the blacklist ..."
 				stop_ban
 				;;
 		-nostop) echo "Stopping the blacklist."
@@ -285,10 +228,12 @@ while [ -n "$1" ]; do
 			shift
 			;;
 		-ban) $IPTABLES -L > "${iptables_tmp}"
-				wait		
-				[[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && banied "${net_ip[*]}/${net_mask[*]}"
+				wait
+				[[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && ban_unban "yes" "${net_ip[*]}/${net_mask[*]}"
 				;;
-		-unban) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && unbanied "${net_ip[*]}/${net_mask[*]}"
+		-unban) $IPTABLES -L > "${iptables_tmp}"
+				wait
+				[[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && ban_unban "no" "${net_ip[*]}/${net_mask[*]}"
 				;;
 		-add) if [[ "${_ignore}" -eq 0 ]]; then
 				[[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && add_del_json "yes" "${net_ip[*]}" "${net_mask[*]}" "${_quantity}"

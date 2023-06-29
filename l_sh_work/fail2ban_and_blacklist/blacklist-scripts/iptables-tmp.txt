@@ -1,1 +1,20 @@
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination         
+ACCEPT     all  --  10.10.10.0/24        anywhere            
+DROP       all  --  52.162.218.19        anywhere            
+DROP       all  --  43.128.227.146       anywhere            
+DROP       all  --  134.209.243.49       anywhere            
+DROP       all  --  51.199.216.35.bc.googleusercontent.com  anywhere            
+DROP       all  --  193.187.172.27       anywhere            
+DROP       all  --  178.62.216.118       anywhere            
+DROP       all  --  193.35.18.177        anywhere            
+DROP       all  --  148.153.45.234       anywhere            
+DROP       all  --  prod-jerry-se-scanners-lon1-92.do.binaryedge.ninja  anywhere            
+DROP       all  --  188.166.151.195      anywhere            
+DROP       all  --  193.56.29.164        anywhere            
 
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination         
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination         
