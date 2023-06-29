@@ -25,10 +25,10 @@ import pathlib
 import sys
 import ipaddress
 
-#json_file = pathlib.Path('/etc/blacklist-scripts/ip-blacklist.json').resolve()
-#json_ignore = pathlib.Path('/etc/blacklist-scripts/ip-whitelist.json').resolve()
-json_file = pathlib.Path('./ip-blacklist.json').resolve()
-json_ignore = pathlib.Path('./ip-whitelist.json').resolve()
+json_file = pathlib.Path('/etc/blacklist-scripts/ip-blacklist.json').resolve()
+json_ignore = pathlib.Path('/etc/blacklist-scripts/ip-whitelist.json').resolve()
+#json_file = pathlib.Path('./ip-blacklist.json').resolve()
+#json_ignore = pathlib.Path('./ip-whitelist.json').resolve()
 
 json_out=''
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-#blacklist_dir="/etc/blacklist-scripts"
-blacklist_dir="."
+blacklist_dir="/etc/blacklist-scripts"
+#blacklist_dir="."
 
 env_file="${blacklist_dir}/blacklist_env"
 py_blacklist_script="${blacklist_dir}/py-blacklist.py"
 iptables_tmp="${blacklist_dir}/iptables-tmp.txt"
 
-source "${env_file}"
+IPTABLES=iptables
 
 blacklist=""
 net_ip=""
@@ -147,6 +147,10 @@ function ban_unban() {
 _help() {
 	echo -e -n "\nHelp $0"
 	echo -e -n "\nThe command is:\n"
+	echo -e -n "usage: blacklist-ip.sh [-ipv6] [-start] [-stop] [-nostop] [-reload]\n\t\t\t[-show] [-ignore]\n\t\t\t[-j] [-if input-file] [-of output file]"
+	echo -e -n "\n\t\t\t[-c count] [-q quantity] [-ip address] [-net mask]"
+	echo -e -n "\n\t\t\t[-ban] [-unban] [-add] [-del] [-h]"
+	echo -e -n "\n\t-ipv6\t\tip6tables.\n"
 	echo -e -n "\t-start\t\tLaunching a blacklist and adding network\n\t\t\t addresses to IPTABLES.\n"
 	echo -e -n "\t-stop\t\tStopping the blacklist and removing network\n\t\t\t addresses from IPTABLES.\n"
 	echo -e -n "\t-nostop\t\tStopping the blacklist and skipping network\n\t\t\t addresses from IPTABLES.\n"
@@ -246,6 +250,8 @@ while [ -n "$1" ]; do
 			else
 				[[ "${net_ip[*]}" != "" ]] && add_del_json "no" "${net_ip[*]}"
 			fi
+				;;
+		-ipv6) IPTABLES=ip6tables
 				;;
 		-[h?] | --help) _help;;
 		*) echo -e -n "\nUnkonwn parameters!\n"
