@@ -135,16 +135,18 @@ function add_del_json(){
 
 function ip_to_net(){
 	_ip=$(ipcalc "${1}" | grep -Ei "Network" | xargs -0 | awk '{print $2}')
-	echo "${_ip[*]}"
+	if [[ "${_ip[*]}" != "" ]]; then
+		echo "${_ip[*]}"
+	else
+		_ip=$(ipcalc "${1}" | grep -Ei "Address" | xargs -0 | awk '{print $2}')
+		echo "${_ip[*]}"
+	fi
 }
 
 function banied() {
 	if [[ "${_ignore}" -eq 0 ]]; then
 		_out_ip=$(ip_to_net "${1}")
 		$IPTABLES -t filter -A INPUT -s "${_out_ip[*]}" -j DROP
-		# $IPTABLES -t filter -A INPUT -s "${1}" -j DROP
-		wait
-		# add_del_json "yes" "${1}" "${2}"
 		wait
 		echo " * Ban ${1}"
 	else
@@ -158,9 +160,6 @@ function unbanied() {
 	if [[ "${_ignore}" -eq 0 ]]; then
 		_out_ip=$(ip_to_net "${1}")
 		$IPTABLES -t filter -D INPUT -s "${_out_ip[*]}" -j DROP
-		# $IPTABLES -t filter -D INPUT -s "${1}" -j DROP
-		wait
-		# add_del_json "no" "${1}" "${2}"
 		wait
 		echo " * Unban ${1}"		
 	else
@@ -249,17 +248,9 @@ while [ -n "$1" ]; do
 		-net) [[ $2 != "" ]] && net_mask="${2}"
 			shift
 			;;
-		-ban) if [[ "${_ignore}" -eq 0 ]]; then
-				[[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && banied "${net_ip[*]}" "${net_mask[*]}"
-			else
-				[[ "${net_ip[*]}" != "" ]] && banied "${net_ip[*]}"
-			fi
+		-ban) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && banied "${net_ip[*]}/${net_mask[*]}"
 				;;
-		-unban) if [[ "${_ignore}" -eq 0 ]]; then
-					[[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && unbanied "${net_ip[*]}" "${net_mask[*]}"
-				else
-					[[ "${net_ip[*]}" != "" ]] && unbanied "${net_ip[*]}"
-				fi
+		-unban) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && unbanied "${net_ip[*]}/${net_mask[*]}"
 				;;
 		-add) if [[ "${_ignore}" -eq 0 ]]; then
 				[[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && add_del_json "yes" "${net_ip[*]}" "${net_mask[*]}" "${_quantity}"
