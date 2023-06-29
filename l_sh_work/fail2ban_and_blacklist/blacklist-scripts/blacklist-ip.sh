@@ -24,8 +24,6 @@ _output_file=""
 _input_file=""
 
 function start_ban() {
-	$IPTABLES -L > "${iptables_tmp}"
-	wait
 	for IIP in ${ignorelist[*]}; do
 		_ip=$(echo "${IIP[*]}" | cut -d '/' -f1)
 		_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
@@ -74,8 +72,6 @@ function start_ban() {
 }
 
 function stop_ban() {
-	$IPTABLES -L > "${iptables_tmp}"
-	wait
 	for IP in ${blacklist[*]}; do
 		_ip=$(echo "${IP[*]}" | cut -d '/' -f1)
 		_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
@@ -114,6 +110,8 @@ function stop_ban() {
 function reload_ban() {
 	stop_ban
 	wait
+	$IPTABLES -L > "${iptables_tmp}"
+	wait	
 	start_ban
 }
 
@@ -144,8 +142,6 @@ function ip_to_net(){
 }
 
 function banied() {
-	$IPTABLES -L > "${iptables_tmp}"
-	wait
 	if [[ "${_ignore}" -eq 0 ]]; then
 		_out_ip=$(ip_to_net "${1}")
 		_ip=$(echo "${_out_ip[*]}" | cut -d '/' -f1)
@@ -198,7 +194,7 @@ function unbanied() {
 		_out_ip=$(ip_to_net "${1}")
 		$IPTABLES -t filter -D INPUT -s "${_out_ip[*]}" -j DROP
 		wait
-		echo " * Unban ${1}"		
+		echo " * Unban ${_out_ip[*]}"		
 	else
 		_out_ip=$(ip_to_net "${1}")
 		$IPTABLES -t filter -D INPUT -s "${_out_ip[*]}" -j ACCEPT
@@ -249,7 +245,9 @@ while [ -n "$1" ]; do
 		-of) [[ $2 != "" ]] && _output_file=${2}
 			shift
 			;;
-		-start) echo "Launching the blacklist ..."
+		-start) $IPTABLES -L > "${iptables_tmp}"
+				wait
+				echo "Launching the blacklist ..."
 				start_ban
 				;;
 		-stop) echo "Stopping the blacklist ..."
@@ -286,7 +284,9 @@ while [ -n "$1" ]; do
 		-net) [[ $2 != "" ]] && net_mask="${2}"
 			shift
 			;;
-		-ban) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && banied "${net_ip[*]}/${net_mask[*]}"
+		-ban) $IPTABLES -L > "${iptables_tmp}"
+				wait		
+				[[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && banied "${net_ip[*]}/${net_mask[*]}"
 				;;
 		-unban) [[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && unbanied "${net_ip[*]}/${net_mask[*]}"
 				;;
