@@ -59,7 +59,7 @@ function start_ban() {
 			_host_mask=""
 		fi
 		wait
-		if [[ $(cat "${iptables_tmp}" | grep -Ei "${IP[*]}" | wc -l) -eq 0 ]]; then
+		if [[ $(cat "${iptables_tmp}" | grep -Ei "${_ip[*]}" | wc -l) -eq 0 ]]; then
 			if [[ "${_host_mask}" != "" ]]; then
 				if [[ $(cat "${iptables_tmp}" | grep -Ei "${_host_mask[*]}" | wc -l) -eq 0 ]]; then
 					$IPTABLES -t filter -A INPUT -s "${IP[*]}" -j DROP
