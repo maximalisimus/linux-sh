@@ -144,15 +144,52 @@ function ip_to_net(){
 }
 
 function banied() {
+	$IPTABLES -L > "${iptables_tmp}"
+	wait
 	if [[ "${_ignore}" -eq 0 ]]; then
 		_out_ip=$(ip_to_net "${1}")
-		$IPTABLES -t filter -A INPUT -s "${_out_ip[*]}" -j DROP
+		_ip=$(echo "${_out_ip[*]}" | cut -d '/' -f1)
+		_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
 		wait
-		echo " * Ban ${1}"
+		if [[ "${_host[*]}" != "" ]]; then
+			_host_mask="${_host[*]}"
+		else
+			_host_mask=""
+		fi
+		wait
+		if [[ $(cat "${iptables_tmp}" | grep -Ei "${_ip[*]}" | wc -l) -eq 0 ]]; then
+			if [[ "${_host_mask}" != "" ]]; then
+				if [[ $(cat "${iptables_tmp}" | grep -Ei "${_host_mask[*]}" | wc -l) -eq 0 ]]; then
+					$IPTABLES -t filter -A INPUT -s "${_out_ip[*]}" -j DROP
+					echo " * Ban ${_out_ip[*]}"
+				fi
+			else
+				$IPTABLES -t filter -A INPUT -s "${_out_ip[*]}" -j DROP
+				echo " * Ban ${_out_ip[*]}"
+			fi
+		fi
 	else
-		$IPTABLES -t filter -A INPUT -s "${1}" -j ACCEPT
+		_out_ip=$(ip_to_net "${1}")
+		_ip=$(echo "${_out_ip[*]}" | cut -d '/' -f1)
+		_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
 		wait
-		echo " * Ignore ${1}"
+		if [[ "${_host[*]}" != "" ]]; then
+			_host_mask="${_host[*]}"
+		else
+			_host_mask=""
+		fi
+		wait
+		if [[ $(cat "${iptables_tmp}" | grep -Ei "${_ip[*]}" | wc -l) -eq 0 ]]; then
+			if [[ "${_host_mask}" != "" ]]; then
+				if [[ $(cat "${iptables_tmp}" | grep -Ei "${_host_mask[*]}" | wc -l) -eq 0 ]]; then
+					$IPTABLES -t filter -A INPUT -s "${_out_ip[*]}" -j ACCEPT
+					echo " * Ignore ${1}"
+				fi
+			else
+				$IPTABLES -t filter -A INPUT -s "${_out_ip[*]}" -j ACCEPT
+				echo " * Ignore ${_out_ip[*]}"
+			fi
+		fi
 	fi
 }
 
@@ -163,9 +200,10 @@ function unbanied() {
 		wait
 		echo " * Unban ${1}"		
 	else
-		$IPTABLES -t filter -D INPUT -s "${1}" -j ACCEPT
+		_out_ip=$(ip_to_net "${1}")
+		$IPTABLES -t filter -D INPUT -s "${_out_ip[*]}" -j ACCEPT
 		wait
-		echo " * Delete ignore ${1}"
+		echo " * Delete ignore ${_out_ip[*]}"
 	fi
 }
 
