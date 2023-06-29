@@ -3,7 +3,6 @@
 blacklist_dir="/etc/blacklist-scripts"
 #blacklist_dir="."
 
-env_file="${blacklist_dir}/blacklist_env"
 py_blacklist_script="${blacklist_dir}/py-blacklist.py"
 iptables_tmp="${blacklist_dir}/iptables-tmp.txt"
 
