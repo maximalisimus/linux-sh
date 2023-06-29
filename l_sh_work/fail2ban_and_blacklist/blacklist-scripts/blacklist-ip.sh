@@ -29,12 +29,13 @@ function start_ban() {
 	for IIP in ${ignorelist[*]}; do
 		_ip=$(echo "${IIP[*]}" | cut -d '/' -f1)
 		_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
-		_mask=$(echo "${IIP[*]}" | cut -d '/' -f2)
+		wait
 		if [[ "${_host[*]}" != "" ]]; then
-			_host_mask="${_host[*]}/${_mask[*]}"
+			_host_mask="${_host[*]}"
 		else
 			_host_mask=""
 		fi
+		wait
 		if [[ $(cat "${iptables_tmp}" | grep -Ei "${IIP[*]}" | wc -l) -eq 0 ]]; then
 			if [[ "${_host_mask}" != "" ]]; then
 				if [[ $(cat "${iptables_tmp}" | grep -Ei "${_host_mask[*]}" | wc -l) -eq 0 ]]; then
@@ -51,12 +52,13 @@ function start_ban() {
 	for IP in ${blacklist[*]}; do
 		_ip=$(echo "${IP[*]}" | cut -d '/' -f1)
 		_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
-		_mask=$(echo "${IP[*]}" | cut -d '/' -f2)
+		wait
 		if [[ "${_host[*]}" != "" ]]; then
-			_host_mask="${_host[*]}/${_mask[*]}"
+			_host_mask="${_host[*]}"
 		else
 			_host_mask=""
 		fi
+		wait
 		if [[ $(cat "${iptables_tmp}" | grep -Ei "${IP[*]}" | wc -l) -eq 0 ]]; then
 			if [[ "${_host_mask}" != "" ]]; then
 				if [[ $(cat "${iptables_tmp}" | grep -Ei "${_host_mask[*]}" | wc -l) -eq 0 ]]; then
@@ -77,12 +79,13 @@ function stop_ban() {
 	for IP in ${blacklist[*]}; do
 		ip=$(echo "${IP[*]}" | cut -d '/' -f1)
 		_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
-		_mask=$(echo "${IP[*]}" | cut -d '/' -f2)
+		wait
 		if [[ "${_host[*]}" != "" ]]; then
-			_host_mask="${_host[*]}/${_mask[*]}"
+			_host_mask="${_host[*]}"
 		else
 			_host_mask=""
 		fi
+		wait
 		$IPTABLES -t filter -D INPUT -s "${IP[*]}" -j DROP
 		if [[ "${_host_mask}" != "" ]]; then
 			$IPTABLES -t filter -D INPUT -s "${_host_mask[*]}" -j DROP
@@ -93,12 +96,13 @@ function stop_ban() {
 	for IIP in ${ignorelist[*]}; do
 		_ip=$(echo "${IIP[*]}" | cut -d '/' -f1)
 		_host=$(nslookup ${_ip[*]} | grep -Evi "can't find" | grep -Ei "in-addr.arpa|name" | cut -d '=' -f2 | xargs -0 | sed 's/.$//')
-		_mask=$(echo "${IIP[*]}" | cut -d '/' -f2)
+		wait
 		if [[ "${_host[*]}" != "" ]]; then
-			_host_mask="${_host[*]}/${_mask[*]}"
+			_host_mask="${_host[*]}"
 		else
 			_host_mask=""
 		fi
+		wait
 		$IPTABLES -t filter -D INPUT -s "${IIP[*]}" -j ACCEPT
 		if [[ "${_host_mask}" != "" ]]; then
 			$IPTABLES -t filter -D INPUT -s "${_host_mask[*]}" -j ACCEPT
