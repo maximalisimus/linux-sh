@@ -7,7 +7,7 @@ After=fail2ban.service
 Type=oneshot
 RemainAfterExit=yes
 ExecStart=/etc/blacklist-scripts/blacklist-ip.sh -c %i -start 2>/dev/null
-ExecStop=/etc/blacklist-scripts/blacklist-ip.sh -c %i -stop 2>/dev/null
+ExecStop=/etc/blacklist-scripts/blacklist-ip.sh -stop 2>/dev/null
 ExecReload=/etc/blacklist-scripts/blacklist-ip.sh -c %i -reload 2>/dev/null
 
 [Install]
