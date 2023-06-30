@@ -10,7 +10,7 @@ IPTABLES=iptables
 
 blacklist=""
 net_ip=""
-net_mask="24"
+net_mask=""
 _count=0
 _quantity=0
 _ignore=0
@@ -65,15 +65,15 @@ function reload_ban() {
 function add_del_json(){
 	if [[ "${1}" == 'yes' ]]; then
 		if [[ "${_ignore}" -eq 0 ]]; then
-			python "${py_blacklist_script}" -ip "${2}" -n "${3}" -q "${4}" -if "${_input_file}" -of "${_output_file}" -a
+			python "${py_blacklist_script}" -ip ${2} -n ${3} -q "${4}" -if "${_input_file}" -of "${_output_file}" -a
 		else
-			python "${py_blacklist_script}" -ip "${2}" -i -q "${3}" -if "${_input_file}" -of "${_output_file}" -a
+			python "${py_blacklist_script}" -ip ${2} -i -q "${3}" -if "${_input_file}" -of "${_output_file}" -a
 		fi
 	else
 		if [[ "${_ignore}" -eq 0 ]]; then
-			python "${py_blacklist_script}" -ip "${2}" -n "${3}" -if "${_input_file}" -of "${_output_file}" -d
+			python "${py_blacklist_script}" -ip ${2} -n ${3} -if "${_input_file}" -of "${_output_file}" -d
 		else
-			python "${py_blacklist_script}" -ip "${2}" -i -if "${_input_file}" -of "${_output_file}" -d
+			python "${py_blacklist_script}" -ip ${2} -i -if "${_input_file}" -of "${_output_file}" -d
 		fi
 	fi
 }
@@ -147,7 +147,8 @@ _help() {
 	echo -e -n "\nHelp $0"
 	echo -e -n "\nThe command is:\n"
 	echo -e -n "usage: blacklist-ip.sh [-ipv6] [-start] [-stop] [-nostop] [-reload]\n\t\t\t[-show] [-ignore]\n\t\t\t[-j] [-if input-file] [-of output file]"
-	echo -e -n "\n\t\t\t[-c count] [-q quantity] [-ip address] [-net mask]"
+	echo -e -n "\n\t\t\t[-c count] [-q quantity]"
+	echo -e -n "\n\t\t\t[-ip address ...] [-net mask ...]"
 	echo -e -n "\n\t\t\t[-ban] [-unban] [-add] [-del] [-h]"
 	echo -e -n "\n\t-ipv6\t\tip6tables.\n"
 	echo -e -n "\t-start\t\tLaunching a blacklist and adding network\n\t\t\t addresses to IPTABLES.\n"
@@ -232,11 +233,23 @@ while [ -n "$1" ]; do
 			;;
 		-ban) $IPTABLES -L > "${iptables_tmp}"
 				wait
-				[[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && ban_unban "yes" "${net_ip[*]}/${net_mask[*]}"
+				if [[ "${net_ip[*]}" != "" ]]; then 
+					if [[ "${net_mask[*]}" != "" ]]; then 
+						ban_unban "yes" "${net_ip[*]}/${net_mask[*]}"
+					else
+						ban_unban "yes" "${net_ip[*]}"
+					fi
+				fi
 				;;
 		-unban) $IPTABLES -L > "${iptables_tmp}"
 				wait
-				[[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && ban_unban "no" "${net_ip[*]}/${net_mask[*]}"
+				if [[ "${net_ip[*]}" != "" ]]; then 
+					if [[ "${net_mask[*]}" != "" ]]; then 
+						ban_unban "no" "${net_ip[*]}/${net_mask[*]}"
+					else
+						ban_unban "no" "${net_ip[*]}"
+					fi
+				fi
 				;;
 		-add) if [[ "${_ignore}" -eq 0 ]]; then
 				[[ "${net_ip[*]}" != "" ]] && [[ "${net_mask[*]}" != "" ]] && add_del_json "yes" "${net_ip[*]}" "${net_mask[*]}" "${_quantity}"

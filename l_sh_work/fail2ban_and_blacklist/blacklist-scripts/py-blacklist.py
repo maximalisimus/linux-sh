@@ -65,8 +65,8 @@ def createParser():
 	group1 = parser.add_argument_group('address', 'Entering the address.')
 	group1.add_argument("-c", '--count', dest="count", metavar='COUNT', type=int, default=0, help='The number of locks after which the address is entered in IPTABLES.')
 	group1.add_argument("-q", '--quantity', dest="quantity", metavar='QUANTITY', type=int, default=0, help='How many times the address has been banned.')
-	group1.add_argument("-ip", '--ip', dest="ip", metavar='IP', type=str, default='17.253.144.10', help='IP address (single or network).')
-	group1.add_argument("-n", '--netmask', dest="netmask", metavar='NETMASK', type=int, default=24, help='The network mask.')
+	group1.add_argument("-ip", '--ip', metavar='IP', type=str, default=['17.253.144.10/32'], nargs='+', help='IP address.')
+	group1.add_argument("-n", '--netmask', dest="netmask", metavar='NETMASK', type=int, default=[], nargs='+', help='The network mask.')
 	group2 = parser.add_argument_group('Files', 'Working with files.')
 	group2.add_argument ('-j', '--json', action='store_true', default=False, help='Show in json format.')
 	group2.add_argument("-if", '--infile', dest="infile", metavar='INFILE', type=str, default='', help='Input file.')
@@ -85,6 +85,17 @@ def read_write_json(jfile, typerw, data = dict()):
 def read_write_text(outfile, typerw, data = ""):
 	with open(outfile, typerw) as fp:
 		fp.write(data)
+
+def ip_to_net(in_ip, in_mask = 32):	
+	net_ip = str(in_ip).split('/', 1)[0]
+	if '/' in str(in_ip):
+		net_mask = str(in_ip).split('/', 1)[1]
+	else:
+		net_mask = str(in_mask)
+	out_ip = net_ip + '/' + net_mask
+	my_host = ipaddress.ip_interface(out_ip)
+	out_ip = f"{my_host.network}"
+	return out_ip
 
 def main():
 	global json_file
@@ -116,13 +127,6 @@ def main():
 	if not json_out.parent.exists():
 		json_out.parent.mkdir(parents=True)
 	
-	if args.ignore:
-		myip = args.ip
-	else:
-		myip = args.ip.split('/', 1)[0] + '/' + str(args.netmask)
-		myhost = ipaddress.ip_interface(myip)
-		myip = f"{myhost.network}"
-	
 	json_data = dict()
 	if not json_in.exists():
 		json_in.touch(mode=0o755, exist_ok=True)
@@ -130,23 +134,35 @@ def main():
 		json_data = read_write_json(json_in, 'r', dict())
 	
 	if args.add:
-		if json_data.get(myip, '-') != '-':
-			if args.quantity == 0:
-				count = json_data[myip]
-				json_data[myip] = count + 1
+		ipnetip = ""
+		for elem in range(len(args.ip)):
+			if len(args.netmask) > elem:
+				ipnetip = ip_to_net(args.ip[elem], args.netmask[elem])
 			else:
-				json_data[myip] = args.quantity
-		else:
-			if args.quantity == 0:
-				json_data[myip] = 1
+				ipnetip = ip_to_net(args.ip[elem])
+			if json_data.get(ipnetip, '-') != '-':
+				if args.quantity == 0:
+					count = json_data[ipnetip]
+					json_data[ipnetip] = count + 1
+				else:
+					json_data[ipnetip] = args.quantity
 			else:
-				json_data[myip] = args.quantity
+				if args.quantity == 0:
+					json_data[ipnetip] = 1
+				else:
+					json_data[ipnetip] = args.quantity
 		read_write_json(json_out, 'w', json_data)
 		sys.exit(0)
 	if args.delete:
-		if json_data.get(myip):
-			del json_data[myip]
-			read_write_json(json_out, 'w', json_data)
+		ipnetip = ""
+		for elem in range(len(args.ip)):
+			if len(args.netmask) > elem:
+				ipnetip = ip_to_net(args.ip[elem], args.netmask[elem])
+			else:
+				ipnetip = ip_to_net(args.ip[elem])
+			if json_data.get(ipnetip):
+				del json_data[ipnetip]
+		read_write_json(json_out, 'w', json_data)
 		sys.exit(0)
 	if args.show:
 		if args.json:
@@ -169,6 +185,8 @@ def main():
 					data2 = '\n'.join(tuple(k for k,v in json_data.items() if v >= args.count))
 					read_write_text(pathlib.Path(args.outfile).resolve(), 'w', f"{data2}")
 		sys.exit(0)
+	
+	
 
 if __name__ == '__main__':
 	main()
