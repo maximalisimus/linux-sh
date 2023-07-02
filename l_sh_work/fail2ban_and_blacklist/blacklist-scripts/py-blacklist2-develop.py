@@ -27,8 +27,9 @@ import ipaddress
 import socket
 import subprocess
 
-#workdir = '/etc/blacklist-scripts'
-workdir = '.'
+workdir = str(pathlib.Path(sys.argv[0]).resolve().parent)
+if workdir.endswith('/'):
+		workdir = workdir[:-1]
 blacklist_name = 'ip-blacklist.json'
 whitelist_name = 'ip-whitelist.json'
 json_black = pathlib.Path(f"{workdir}/{blacklist_name}").resolve()
