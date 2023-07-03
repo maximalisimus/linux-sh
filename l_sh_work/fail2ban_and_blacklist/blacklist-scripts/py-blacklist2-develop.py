@@ -101,6 +101,7 @@ def createParser():
 	parser_blist.add_argument ('-d', '--delete', action='store_true', default=False, help='Remove from the blacklist.')
 	parser_blist.add_argument ('-s', '--show', action='store_true', default=False, help='Read the blacklist.')
 	parser_blist.add_argument ('-j', '--json', action='store_true', default=False, help='JSON fromat show.')
+	parser_blist.add_argument ('-save', '--save', action='store_true', default=False, help='Save show info.')
 	parser_blist.add_argument("-o", '--output', dest="output", metavar='OUTPUT', type=str, default=f"{json_black}", help='Output blacklist file.')
 	parser_blist.set_defaults(onlist='black')	
 	
@@ -111,6 +112,7 @@ def createParser():
 	parser_wlist.add_argument ('-d', '--delete', action='store_true', default=False, help='Remove from the whitelist.')
 	parser_wlist.add_argument ('-s', '--show', action='store_true', default=False, help='Read the whitelist.')
 	parser_wlist.add_argument ('-j', '--json', action='store_true', default=False, help='JSON fromat show.')
+	parser_wlist.add_argument ('-save', '--save', action='store_true', default=False, help='Save show info.')
 	parser_wlist.add_argument("-o", '--output', dest="output", metavar='OUTPUT', type=str, default=f"{json_white}", help='Output whitelist file.')
 	parser_wlist.set_defaults(onlist='white')	
 	
@@ -204,7 +206,59 @@ def servicework(args: Arguments):
 
 def listwork(args: Arguments):
 	''' Working with lists. '''
-	pass
+	if args.ban:
+		pass
+		sys.exit(0)
+	if args.unban:
+		pass
+		sys.exit(0)
+	if args.add:
+		read_list(args)
+		pass
+		sys.exit(0)
+	if args.delete:
+		read_list(args)
+		pass
+		sys.exit(0)
+	if args.show:
+		read_list(args)
+		show_list(args)
+		sys.exit(0)
+
+def read_list(args: Arguments):
+	if args.blacklist.exists():
+		args.blacklist_json = read_write_json(args.blacklist, 'r')
+	else:
+		args.blacklist_json = dict()
+	if args.whitelist.exists():
+		args.whitelist_json = read_write_json(args.whitelist, 'r')
+	else:
+		args.whitelist_json = dict()
+
+def show_json(jobj: dict, counter: int = 0):
+	if counter == 0:
+		return tuple(f"{x}: {y}" for x, y in jobj.items())
+	else:
+		return tuple(f"{x}" for x,y in jobj.items() if y >= counter)
+
+def show_list(args: Arguments):
+	data = ''
+	if args.onlist == 'black':
+		if not args.json:
+			data = '\n'.join(show_json(args.blacklist_json, args.count))
+			print(data)
+		else:
+			data = json.dumps(args.blacklist_json, indent=2)
+			print(data)
+	elif args.onlist == 'white':
+		if not args.json:
+			data = '\n'.join(show_json(args.whitelist_json, args.count))
+			print(data)
+		else:
+			data = json.dumps(args.whitelist_json, indent=2)
+			print(data)
+	if args.save:
+		read_write_text(args.output, 'w', data)
 
 def main():	
 	''' The main cycle of the program. '''
@@ -248,6 +302,9 @@ def main():
 			'black': listwork,
 			'white': listwork
 			}
+	
+	if not pathlib.Path(str(workdir)).resolve().exists():
+		pathlib.Path(str(workdir)).resolve().mkdir(parents=True)
 	
 	if args.onlist != None:
 		func.get(args.onlist)(args)
