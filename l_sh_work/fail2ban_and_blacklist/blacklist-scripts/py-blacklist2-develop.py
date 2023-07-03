@@ -201,6 +201,8 @@ def switch(case = None, table = 'iptables', ip = None):
 	}.get(case, f"sudo {table} -L")
 
 def read_list(args: Arguments):
+	''' Read the input json files, if they are missing, 
+		replace them with an empty dictionary. '''
 	if args.blacklist.exists():
 		args.blacklist_json = read_write_json(args.blacklist, 'r')
 	else:
@@ -211,6 +213,7 @@ def read_list(args: Arguments):
 		args.whitelist_json = dict()
 
 def show_json(jobj: dict, counter: int = 0):
+	''' Viewing a json object according to the specified criteria. '''
 	if counter == 0:
 		return tuple(f"{x}: {y}" for x, y in jobj.items())
 	else:
@@ -224,6 +227,8 @@ def listwork(args: Arguments):
 	''' Working with lists. '''
 	
 	def show_list(args: Arguments):
+		''' Displaying information on the screen, 
+			according to the specified criteria. '''
 		data = ''
 		if args.onlist == 'black':
 			if not args.json:
