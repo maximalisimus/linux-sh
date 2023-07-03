@@ -230,20 +230,12 @@ def listwork(args: Arguments):
 		''' Displaying information on the screen, 
 			according to the specified criteria. '''
 		data = ''
-		if args.onlist == 'black':
-			if not args.json:
-				data = '\n'.join(show_json(args.blacklist_json, args.count))
-				print(data)
-			else:
-				data = json.dumps(args.blacklist_json, indent=2)
-				print(data)
-		elif args.onlist == 'white':
-			if not args.json:
-				data = '\n'.join(show_json(args.whitelist_json, args.count))
-				print(data)
-			else:
-				data = json.dumps(args.whitelist_json, indent=2)
-				print(data)
+		if not args.json:
+			data = '\n'.join(show_json(args.blacklist_json if args.onlist == 'black' else args.whitelist_json, args.count))
+			print(data)
+		else:
+			data = json.dumps(args.blacklist_json if args.onlist == 'black' else args.whitelist_json, indent=2)
+			print(data)
 		if args.save:
 			read_write_text(args.output, 'w', data + '\n')
 	
