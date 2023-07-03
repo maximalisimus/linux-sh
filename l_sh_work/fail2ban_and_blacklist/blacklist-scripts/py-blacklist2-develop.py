@@ -222,35 +222,6 @@ def show_json(jobj: dict, counter: int = 0):
 	else:
 		return tuple(f"{x}" for x,y in jobj.items() if y >= counter)
 
-def bun_unban_add_del_one(args: Arguments, isiptables: bool = True, istonet: bool = False, isadd: bool = True):
-	''' Function ban and unban. '''
-	global cmds
-	global messages
-	if istonet:
-		args.current = ip_to_net(args.current, args.current_mask)
-	if isban:
-		nomask = ip_no_mask(args.current)
-		hostname = ip_to_hostname(nomask)
-		if not nomask in args.iptables_text:
-			if not hostname in args.iptables_text:
-				commands = switch(cmds.get(args.onlist, dict()).get(str(isadd), 'add-black'), args.iptables, args.current)
-				shell_run(args.console, commands)
-				print(f"* {message.get(args.onlist, dict()).get(str(isadd), 'add-black')} {args.current}")
-	else:
-		json_data = args.blacklist_json.copy() if args.onlist == 'black' else args.whitelist_json.copy()
-		if json_data.get(args.current, '-') != '-':
-			if isadd:
-				json_data[args.current] = json_data[args.current] + 1 if args.quantity == 0 else args.quantity
-			else:
-				del json_data[args.current]
-		else:
-			if isadd:
-				json_data[args.current] = 1 if args.quantity == 0 else args.quantity
-		if args.onlist == 'black':
-			args.blacklist_json = json_data.copy()
-		else:
-			args.whitelist_json = json_data.copy()
-
 def servicework(args: Arguments):
 	''' Processing of service commands. '''
 	pass
