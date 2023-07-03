@@ -200,31 +200,6 @@ def switch(case = None, table = 'iptables', ip = None):
 			'read': 'sudo {table} -L'
 	}.get(case, f"sudo {table} -L")
 
-def servicework(args: Arguments):
-	''' Processing of service commands. '''
-	pass
-
-def listwork(args: Arguments):
-	''' Working with lists. '''
-	if args.ban:
-		pass
-		sys.exit(0)
-	if args.unban:
-		pass
-		sys.exit(0)
-	if args.add:
-		read_list(args)
-		pass
-		sys.exit(0)
-	if args.delete:
-		read_list(args)
-		pass
-		sys.exit(0)
-	if args.show:
-		read_list(args)
-		show_list(args)
-		sys.exit(0)
-
 def read_list(args: Arguments):
 	if args.blacklist.exists():
 		args.blacklist_json = read_write_json(args.blacklist, 'r')
@@ -241,24 +216,52 @@ def show_json(jobj: dict, counter: int = 0):
 	else:
 		return tuple(f"{x}" for x,y in jobj.items() if y >= counter)
 
-def show_list(args: Arguments):
-	data = ''
-	if args.onlist == 'black':
-		if not args.json:
-			data = '\n'.join(show_json(args.blacklist_json, args.count))
-			print(data)
-		else:
-			data = json.dumps(args.blacklist_json, indent=2)
-			print(data)
-	elif args.onlist == 'white':
-		if not args.json:
-			data = '\n'.join(show_json(args.whitelist_json, args.count))
-			print(data)
-		else:
-			data = json.dumps(args.whitelist_json, indent=2)
-			print(data)
-	if args.save:
-		read_write_text(args.output, 'w', data)
+def servicework(args: Arguments):
+	''' Processing of service commands. '''
+	pass
+
+def listwork(args: Arguments):
+	''' Working with lists. '''
+	
+	def show_list(args: Arguments):
+		data = ''
+		if args.onlist == 'black':
+			if not args.json:
+				data = '\n'.join(show_json(args.blacklist_json, args.count))
+				print(data)
+			else:
+				data = json.dumps(args.blacklist_json, indent=2)
+				print(data)
+		elif args.onlist == 'white':
+			if not args.json:
+				data = '\n'.join(show_json(args.whitelist_json, args.count))
+				print(data)
+			else:
+				data = json.dumps(args.whitelist_json, indent=2)
+				print(data)
+		if args.save:
+			read_write_text(args.output, 'w', data + '\n')
+	
+	if args.ban:
+		args.iptables_text = shell_run(args.console, switch('read', args.iptables))
+		pass
+		sys.exit(0)
+	if args.unban:
+		args.iptables_text = shell_run(args.console, switch('read', args.iptables))
+		pass
+		sys.exit(0)
+	if args.add:
+		read_list(args)
+		pass
+		sys.exit(0)
+	if args.delete:
+		read_list(args)
+		pass
+		sys.exit(0)
+	if args.show:
+		read_list(args)
+		show_list(args)
+		sys.exit(0)
 
 def main():	
 	''' The main cycle of the program. '''
