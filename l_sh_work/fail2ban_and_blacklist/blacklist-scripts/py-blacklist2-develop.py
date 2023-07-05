@@ -103,7 +103,11 @@ def createParser():
 	parser_blist.add_argument ('-j', '--json', action='store_true', default=False, help='JSON fromat show.')
 	parser_blist.add_argument ('-save', '--save', action='store_true', default=False, help='Save show info.')
 	parser_blist.add_argument("-o", '--output', dest="output", metavar='OUTPUT', type=str, default=f"{json_black}", help='Output blacklist file.')
-	parser_blist.set_defaults(onlist='black')	
+	parser_blist.set_defaults(onlist='black')
+	
+	pgroup1 = parser_blist.add_argument_group('Addressing', 'IP address management.')
+	pgroup1.add_argument("-ip", '--ip', metavar='IP', type=str, default=[''], nargs='+', help='IP address.')
+	pgroup1.add_argument("-m", '--mask', dest="mask", metavar='MASK', type=int, default=[], nargs='+', help='The network mask.')
 	
 	parser_wlist = subparsers.add_parser('white', help='Managing whitelists.')
 	parser_wlist.add_argument ('-ban', '--ban', action='store_true', default=False, help='Allow entered ip addresses in IPTABLES.')
@@ -114,13 +118,15 @@ def createParser():
 	parser_wlist.add_argument ('-j', '--json', action='store_true', default=False, help='JSON fromat show.')
 	parser_wlist.add_argument ('-save', '--save', action='store_true', default=False, help='Save show info.')
 	parser_wlist.add_argument("-o", '--output', dest="output", metavar='OUTPUT', type=str, default=f"{json_white}", help='Output whitelist file.')
-	parser_wlist.set_defaults(onlist='white')	
+	parser_wlist.set_defaults(onlist='white')
+	
+	pgroup2 = parser_wlist.add_argument_group('Addressing', 'IP address management.')
+	pgroup2.add_argument("-ip", '--ip', metavar='IP', type=str, default=[''], nargs='+', help='IP address.')
+	pgroup2.add_argument("-m", '--mask', dest="mask", metavar='MASK', type=int, default=[], nargs='+', help='The network mask.')
 	
 	group1 = parser.add_argument_group('Addressing', 'IP address management.')
 	group1.add_argument("-c", '--count', dest="count", metavar='COUNT', type=int, default=0, help='The number of locks after which the address is entered in IPTABLES (default 0).')
 	group1.add_argument("-q", '--quantity', dest="quantity", metavar='QUANTITY', type=int, default=0, help='How many times the address has been banned (default 0).')
-	group1.add_argument("-ip", '--ip', metavar='IP', type=str, default=[''], nargs='+', help='IP address.')
-	group1.add_argument("-m", '--mask', dest="mask", metavar='MASK', type=int, default=[], nargs='+', help='The network mask.')
 	
 	group2 = parser.add_argument_group('Files', 'Working with files.')
 	group2.add_argument("-wd", '--workdir', dest="workdir", metavar='WORKDIR', type=str, default=f"{workdir}", help='Working directory.')
@@ -131,7 +137,7 @@ def createParser():
 	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select IP6TABLES.')
 	group3.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default: "sh").')
 	
-	return parser, subparsers, parser_service, parser_blist, parser_wlist, group1, group2, group3
+	return parser, subparsers, parser_service, parser_blist, parser_wlist, pgroup1, pgroup2, group1, group2, group3
 
 def read_write_json(jfile, typerw, data = dict()):
 	''' The function of reading and writing JSON objects. '''
@@ -291,11 +297,25 @@ def listwork(args: Arguments):
 	
 	def add_del_one(args: Arguments):
 		''' Add or remove one ip address. '''
-		pass
+		if args.delete:
+			if args.json_data.get(args.current_ip):
+				del args.json_data[args.current_ip]
+		else:
+			if args.json_data.get(args.current_ip, '-') != '-':
+				args.json_data[args.current_ip] = args.json_data[args.current_ip] + 1 if args.quantity == 0 else args.quantity
+			else:
+				args.json_data[args.current_ip] = 1 if args.quantity == 0 else args.quantity
 	
 	def add_dell_full(args: Arguments):
 		''' Adding or deleting all entered ip addresses. '''
-		pass
+		args.json_data = args.blacklist_json if args.onlist == 'black' else args.whitelist_json
+		for elem in range(len(args.ip)):
+			args.current_ip = ip_to_net(args.ip[elem], args.mask[elem]) if len(args.mask) > elem else ip_to_net(args.ip[elem])
+			add_del_one(args)
+		if args.save:
+			read_write_json(args.output, 'w', args.json_data)
+		args.current_ip = None
+		args.json_data = None
 	
 	if args.ban:
 		args.iptables_info = shell_run(args.console, switch_iptables('read', args.iptables))
@@ -307,11 +327,11 @@ def listwork(args: Arguments):
 		sys.exit(0)
 	if args.add:
 		read_list(args)
-		pass
+		add_dell_full(args)
 		sys.exit(0)
 	if args.delete:
 		read_list(args)
-		pass
+		add_dell_full(args)
 		sys.exit(0)
 	if args.show:
 		read_list(args)
@@ -325,7 +345,7 @@ def main():
 	global json_white
 	global blacklist_name
 	global whitelist_name
-	parser, sb1, psб, pbl, pwl, gr1, gr2, gr3 = createParser()
+	parser, sb1, psб, pbl, pwl, pgr1, pgr2, gr1, gr2, gr3 = createParser()
 	args = Arguments()
 	parser.parse_args(namespace=Arguments)
 	
