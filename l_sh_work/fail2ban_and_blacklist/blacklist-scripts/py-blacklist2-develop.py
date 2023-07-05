@@ -35,9 +35,6 @@ whitelist_name = 'ip-whitelist.json'
 json_black = pathlib.Path(f"{workdir}/{blacklist_name}").resolve()
 json_white = pathlib.Path(f"{workdir}/{whitelist_name}").resolve()
 
-cmds = {'black': {'True': 'add-black', 'False': 'del-black'}, 'white': {'True': 'add-white', 'False': 'del-white'}}
-messages = {'black': {'True': 'Ban', 'False': 'Unban'}, 'white': {'True': 'Ignore', 'False': 'Del ignore'}}
-
 class Arguments:
 	''' Class «Arguments».
 	
@@ -193,7 +190,7 @@ def shell_run(shell: str, cmd: str) -> str:
 	proc.kill()
 	return out_data
 
-def switch(case = None, table = 'iptables', ip = None):
+def switch_iptables(case = None, table = 'iptables', ip = None):
 	''' Selecting a command to execute in the command shell. '''
 	return {
 			'add-white': f"sudo {table} -t filter -A INPUT -s {ip} -j ACCEPT",
@@ -202,6 +199,30 @@ def switch(case = None, table = 'iptables', ip = None):
 			'del-black': f"sudo {table} -t filter -D INPUT -s {ip} -j DROP",
 			'read': 'sudo {table} -L'
 	}.get(case, f"sudo {table} -L")
+
+def switch_cmds(case = None):
+	return {
+			'black': {
+					'True': 'add-black',
+					'False': 'del-black'
+					},
+			'white': {
+					'True': 'add-white',
+					'False': 'del-white'
+					},
+	}.get(case, dict())
+
+def switch_messages(case = None):
+	return {
+			'black': {
+					'True': 'Ban',
+					'False': 'Unban'
+				},
+			'white': {
+					'True': 'Ignore',
+					'False': 'Del ignore'
+				},
+	}.get(case, dict())
 
 def read_list(args: Arguments):
 	''' Read the input json files, if they are missing, 
@@ -222,9 +243,31 @@ def show_json(jobj: dict, counter: int = 0):
 	else:
 		return tuple(f"{x}" for x,y in jobj.items() if y >= counter)
 
+def ban_unban_one(args: Arguments):
+	''' Ban or unban one ip address. '''
+	# args.iptables_info
+	# args.current_ip
+	pass
+
 def servicework(args: Arguments):
 	''' Processing of service commands. '''
-	pass
+	
+	def service_start_stop(args: Arguments):
+		''' Launching or stopping the blacklist service. '''
+		pass
+
+	if args.start:
+		pass
+		sys.exit(0)
+	if args.stop:
+		pass
+		sys.exit(0)
+	if args.nostop:
+		pass
+		sys.exit(0)
+	if args.reload:
+		pass
+		sys.exit(0)
 
 def listwork(args: Arguments):
 	''' Working with lists. '''
@@ -242,12 +285,24 @@ def listwork(args: Arguments):
 		if args.save:
 			read_write_text(args.output, 'w', data + '\n')
 	
+	def ban_unban_full(args: Arguments):
+		''' Ban or unban all entered ip addresses. '''
+		pass
+	
+	def add_del_one(args: Arguments):
+		''' Add or remove one ip address. '''
+		pass
+	
+	def add_dell_full(args: Arguments):
+		''' Adding or deleting all entered ip addresses. '''
+		pass
+	
 	if args.ban:
-		args.iptables_text = shell_run(args.console, switch('read', args.iptables))
+		args.iptables_info = shell_run(args.console, switch_iptables('read', args.iptables))
 		pass
 		sys.exit(0)
 	if args.unban:
-		args.iptables_text = shell_run(args.console, switch('read', args.iptables))
+		args.iptables_info = shell_run(args.console, switch_iptables('read', args.iptables))
 		pass
 		sys.exit(0)
 	if args.add:
