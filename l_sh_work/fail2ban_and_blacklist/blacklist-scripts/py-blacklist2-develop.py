@@ -315,15 +315,11 @@ def ban_unban_one(args: Arguments):
 					comm = switch_cmds(args.onlist).get(str(args.add), 'add-black')
 					mess = switch_messages(args.onlist).get(str(args.add), 'add-black')
 					shell_run(args.console, switch_iptables(comm, args.iptables, args.current_ip))
-					# Debug
-					# print(switch_iptables(comm, args.iptables, args.current_ip))
 					print(f"* {mess} {args.current_ip} / {hostname}")
 			else:
 				comm = switch_cmds(args.onlist).get(str(args.add), 'add-black')
 				mess = switch_messages(args.onlist).get(str(args.add), 'add-black')
 				shell_run(args.console, switch_iptables(comm, args.iptables, args.current_ip))
-				# Debug
-				# print(switch_iptables(comm, args.iptables, args.current_ip))
 				print(f"* {mess} {args.current_ip}")
 	else:
 		if nomask in args.iptables_info:
@@ -333,15 +329,11 @@ def ban_unban_one(args: Arguments):
 					mess = switch_messages(args.onlist).get(str(args.add), 'del-black')
 					shell_run(args.console, switch_iptables(comm, args.iptables, args.current_ip))
 					shell_run(args.console, switch_iptables(comm, args.iptables, hostname))
-					# Debug
-					# print(switch_iptables(comm, args.iptables, args.current_ip))
 					print(f"* {mess} {args.current_ip} / {hostname}")
 			else:
 				comm = switch_cmds(args.onlist).get(str(args.add), 'del-black')
 				mess = switch_messages(args.onlist).get(str(args.add), 'del-black')
 				shell_run(args.console, switch_iptables(comm, args.iptables, args.current_ip))
-				# Debug
-				# print(switch_iptables(comm, args.iptables, args.current_ip))
 				print(f"* {mess} {args.current_ip}")
 		else:
 			if hostname != nomask:
@@ -350,8 +342,6 @@ def ban_unban_one(args: Arguments):
 					mess = switch_messages(args.onlist).get(str(args.add), 'del-black')
 					shell_run(args.console, switch_iptables(comm, args.iptables, args.current_ip))
 					shell_run(args.console, switch_iptables(comm, args.iptables, hostname))
-					# Debug
-					# print(switch_iptables(comm, args.iptables, args.current_ip))
 					print(f"* {mess} {args.current_ip} / {hostname}")
 
 def listwork(args: Arguments):
