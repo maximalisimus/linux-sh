@@ -254,37 +254,91 @@ def servicework(args: Arguments):
 	
 	def service_start_stop(args: Arguments):
 		''' Launching or stopping the blacklist service. '''
-		pass
-
+		args.onlist = 'white'
+		data_white = show_json(args.whitelist_json, 1)
+		data_black = show_json(args.blacklist_json, args.count)
+		for elem in range(len(data_white)):
+			args.current_ip = f"{data_white[elem]}"
+			ban_unban_one(args)
+		args.current_ip = None
+		args.onlist = 'black'
+		for elem in range(len(data_black)):
+			args.current_ip = f"{data_black[elem]}"
+			ban_unban_one(args)
+		args.current_ip = None
+		args.onlist = None
+		args.add = None
+	
+	read_list(args)
+	args.add = args.start
+	if args.count == 0:
+		args.count = 3
+	
 	if args.start:
-		pass
+		print('Launching the blacklist ...')
+		args.iptables_info = shell_run(args.console, switch_iptables('read', args.iptables))
+		service_start_stop(args)
+		print('Exit the blacklist ...')
 		sys.exit(0)
 	if args.stop:
-		pass
+		print('Stopping the blacklist ...')
+		args.iptables_info = shell_run(args.console, switch_iptables('read', args.iptables))
+		service_start_stop(args)
+		print('Exit the blacklist ...')
 		sys.exit(0)
 	if args.nostop:
-		pass
+		print('No stopped the blacklist.')
+		print('Exit the blacklist ...')
 		sys.exit(0)
 	if args.reload:
-		pass
+		print('Reload the blacklist ...')
+		args.iptables_info = shell_run(args.console, switch_iptables('read', args.iptables))
+		args.add = False
+		service_start_stop(args)
+		args.add = True
+		args.iptables_info = shell_run(args.console, switch_iptables('read', args.iptables))
+		service_start_stop(args)
+		print('Exit the blacklist ...')		
 		sys.exit(0)
 
 def ban_unban_one(args: Arguments):
 	''' Ban or unban one ip address. '''
 	nomask = ip_no_mask(args.current_ip)
 	hostname = ip_to_hostname(nomask)
-	if not nomask in args.iptables_info:
-		if hostname != nomask:
-			if not hostname in args.iptables_info:
+	if args.add:
+		if not nomask in args.iptables_info:
+			if hostname != nomask:
+				if not hostname in args.iptables_info:
+					comm = switch_cmds(args.onlist).get(str(args.add), 'add-black')
+					mess = switch_messages(args.onlist).get(str(args.add), 'add-black')
+					shell_run(args.console, switch_iptables(comm, args.iptables, args.current_ip))
+					# Debug
+					# print(switch_iptables(comm, args.iptables, args.current_ip))
+					print(f"* {mess} {args.current_ip} / {hostname}")
+			else:
 				comm = switch_cmds(args.onlist).get(str(args.add), 'add-black')
 				mess = switch_messages(args.onlist).get(str(args.add), 'add-black')
 				shell_run(args.console, switch_iptables(comm, args.iptables, args.current_ip))
+				# Debug
+				# print(switch_iptables(comm, args.iptables, args.current_ip))
 				print(f"* {mess} {args.current_ip}")
-		else:
-			comm = switch_cmds(args.onlist).get(str(args.add), 'add-black')
-			mess = switch_messages(args.onlist).get(str(args.add), 'add-black')
-			shell_run(args.console, switch_iptables(comm, args.iptables, args.current_ip))
-			print(f"* {mess} {args.current_ip}")
+	else:
+		if nomask in args.iptables_info:
+			if hostname != nomask:
+				if hostname in args.iptables_info:
+					comm = switch_cmds(args.onlist).get(str(args.add), 'del-black')
+					mess = switch_messages(args.onlist).get(str(args.add), 'del-black')
+					shell_run(args.console, switch_iptables(comm, args.iptables, args.current_ip))
+					# Debug
+					# print(switch_iptables(comm, args.iptables, args.current_ip))
+					print(f"* {mess} {args.current_ip} / {hostname}")
+			else:
+				comm = switch_cmds(args.onlist).get(str(args.add), 'del-black')
+				mess = switch_messages(args.onlist).get(str(args.add), 'del-black')
+				shell_run(args.console, switch_iptables(comm, args.iptables, args.current_ip))
+				# Debug
+				# print(switch_iptables(comm, args.iptables, args.current_ip))
+				print(f"* {mess} {args.current_ip}")
 
 def listwork(args: Arguments):
 	''' Working with lists. '''
@@ -332,20 +386,34 @@ def listwork(args: Arguments):
 		args.current_ip = None
 		args.json_data = None
 	
+	print('Launching the blacklist ...')
+	
 	if args.show:
 		read_list(args)
 		show_list(args)
+		print('Exit the blacklist ...')
 		sys.exit(0)
 	if args.ban:
+		args.old = args.add
+		args.add = True
 		ban_unban_full(args)
+		args.add = args.old
+		args.old = None
 	if args.unban:
+		args.old = args.add
+		args.add = False
 		ban_unban_full(args)
+		args.add = args.old
+		args.old = None
 	if args.add:
+		print('Adding the blacklist or whitelist ip addresses ...')
 		read_list(args)
 		add_dell_full(args)
 	if args.delete:
+		print('Deleting the blacklist or whitelist ip addresses ...')
 		read_list(args)
 		add_dell_full(args)
+	print('Exit the blacklist ...')
 
 def main():	
 	''' The main cycle of the program. '''
