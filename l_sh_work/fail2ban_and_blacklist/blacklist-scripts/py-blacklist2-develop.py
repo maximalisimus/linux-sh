@@ -427,6 +427,7 @@ def main():
 	global json_white
 	global blacklist_name
 	global whitelist_name
+	
 	parser, sb1, psб, pbl, pwl, pgr1, pgr2, gr1, gr2, gr3 = createParser()
 	args = Arguments()
 	parser.parse_args(namespace=Arguments)
