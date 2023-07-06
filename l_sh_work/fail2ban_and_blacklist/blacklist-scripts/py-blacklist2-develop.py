@@ -389,17 +389,20 @@ def listwork(args: Arguments):
 	print('Launching the blacklist ...')
 	
 	if args.show:
+		print('Viewing a blacklist or whitelist of ip addresses ...')
 		read_list(args)
 		show_list(args)
 		print('Exit the blacklist ...')
 		sys.exit(0)
 	if args.ban:
+		print('Ban the blacklist or ignore the whitelist ip addresses ...')
 		args.old = args.add
 		args.add = True
 		ban_unban_full(args)
 		args.add = args.old
 		args.old = None
 	if args.unban:
+		print('Unban the blacklist or delete ignored the whitelist ip addresses ...')
 		args.old = args.add
 		args.add = False
 		ban_unban_full(args)
