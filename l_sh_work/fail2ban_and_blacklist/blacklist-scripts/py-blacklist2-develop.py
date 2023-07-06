@@ -332,24 +332,20 @@ def listwork(args: Arguments):
 		args.current_ip = None
 		args.json_data = None
 	
-	if args.ban:
-		pass
-		sys.exit(0)
-	if args.unban:
-		pass
-		sys.exit(0)
-	if args.add:
-		read_list(args)
-		add_dell_full(args)
-		sys.exit(0)
-	if args.delete:
-		read_list(args)
-		add_dell_full(args)
-		sys.exit(0)
 	if args.show:
 		read_list(args)
 		show_list(args)
 		sys.exit(0)
+	if args.ban:
+		ban_unban_full(args)
+	if args.unban:
+		ban_unban_full(args)
+	if args.add:
+		read_list(args)
+		add_dell_full(args)
+	if args.delete:
+		read_list(args)
+		add_dell_full(args)
 
 def main():	
 	''' The main cycle of the program. '''
