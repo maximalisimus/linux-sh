@@ -205,7 +205,7 @@ def switch_iptables(case = None, table = 'iptables', ip = None):
 			'del-white': f"sudo {table} -t filter -D INPUT -s {ip} -j ACCEPT",
 			'add-black': f"sudo {table} -t filter -A INPUT -s {ip} -j DROP",
 			'del-black': f"sudo {table} -t filter -D INPUT -s {ip} -j DROP",
-			'read': 'sudo {table} -L'
+			'read': f"sudo {table} -L"
 	}.get(case, f"sudo {table} -L")
 
 def switch_cmds(case = None):
@@ -307,6 +307,7 @@ def ban_unban_one(args: Arguments):
 	''' Ban or unban one ip address. '''
 	nomask = ip_no_mask(args.current_ip)
 	hostname = ip_to_hostname(nomask)
+	comm = ''
 	if args.add:
 		if not nomask in args.iptables_info:
 			if hostname != nomask:
@@ -331,6 +332,7 @@ def ban_unban_one(args: Arguments):
 					comm = switch_cmds(args.onlist).get(str(args.add), 'del-black')
 					mess = switch_messages(args.onlist).get(str(args.add), 'del-black')
 					shell_run(args.console, switch_iptables(comm, args.iptables, args.current_ip))
+					shell_run(args.console, switch_iptables(comm, args.iptables, hostname))
 					# Debug
 					# print(switch_iptables(comm, args.iptables, args.current_ip))
 					print(f"* {mess} {args.current_ip} / {hostname}")
@@ -341,6 +343,16 @@ def ban_unban_one(args: Arguments):
 				# Debug
 				# print(switch_iptables(comm, args.iptables, args.current_ip))
 				print(f"* {mess} {args.current_ip}")
+		else:
+			if hostname != nomask:
+				if hostname in args.iptables_info:
+					comm = switch_cmds(args.onlist).get(str(args.add), 'del-black')
+					mess = switch_messages(args.onlist).get(str(args.add), 'del-black')
+					shell_run(args.console, switch_iptables(comm, args.iptables, args.current_ip))
+					shell_run(args.console, switch_iptables(comm, args.iptables, hostname))
+					# Debug
+					# print(switch_iptables(comm, args.iptables, args.current_ip))
+					print(f"* {mess} {args.current_ip} / {hostname}")
 
 def listwork(args: Arguments):
 	''' Working with lists. '''
