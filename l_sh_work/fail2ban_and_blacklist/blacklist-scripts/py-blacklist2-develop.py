@@ -249,12 +249,6 @@ def show_json(jobj: dict, counter: int = 0):
 	else:
 		return tuple(f"{x}" for x,y in jobj.items() if y >= counter)
 
-def ban_unban_one(args: Arguments):
-	''' Ban or unban one ip address. '''
-	# args.iptables_info
-	# args.current_ip
-	pass
-
 def servicework(args: Arguments):
 	''' Processing of service commands. '''
 	
@@ -275,6 +269,23 @@ def servicework(args: Arguments):
 		pass
 		sys.exit(0)
 
+def ban_unban_one(args: Arguments):
+	''' Ban or unban one ip address. '''
+	nomask = ip_no_mask(args.current_ip)
+	hostname = ip_to_hostname(nomask)
+	if not nomask in args.iptables_info:
+		if hostname != nomask:
+			if not hostname in args.iptables_info:
+				comm = switch_cmds(args.onlist).get(str(args.add), 'add-black')
+				mess = switch_messages(args.onlist).get(str(args.add), 'add-black')
+				shell_run(args.console, switch_iptables(comm, args.iptables, args.current_ip))
+				print(f"* {mess} {args.current_ip}")
+		else:
+			comm = switch_cmds(args.onlist).get(str(args.add), 'add-black')
+			mess = switch_messages(args.onlist).get(str(args.add), 'add-black')
+			shell_run(args.console, switch_iptables(comm, args.iptables, args.current_ip))
+			print(f"* {mess} {args.current_ip}")
+
 def listwork(args: Arguments):
 	''' Working with lists. '''
 	
@@ -293,7 +304,11 @@ def listwork(args: Arguments):
 	
 	def ban_unban_full(args: Arguments):
 		''' Ban or unban all entered ip addresses. '''
-		pass
+		args.iptables_info = shell_run(args.console, switch_iptables('read', args.iptables))
+		for elem in range(len(args.ip)):
+			args.current_ip = ip_to_net(args.ip[elem], args.mask[elem]) if len(args.mask) > elem else ip_to_net(args.ip[elem])
+			ban_unban_one(args)
+		args.current_ip = None
 	
 	def add_del_one(args: Arguments):
 		''' Add or remove one ip address. '''
@@ -318,11 +333,9 @@ def listwork(args: Arguments):
 		args.json_data = None
 	
 	if args.ban:
-		args.iptables_info = shell_run(args.console, switch_iptables('read', args.iptables))
 		pass
 		sys.exit(0)
 	if args.unban:
-		args.iptables_info = shell_run(args.console, switch_iptables('read', args.iptables))
 		pass
 		sys.exit(0)
 	if args.add:
