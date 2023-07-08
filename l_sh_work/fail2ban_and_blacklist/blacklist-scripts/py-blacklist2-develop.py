@@ -46,12 +46,12 @@ After=fail2ban.service
 
 [Service]
 Type=oneshot
-RemainAfterExit=yes''' + \
-f"\nExecStart={script_full} -c %i service -start\n" + \
-f"ExecStop={script_full} -c %i service -stop\n" + \
-f"ExecReload={script_full} -c %i service -reload\n\n" + \
-f"[Install]\n" + \
-f"WantedBy=multi-user.target"
+RemainAfterExit=yes
+ExecStart=blacklist -c %i service -start
+ExecStop=blacklist -c %i service -stop
+ExecReload=blacklist -c %i service -reload
+[Install]
+WantedBy=multi-user.target'''
 
 timer_text = '''[Unit]
 Description=Blacklist timer for banning and unbanning ip addresses of subnets.
@@ -318,6 +318,7 @@ def systemdwork(args: Arguments):
 	global timer_text
 	global systemd_service_file
 	global systemd_timer_file
+	global script_full
 	
 	if args.delete:
 		print('Delete systemd «blacklist@.service» and «blacklist@.timer» ...')
