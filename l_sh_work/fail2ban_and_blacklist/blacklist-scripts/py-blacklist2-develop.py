@@ -211,6 +211,7 @@ def switch_iptables(case = None, table = 'iptables', ip = None):
 	}.get(case, f"sudo {table} -L")
 
 def switch_cmds(case = None):
+	''' Selecting a command for the «switch_iptables» method. '''
 	return {
 			'black': {
 					'True': 'add-black',
@@ -223,6 +224,7 @@ def switch_cmds(case = None):
 	}.get(case, dict())
 
 def switch_messages(case = None):
+	''' Selecting a message to display on the screen. '''
 	return {
 			'black': {
 					'True': 'Ban',
@@ -286,7 +288,8 @@ def servicework(args: Arguments):
 			args.iptables_info = args.iptables_info[:filter_iptables[0]].strip()
 		service_str = f"sudo systemctl status blacklist@{args.count}.service"
 		args.service_info = shell_run(args.console, service_str)
-		print(f"{args.service_info}\n{args.iptables_info}")
+		print(f"----- Systemd Info -----\n{args.service_info}\n----- Systemd Info -----\n" + \
+			f"----- IPTABLES Info -----\n{args.iptables_info}\n----- IPTABLES Info -----")
 		sys.exit(0)
 	if args.start:
 		print('Launching the blacklist ...')
@@ -319,6 +322,7 @@ def ban_unban_one(args: Arguments):
 	''' Ban or unban one ip address. '''
 	
 	def banunban_host_nohost(not_found: str, ishostname: bool):
+		''' A single team is banned and disbanded. '''
 		nonlocal hostname
 		nonlocal nomask
 		nonlocal args
@@ -332,6 +336,8 @@ def ban_unban_one(args: Arguments):
 		print(f"* {mess} {args.current_ip} / {hostname}")
 	
 	def quastion_hostname_nomask(not_found: str):
+		''' The issue of processing a domain name 
+			during a ban or unban. '''
 		nonlocal hostname
 		nonlocal nomask
 		nonlocal args
