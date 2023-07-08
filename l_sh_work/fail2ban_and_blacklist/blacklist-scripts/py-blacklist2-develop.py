@@ -289,7 +289,7 @@ def servicework(args: Arguments):
 		service_str = f"sudo systemctl status blacklist@{args.count}.service"
 		args.service_info = shell_run(args.console, service_str)
 		print(f"----- Systemd Info -----\n{args.service_info}\n----- Systemd Info -----\n" + \
-			f"----- IPTABLES Info -----\n{args.iptables_info}\n----- IPTABLES Info -----")
+			f"\n----- IPTABLES Info -----\n{args.iptables_info}\n----- IPTABLES Info -----")
 		sys.exit(0)
 	if args.start:
 		print('Launching the blacklist ...')
