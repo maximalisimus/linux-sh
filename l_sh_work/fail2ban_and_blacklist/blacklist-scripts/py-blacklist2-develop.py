@@ -341,25 +341,41 @@ def systemdwork(args: Arguments):
 			args.service_info = shell_run(args.console, switch_systemd('status', args.count))
 			print(f"----- Systemd Info -----\n{args.service_info}\n----- Systemd Info -----")
 		if args.enable:
+			print(f"Enable «blacklist@{args.count}.timer» ...")
 			service_info = shell_run(args.console, switch_systemd('enable', args.count))
 			print(service_info)
+			print('Exit the blacklist ...')
 			sys.exit(0)
 		if args.disable:
+			print(f"Disable «blacklist@{args.count}.timer» ...")
 			service_info = shell_run(args.console, switch_systemd('disable', args.count))
 			print(service_info)
+			print('Exit the blacklist ...')
 			sys.exit(0)
 		if args.start:
+			print(f"Start «blacklist@{args.count}.service» ...")
 			service_info = shell_run(args.console, switch_systemd('start-service', args.count))
 			print(service_info)
+			print('Exit the blacklist ...')
+			sys.exit(0)
 		if args.stop:
+			print(f"Stop «blacklist@{args.count}.service» ...")
 			service_info = shell_run(args.console, switch_systemd('stop-service', args.count))
 			print(service_info)
+			print('Exit the blacklist ...')
+			sys.exit(0)
 		if args.starttimer:
+			print(f"Start «blacklist@{args.count}.timer» ...")
 			service_info = shell_run(args.console, switch_systemd('start-timer', args.count))
 			print(service_info)
+			print('Exit the blacklist ...')
+			sys.exit(0)
 		if args.stoptimer:
+			print(f"Stop «blacklist@{args.count}.timer» ...")
 			service_info = shell_run(args.console, switch_systemd('stop-timer', args.count))
 			print(service_info)
+			print('Exit the blacklist ...')
+			sys.exit(0)
 
 def servicework(args: Arguments):
 	''' Processing of service commands. '''
