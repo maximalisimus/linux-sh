@@ -36,6 +36,39 @@ whitelist_name = 'ip-whitelist.json'
 json_black = pathlib.Path(f"{workdir}/{blacklist_name}").resolve()
 json_white = pathlib.Path(f"{workdir}/{whitelist_name}").resolve()
 
+scrip_name = pathlib.Path(sys.argv[0]).resolve().name
+script_full = f"{workdir}/{scrip_name}"
+
+service_text = '''[Unit]
+Description=Blacklist service for banning and unbanning ip addresses of subnets.
+Wants=fail2ban.service
+After=fail2ban.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes''' + \
+f"\nExecStart={script_full} -c %i service -start\n" + \
+f"ExecStop={script_full} -c %i service -stop\n" + \
+f"ExecReload={script_full} -c %i service -reload\n\n" + \
+f"[Install]\n" + \
+f"WantedBy=multi-user.target"
+
+timer_text = '''[Unit]
+Description=Blacklist timer for banning and unbanning ip addresses of subnets.
+Wants=fail2ban.service
+After=fail2ban.service
+
+[Timer]
+Unit=blacklist@%i.service
+OnBootSec=20s
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target'''
+
+systemd_service_file = pathlib.Path('/etc/systemd/system/blacklist@.service').resolve()
+systemd_timer_file = pathlib.Path('/etc/systemd/system/blacklist@.timer').resolve()
+
 class Arguments:
 	''' Class «Arguments».
 	
@@ -90,13 +123,25 @@ def createParser():
 	
 	subparsers = parser.add_subparsers(title='Management', description='Management commands.', help='commands help.')
 	
+	parser_systemd = subparsers.add_parser('systemd', help='Systemd management.')
+	parser_systemd.add_argument ('-create', '--create', action='store_true', default=False, help='Create «blacklist@.service» and «blacklist@.timer».')
+	parser_systemd.add_argument ('-delete', '--delete', action='store_true', default=False, help='Delete «blacklist@.service» and «blacklist@.timer».')
+	parser_systemd.add_argument ('-status', '--status', action='store_true', default=False, help='Status «blacklist@.service».')
+	parser_systemd.add_argument ('-enable', '--enable', action='store_true', default=False, help='Enable «blacklist@.timer».')
+	parser_systemd.add_argument ('-disable', '--disable', action='store_true', default=False, help='Disable «blacklist@.timer».')
+	parser_systemd.add_argument ('-start', '--start', action='store_true', default=False, help='Start «blacklist@.service».')
+	parser_systemd.add_argument ('-stop', '--stop', action='store_true', default=False, help='Stop «blacklist@.service».')
+	parser_systemd.add_argument ('-starttimer', '--starttimer', action='store_true', default=False, help='Start «blacklist@.timer».')
+	parser_systemd.add_argument ('-stoptimer', '--stoptimer', action='store_true', default=False, help='Stop «blacklist@.timer».')
+	parser_systemd.set_defaults(onlist='systemd')	
+	
 	parser_service = subparsers.add_parser('service', help='Program management.')
 	parser_service.add_argument ('-start', '--start', action='store_true', default=False, help='Launching the blacklist.')
 	parser_service.add_argument ('-stop', '--stop', action='store_true', default=False, help='Stopping the blacklist.')
 	parser_service.add_argument ('-nostop', '--nostop', action='store_true', default=False, help='Stopping the blacklist without clearing IPTABLES.')
 	parser_service.add_argument ('-reload', '--reload', action='store_true', default=False, help='Restarting the blacklist.')
 	parser_service.add_argument ('-show', '--show', action='store_true', default=False, help='Show the service blacklist and iptables.')
-	parser_service.set_defaults(onlist='service')	
+	parser_service.set_defaults(onlist='service')
 	
 	parser_blist = subparsers.add_parser('black', help='Managing blacklists.')
 	parser_blist.add_argument ('-ban', '--ban', action='store_true', default=False, help='Block the entered ip addresses in IPTABLES.')
@@ -141,7 +186,7 @@ def createParser():
 	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select IP6TABLES.')
 	group3.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default: "sh").')
 	
-	return parser, subparsers, parser_service, parser_blist, parser_wlist, pgroup1, pgroup2, group1, group2, group3
+	return parser, subparsers, parser_service, parser_systemd, parser_blist, parser_wlist, pgroup1, pgroup2, group1, group2, group3
 
 def read_write_json(jfile, typerw, data = dict()):
 	''' The function of reading and writing JSON objects. '''
@@ -236,6 +281,18 @@ def switch_messages(case = None):
 				},
 	}.get(case, dict())
 
+def switch_systemd(case = None, counter = 3):
+	''' Systemd control selection. '''
+	return {
+			'status': f"sudo systemctl status blacklist@{counter}.service",
+			'start-service': f"sudo systemctl start blacklist@{counter}.service",
+			'stop-service': f"sudo systemctl stop blacklist@{counter}.service",
+			'enable': f"sudo systemctl enable blacklist@{counter}.timer",
+			'disable': f"sudo systemctl disable blacklist@{counter}.timer",
+			'start-timer': f"sudo systemctl start blacklist@{counter}.timer",
+			'stop-timer': f"sudo systemctl stop blacklist@{counter}.timer"
+	}.get(case, f"sudo systemctl status blacklist@{counter}.service")
+
 def read_list(args: Arguments):
 	''' Read the input json files, if they are missing, 
 		replace them with an empty dictionary. '''
@@ -254,6 +311,55 @@ def show_json(jobj: dict, counter: int = 0):
 		return tuple(f"{x}: {y}" for x, y in jobj.items())
 	else:
 		return tuple(f"{x}" for x,y in jobj.items() if y >= counter)
+
+def systemdwork(args: Arguments):
+	''' Systemd management. '''
+	global service_text
+	global timer_text
+	global systemd_service_file
+	global systemd_timer_file
+	
+	if args.delete:
+		print('Delete «systemd» blacklist ...')
+		shell_run(args.console, switch_systemd('stop-timer', args.count))
+		shell_run(args.console, switch_systemd('stop-service', args.count))
+		shell_run(args.console, switch_systemd('disable', args.count))
+		systemd_service_file.unlink(missing_ok=True)
+		systemd_timer_file.unlink(missing_ok=True)
+		print('Exit the blacklist ...')
+		sys.exit(0)
+	if args.create:
+		print('Create «systemd» blacklist ...')
+		shell_run(args.console, switch_systemd('stop-timer', args.count))
+		shell_run(args.console, switch_systemd('stop-service', args.count))
+		read_write_text(systemd_service_file, 'w', service_text)
+		read_write_text(systemd_timer_file, 'w', timer_text)
+		print('Exit the blacklist ...')
+		sys.exit(0)
+	if systemd_service_file.exists() and systemd_timer_file.exists():
+		if args.status:
+			args.service_info = shell_run(args.console, switch_systemd('status', args.count))
+			print(f"----- Systemd Info -----\n{args.service_info}\n----- Systemd Info -----")
+		if args.enable:
+			service_info = shell_run(args.console, switch_systemd('enable', args.count))
+			print(service_info)
+			sys.exit(0)
+		if args.disable:
+			service_info = shell_run(args.console, switch_systemd('disable', args.count))
+			print(service_info)
+			sys.exit(0)
+		if args.start:
+			service_info = shell_run(args.console, switch_systemd('start-service', args.count))
+			print(service_info)
+		if args.stop:
+			service_info = shell_run(args.console, switch_systemd('stop-service', args.count))
+			print(service_info)
+		if args.starttimer:
+			service_info = shell_run(args.console, switch_systemd('start-timer', args.count))
+			print(service_info)
+		if args.stoptimer:
+			service_info = shell_run(args.console, switch_systemd('stop-timer', args.count))
+			print(service_info)
 
 def servicework(args: Arguments):
 	''' Processing of service commands. '''
@@ -286,10 +392,7 @@ def servicework(args: Arguments):
 		filter_iptables = re.search(pattern, args.iptables_info).span()
 		if filter_iptables != None:
 			args.iptables_info = args.iptables_info[:filter_iptables[0]].strip()
-		service_str = f"sudo systemctl status blacklist@{args.count}.service"
-		args.service_info = shell_run(args.console, service_str)
-		print(f"----- Systemd Info -----\n{args.service_info}\n----- Systemd Info -----\n" + \
-			f"\n----- IPTABLES Info -----\n{args.iptables_info}\n----- IPTABLES Info -----")
+		print(f"\n----- IPTABLES Info -----\n{args.iptables_info}\n----- IPTABLES Info -----")
 		sys.exit(0)
 	if args.start:
 		print('Launching the blacklist ...')
@@ -449,7 +552,7 @@ def main():
 	global blacklist_name
 	global whitelist_name
 	
-	parser, sb1, psб, pbl, pwl, pgr1, pgr2, gr1, gr2, gr3 = createParser()
+	parser, sb1, psvc, psd, pbl, pwl, pgr1, pgr2, gr1, gr2, gr3 = createParser()
 	args = Arguments()
 	parser.parse_args(namespace=Arguments)
 	
@@ -481,6 +584,7 @@ def main():
 	
 	func = {
 			'service': servicework,
+			'systemd': systemdwork,
 			'black': listwork,
 			'white': listwork
 			}
