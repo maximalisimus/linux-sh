@@ -320,7 +320,7 @@ def systemdwork(args: Arguments):
 	global systemd_timer_file
 	
 	if args.delete:
-		print('Delete «systemd» blacklist ...')
+		print('Delete systemd «blacklist@.service» and «blacklist@.timer» ...')
 		shell_run(args.console, switch_systemd('stop-timer', args.count))
 		shell_run(args.console, switch_systemd('stop-service', args.count))
 		shell_run(args.console, switch_systemd('disable', args.count))
@@ -329,9 +329,10 @@ def systemdwork(args: Arguments):
 		print('Exit the blacklist ...')
 		sys.exit(0)
 	if args.create:
-		print('Create «systemd» blacklist ...')
+		print('Create systemd «blacklist@.service» and «blacklist@.timer» ...')
 		shell_run(args.console, switch_systemd('stop-timer', args.count))
 		shell_run(args.console, switch_systemd('stop-service', args.count))
+		shell_run(args.console, switch_systemd('disable', args.count))
 		read_write_text(systemd_service_file, 'w', service_text)
 		read_write_text(systemd_timer_file, 'w', timer_text)
 		print('Exit the blacklist ...')
