@@ -36,8 +36,8 @@ whitelist_name = 'ip-whitelist.json'
 json_black = pathlib.Path(f"{workdir}/{blacklist_name}").resolve()
 json_white = pathlib.Path(f"{workdir}/{whitelist_name}").resolve()
 
-scrip_name = pathlib.Path(sys.argv[0]).resolve().name
-script_full = f"{workdir}/{scrip_name}"
+script_name = pathlib.Path(sys.argv[0]).resolve().name
+script_full = f"{workdir}/{script_name}"
 
 service_text = '''[Unit]
 Description=Blacklist service for banning and unbanning ip addresses of subnets.
@@ -141,6 +141,7 @@ def createParser():
 	parser_service.add_argument ('-nostop', '--nostop', action='store_true', default=False, help='Stopping the blacklist without clearing IPTABLES.')
 	parser_service.add_argument ('-reload', '--reload', action='store_true', default=False, help='Restarting the blacklist.')
 	parser_service.add_argument ('-show', '--show', action='store_true', default=False, help='Show the service blacklist and iptables.')
+	parser_service.add_argument ('-link', '--link', action='store_true', default=False, help='Symlink to program on «/usr/bin/».')
 	parser_service.set_defaults(onlist='service')
 	
 	parser_blist = subparsers.add_parser('black', help='Managing blacklists.')
@@ -318,7 +319,6 @@ def systemdwork(args: Arguments):
 	global timer_text
 	global systemd_service_file
 	global systemd_timer_file
-	global script_full
 	
 	if args.delete:
 		print('Delete systemd «blacklist@.service» and «blacklist@.timer» ...')
@@ -381,6 +381,8 @@ def systemdwork(args: Arguments):
 
 def servicework(args: Arguments):
 	''' Processing of service commands. '''
+	global script_full
+	global script_name
 	
 	def service_start_stop(args: Arguments):
 		''' Launching or stopping the blacklist service. '''
@@ -398,12 +400,20 @@ def servicework(args: Arguments):
 		args.current_ip = None
 		args.onlist = None
 		args.add = None
-	
+		
 	read_list(args)
 	args.add = args.start
 	if args.count == 0:
 		args.count = 3
 	
+	if args.link:
+		print('Cryate the symlink to program on «/usr/bin/» ...')
+		script_full = pathlib.Path(f"{script_full}").resolve()
+		script_usr_bin = pathlib.Path('/usr/bin/blacklist').resolve()
+		shell_run(args.console, f"sudo ln -s {script_full} {script_usr_bin}")
+		shell_run(args.console, f"sudo chmod +x {script_usr_bin}")
+		print('Exit the blacklist ...')
+		sys.exit(0)
 	if args.show:
 		args.iptables_info = shell_run(args.console, switch_iptables('read', args.tables))
 		pattern = 'Chain FORWARD'
