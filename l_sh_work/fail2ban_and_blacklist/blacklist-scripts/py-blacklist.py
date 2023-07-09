@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-The Fail2Ban blacklist in Python.
+The Fail2Ban black and white list in Python.
 
 Artamonov Mikhail [https://github.com/maximalisimus]
 maximalis171091@yandex.ru
@@ -10,14 +10,21 @@ maximalis171091@yandex.ru
 """
 
 __author__ = 'Mikhail Artamonov'
+__progname__ = 'py-blacklist.py'
+__copyright__ = f"© The «{__progname__}». Copyright  by 2023."
+__credits__ = ["Mikhail Artamonov"]
+__license__ = "GPL3"
+__version__ = "1.0.0"
+__maintainer__ = "Mikhail Artamonov"
+__email__ = "maximalis171091@yandex.ru"
+__status__ = "Production"
+__date__ = '09.07.2023'
+__contact__ = 'VK: https://vk.com/shadow_imperator'
 
-try:
-	from .version import version, progname
-except ImportError:
-	version = "1.0.0"
-	progname = 'py-blacklist.py'
-
-__version__ = version
+infromation = f"Author: {__author__}\nProgname: {__progname__}\nVersion: {__version__}\nDate: {__date__}\n" + \
+			f"License: {__license__}\nCopyright: {__copyright__}\nCredits: {__credits__}\n" + \
+			f"Maintainer: {__maintainer__}\nStatus: {__status__}\n" + \
+			f"E-Mail: {__email__}\nContacts: {__contact__}"
 
 import argparse
 import json
@@ -119,8 +126,9 @@ def createParser():
 	global json_black
 	global json_white
 	global workdir
-	parser = argparse.ArgumentParser(prog=progname,description='The Fail2Ban blacklist in Python.')
-	parser.add_argument ('-v', '--version', action='version', version=f'{progname} {__version__}',  help='Version.')
+	parser = argparse.ArgumentParser(prog=__progname__,description='The Fail2Ban black and white list in Python.')
+	parser.add_argument ('-v', '--version', action='version', version=f'{__progname__} {__version__}',  help='Version.')
+	parser.add_argument ('-info', '--info', action='store_true', default=False, help='Information about the author.')
 	
 	subparsers = parser.add_subparsers(title='Management', description='Management commands.', help='commands help.')
 	
@@ -176,7 +184,7 @@ def createParser():
 	pgroup2.add_argument("-ip", '--ip', metavar='IP', type=str, default=[''], nargs='+', help='IP address.')
 	pgroup2.add_argument("-m", '--mask', dest="mask", metavar='MASK', type=int, default=[], nargs='+', help='The network mask.')
 	
-	group1 = parser.add_argument_group('Addressing', 'IP address management.')
+	group1 = parser.add_argument_group('Parameters', 'Settings for the number of bans.')
 	group1.add_argument("-c", '--count', dest="count", metavar='COUNT', type=int, default=0, help='The number of locks after which the address is entered in IPTABLES (default 0).')
 	group1.add_argument("-q", '--quantity', dest="quantity", metavar='QUANTITY', type=int, default=0, help='How many times the address has been banned (default 0).')
 	
@@ -637,7 +645,9 @@ def test_arguments(args: Arguments):
 
 def main():	
 	''' The main cycle of the program. '''
-		
+	
+	global infromation
+	
 	parser, sb1, psvc, psd, pbl, pwl, pgr1, pgr2, gr1, gr2, gr3 = createParser()
 	args = Arguments()
 	parser.parse_args(namespace=Arguments)
@@ -650,6 +660,10 @@ def main():
 			'black': listwork,
 			'white': listwork
 			}
+	
+	if args.info:
+		print(infromation)
+		sys.exit(0)
 	
 	if args.onlist != None:
 		func.get(args.onlist)(args)
