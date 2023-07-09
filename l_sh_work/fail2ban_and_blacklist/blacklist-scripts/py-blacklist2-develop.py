@@ -38,6 +38,7 @@ json_white = pathlib.Path(f"{workdir}/{whitelist_name}").resolve()
 
 script_name = pathlib.Path(sys.argv[0]).resolve().name
 script_full = f"{workdir}/{script_name}"
+script_tmp = f"{workdir}/tmpfile"
 
 service_text = '''[Unit]
 Description=Blacklist service for banning and unbanning ip addresses of subnets.
@@ -142,6 +143,7 @@ def createParser():
 	parser_service.add_argument ('-reload', '--reload', action='store_true', default=False, help='Restarting the blacklist.')
 	parser_service.add_argument ('-show', '--show', action='store_true', default=False, help='Show the service blacklist and iptables.')
 	parser_service.add_argument ('-link', '--link', action='store_true', default=False, help='Symlink to program on «/usr/bin/».')
+	parser_service.add_argument ('-unlink', '--unlink', action='store_true', default=False, help='Unlink to program on «/usr/bin/».')
 	parser_service.set_defaults(onlist='service')
 	
 	parser_blist = subparsers.add_parser('black', help='Managing blacklists.')
@@ -383,6 +385,7 @@ def servicework(args: Arguments):
 	''' Processing of service commands. '''
 	global script_full
 	global script_name
+	global script_tmp
 	
 	def service_start_stop(args: Arguments):
 		''' Launching or stopping the blacklist service. '''
@@ -412,6 +415,15 @@ def servicework(args: Arguments):
 		script_usr_bin = pathlib.Path('/usr/bin/blacklist').resolve()
 		shell_run(args.console, f"sudo ln -s {script_full} {script_usr_bin}")
 		shell_run(args.console, f"sudo chmod +x {script_usr_bin}")
+		print('Exit the blacklist ...')
+		sys.exit(0)
+	if args.unlink:
+		print('Delete the symlink to program on «/usr/bin/» ...')
+		src1 = pathlib.Path(script_full).resolve()
+		src2 = pathlib.Path(script_tmp).resolve()
+		src1.rename(src2)
+		shell_run(args.console, f"rm -rf /usr/bin/blacklist")
+		src2.rename(src1)
 		print('Exit the blacklist ...')
 		sys.exit(0)
 	if args.show:
