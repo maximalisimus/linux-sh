@@ -34,18 +34,22 @@ import ipaddress
 import socket
 import subprocess
 import re
+from datetime import datetime
 
 workdir = str(pathlib.Path(sys.argv[0]).resolve().parent)
 if workdir.endswith('/'):
 		workdir = workdir[:-1]
 blacklist_name = 'ip-blacklist.json'
 whitelist_name = 'ip-whitelist.json'
-json_black = pathlib.Path(f"{workdir}/{blacklist_name}").resolve()
-json_white = pathlib.Path(f"{workdir}/{whitelist_name}").resolve()
+json_black = pathlib.Path(f"{workdir}").resolve().joinpath(blacklist_name)
+json_white = pathlib.Path(f"{workdir}").resolve().joinpath(whitelist_name)
 
 script_name = pathlib.Path(sys.argv[0]).resolve().name
 script_full = f"{workdir}/{script_name}"
 script_tmp = f"{workdir}/tmpfile"
+
+log_name = 'blacklist_log.txt'
+log_file = pathlib.Path(f"{workdir}").resolve().joinpath(log_name)
 
 service_text = '''[Unit]
 Description=Blacklist service for banning and unbanning ip addresses of subnets.
@@ -126,6 +130,8 @@ def createParser():
 	global json_black
 	global json_white
 	global workdir
+	global log_file
+	
 	parser = argparse.ArgumentParser(prog=__progname__,description='The Fail2Ban black and white list in Python.')
 	parser.add_argument ('-v', '--version', action='version', version=f'{__progname__} {__version__}',  help='Version.')
 	parser.add_argument ('-info', '--info', action='store_true', default=False, help='Information about the author.')
@@ -196,6 +202,8 @@ def createParser():
 	group3 = parser.add_argument_group('Settings', 'Configurations.')
 	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select IP6TABLES.')
 	group3.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default: "sh").')
+	group3.add_argument("-logfile", '--logfile', dest="logfile", metavar='LOGFILE', type=str, default=f"{log_file}", help='Log file.')
+	group3.add_argument ('-nolog', '--nolog', action='store_false', default=True, help="Don't keep a log file.")
 	
 	return parser, subparsers, parser_service, parser_systemd, parser_blist, parser_wlist, pgroup1, pgroup2, group1, group2, group3
 
@@ -330,6 +338,10 @@ def systemdwork(args: Arguments):
 	global systemd_service_file
 	global systemd_timer_file
 	
+	if args.nolog:
+		args.log_txt = []
+		args.log_txt.clear()
+	
 	if args.delete:
 		print('Delete systemd «blacklist@.service» and «blacklist@.timer» ...')
 		shell_run(args.console, switch_systemd('stop-timer', args.count))
@@ -338,6 +350,10 @@ def systemdwork(args: Arguments):
 		systemd_service_file.unlink(missing_ok=True)
 		systemd_timer_file.unlink(missing_ok=True)
 		print('Exit the blacklist ...')
+		if args.nolog:
+			args.log_txt.append(f"Delete systemd «blacklist@.service» and «blacklist@.timer» ...")
+			args.log_txt.append(f"Exit the blacklist ...")
+			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 		sys.exit(0)
 	if args.create:
 		print('Create systemd «blacklist@.service» and «blacklist@.timer» ...')
@@ -347,46 +363,79 @@ def systemdwork(args: Arguments):
 		read_write_text(systemd_service_file, 'w', service_text)
 		read_write_text(systemd_timer_file, 'w', timer_text)
 		print('Exit the blacklist ...')
+		if args.nolog:
+			args.log_txt.append(f"Create systemd «blacklist@.service» and «blacklist@.timer» ...")
+			args.log_txt.append(f"Exit the blacklist ...")
+			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 		sys.exit(0)
 	if systemd_service_file.exists() and systemd_timer_file.exists():
 		if args.status:
 			args.service_info = shell_run(args.console, switch_systemd('status', args.count))
 			print(f"----- Systemd Info -----\n{args.service_info}\n----- Systemd Info -----")
+			if args.nolog:
+				args.log_txt.append(f"----- Systemd Info -----\n{args.service_info}\n----- Systemd Info -----")
+				args.log_txt.append(f"Exit the blacklist ...")
+				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
+			sys.exit(0)
 		if args.enable:
 			print(f"Enable «blacklist@{args.count}.timer» ...")
 			service_info = shell_run(args.console, switch_systemd('enable', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
+			if args.nolog:
+				args.log_txt.append(f"Enable «blacklist@{args.count}.timer» ...")
+				args.log_txt.append(f"Exit the blacklist ...")
+				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 			sys.exit(0)
 		if args.disable:
 			print(f"Disable «blacklist@{args.count}.timer» ...")
 			service_info = shell_run(args.console, switch_systemd('disable', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
+			if args.nolog:
+				args.log_txt.append(f"Disable «blacklist@{args.count}.timer» ...")
+				args.log_txt.append(f"Exit the blacklist ...")
+				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 			sys.exit(0)
 		if args.start:
 			print(f"Start «blacklist@{args.count}.service» ...")
 			service_info = shell_run(args.console, switch_systemd('start-service', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
+			if args.nolog:
+				args.log_txt.append(f"Start «blacklist@{args.count}.service» ...")
+				args.log_txt.append(f"Exit the blacklist ...")
+				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 			sys.exit(0)
 		if args.stop:
 			print(f"Stop «blacklist@{args.count}.service» ...")
 			service_info = shell_run(args.console, switch_systemd('stop-service', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
+			if args.nolog:
+				args.log_txt.append(f"Stop «blacklist@{args.count}.service» ...")
+				args.log_txt.append(f"Exit the blacklist ...")
+				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 			sys.exit(0)
 		if args.starttimer:
 			print(f"Start «blacklist@{args.count}.timer» ...")
 			service_info = shell_run(args.console, switch_systemd('start-timer', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
+			if args.nolog:
+				args.log_txt.append(f"Start «blacklist@{args.count}.timer» ...")
+				args.log_txt.append(f"Exit the blacklist ...")
+				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 			sys.exit(0)
 		if args.stoptimer:
 			print(f"Stop «blacklist@{args.count}.timer» ...")
 			service_info = shell_run(args.console, switch_systemd('stop-timer', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
+			if args.nolog:
+				args.log_txt.append(f"Stop «blacklist@{args.count}.timer» ...")
+				args.log_txt.append(f"Exit the blacklist ...")
+				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 			sys.exit(0)
 
 def servicework(args: Arguments):
@@ -394,6 +443,10 @@ def servicework(args: Arguments):
 	global script_full
 	global script_name
 	global script_tmp
+	
+	if args.nolog:
+		args.log_txt = []
+		args.log_txt.clear()
 	
 	def service_start_stop(args: Arguments):
 		''' Launching or stopping the blacklist service. '''
@@ -411,7 +464,7 @@ def servicework(args: Arguments):
 		args.current_ip = None
 		args.onlist = None
 		args.add = None
-		
+	
 	read_list(args)
 	args.add = args.start
 	if args.count == 0:
@@ -424,6 +477,10 @@ def servicework(args: Arguments):
 		shell_run(args.console, f"sudo ln -s {script_full} {script_usr_bin}")
 		shell_run(args.console, f"sudo chmod +x {script_usr_bin}")
 		print('Exit the blacklist ...')
+		if args.nolog:
+			args.log_txt.append('Cryate the symlink to program on «/usr/bin/» ...')
+			args.log_txt.append(f"Exit the blacklist ...")
+			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 		sys.exit(0)
 	if args.unlink:
 		print('Delete the symlink to program on «/usr/bin/» ...')
@@ -433,6 +490,10 @@ def servicework(args: Arguments):
 		shell_run(args.console, f"rm -rf /usr/bin/blacklist")
 		src2.rename(src1)
 		print('Exit the blacklist ...')
+		if args.nolog:
+			args.log_txt.append('Delete the symlink to program on «/usr/bin/» ...')
+			args.log_txt.append(f"Exit the blacklist ...")
+			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 		sys.exit(0)
 	if args.show:
 		args.iptables_info = shell_run(args.console, switch_iptables('read', args.tables))
@@ -443,30 +504,49 @@ def servicework(args: Arguments):
 		print(f"\n----- IPTABLES Info -----\n{args.iptables_info}\n----- IPTABLES Info -----")
 		sys.exit(0)
 	if args.start:
-		print('Launching the blacklist ...')
+		print('Start the blacklist ...')
 		args.iptables_info = shell_run(args.console, switch_iptables('read', args.tables))
+		if args.nolog:
+			args.log_txt.append('Start the blacklist ...')
 		service_start_stop(args)
 		print('Exit the blacklist ...')
+		if args.nolog:
+			args.log_txt.append(f"Exit the blacklist ...")
+			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 		sys.exit(0)
 	if args.stop:
 		print('Stopping the blacklist ...')
 		args.iptables_info = shell_run(args.console, switch_iptables('read', args.tables))
+		if args.nolog:
+			args.log_txt.append('Stopping the blacklist ...')
 		service_start_stop(args)
 		print('Exit the blacklist ...')
+		if args.nolog:
+			args.log_txt.append(f"Exit the blacklist ...")
+			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 		sys.exit(0)
 	if args.nostop:
 		print('No stopped the blacklist.')
 		print('Exit the blacklist ...')
+		if args.nolog:
+			args.log_txt.append('No stopped the blacklist.')
+			args.log_txt.append(f"Exit the blacklist ...")
+			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 		sys.exit(0)
 	if args.reload:
 		print('Reload the blacklist ...')
 		args.iptables_info = shell_run(args.console, switch_iptables('read', args.tables))
+		if args.nolog:
+			args.log_txt.append('Reload the blacklist ...')
 		args.add = False
 		service_start_stop(args)
 		args.add = True
 		args.iptables_info = shell_run(args.console, switch_iptables('read', args.tables))
 		service_start_stop(args)
 		print('Exit the blacklist ...')		
+		if args.nolog:
+			args.log_txt.append(f"Exit the blacklist ...")
+			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 		sys.exit(0)
 
 def ban_unban_one(args: Arguments):
@@ -485,6 +565,8 @@ def ban_unban_one(args: Arguments):
 		if ishostname:
 			shell_run(args.console, switch_iptables(comm, args.tables, hostname))
 		print(f"* {mess} {args.current_ip} / {hostname}")
+		if args.nolog:
+			args.log_txt.append(f"* {mess} {args.current_ip} / {hostname}")
 	
 	def quastion_hostname_nomask(not_found: str):
 		''' The issue of processing a domain name 
@@ -517,6 +599,10 @@ def ban_unban_one(args: Arguments):
 def listwork(args: Arguments):
 	''' Working with lists. '''
 	
+	if args.nolog:
+		args.log_txt = []
+		args.log_txt.clear()
+	
 	def show_list(args: Arguments):
 		''' Displaying information on the screen, 
 			according to the specified criteria. '''
@@ -543,11 +629,17 @@ def listwork(args: Arguments):
 		if args.delete:
 			if args.json_data.get(args.current_ip):
 				del args.json_data[args.current_ip]
+				if args.nolog:
+					args.log_txt.append(f"del {args.current_ip}")
 		else:
 			if args.json_data.get(args.current_ip, '-') != '-':
 				args.json_data[args.current_ip] = args.json_data[args.current_ip] + 1 if args.quantity == 0 else args.quantity
+				if args.nolog:
+					args.log_txt.append(f"add {args.current_ip} = {args.json_data[args.current_ip]}")
 			else:
 				args.json_data[args.current_ip] = 1 if args.quantity == 0 else args.quantity
+				if args.nolog:
+					args.log_txt.append(f"add {args.current_ip} = {args.json_data[args.current_ip]}")
 	
 	def add_dell_full(args: Arguments):
 		''' Adding or deleting all entered ip addresses. '''
@@ -561,6 +653,8 @@ def listwork(args: Arguments):
 		args.json_data = None
 	
 	print('Launching the blacklist ...')
+	if args.nolog:
+		args.log_txt.append(f"Launching the blacklist ...")
 	
 	if args.show:
 		print('Viewing a blacklist or whitelist of ip addresses ...')
@@ -570,6 +664,8 @@ def listwork(args: Arguments):
 		sys.exit(0)
 	if args.ban:
 		print('Ban the blacklist or ignore the whitelist ip addresses ...')
+		if args.nolog:
+			args.log_txt.append(f"Ban the blacklist or ignore the whitelist ip addresses ...")
 		args.old = args.add
 		args.add = True
 		ban_unban_full(args)
@@ -577,6 +673,8 @@ def listwork(args: Arguments):
 		args.old = None
 	if args.unban:
 		print('Unban the blacklist or delete ignored the whitelist ip addresses ...')
+		if args.nolog:
+			args.log_txt.append(f"Unban the blacklist or delete ignored the whitelist ip addresses ...")
 		args.old = args.add
 		args.add = False
 		ban_unban_full(args)
@@ -584,15 +682,29 @@ def listwork(args: Arguments):
 		args.old = None
 	if args.add:
 		print('Adding the blacklist or whitelist ip addresses ...')
+		if args.nolog:
+			args.log_txt.append(f"Adding the blacklist or whitelist ip addresses ...")
 		read_list(args)
 		add_dell_full(args)
 	if args.delete:
 		print('Deleting the blacklist or whitelist ip addresses ...')
+		if args.nolog:
+			args.log_txt.append(f"Deleting the blacklist or whitelist ip addresses ...")
 		read_list(args)
 		add_dell_full(args)
 	print('Exit the blacklist ...')
+	if args.nolog:
+		args.log_txt.append(f"Exit the blacklist ...")
+		read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 
 def test_arguments(args: Arguments):
+	''' Test arguments and edit online parameters... '''
+	
+	def stampToStr(timeStamp: int, strFormat = "%d.%m.%Y-%H:%M:%S") -> str:
+		dateTime = datetime.fromtimestamp(timeStamp)
+		datestr = dateTime.strftime(strFormat)
+		return datestr
+	
 	global workdir
 	global json_black
 	global json_white
@@ -635,6 +747,10 @@ def test_arguments(args: Arguments):
 		if args.output != None:
 			args.output = pathlib.Path(f"{args.output}").resolve()
 	
+	if args.logfile != '':
+		if args.logfile != None:
+			args.logfile = pathlib.Path(f"{args.logfile}").resolve()
+	
 	if not args.ipv6:
 		args.tables = "iptables"
 	else:
@@ -642,6 +758,14 @@ def test_arguments(args: Arguments):
 	
 	if not pathlib.Path(str(workdir)).resolve().exists():
 		pathlib.Path(str(workdir)).resolve().mkdir(parents=True)
+	
+	if not args.logfile.exists():
+		args.logfile.touch(mode=0o744)
+	else:
+		file_date = stampToStr(args.logfile.stat().st_mtime, "%d.%m.%Y")
+		ondate = datetime.now().strftime("%d.%m.%Y")
+		if file_date != ondate:
+			read_write_text(args.logfile, 'w', '\n')
 
 def main():	
 	''' The main cycle of the program. '''
