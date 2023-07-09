@@ -584,17 +584,27 @@ def listwork(args: Arguments):
 		add_dell_full(args)
 	print('Exit the blacklist ...')
 
-def main():	
-	''' The main cycle of the program. '''
+def test_arguments(args: Arguments):
 	global workdir
 	global json_black
 	global json_white
 	global blacklist_name
 	global whitelist_name
 	
-	parser, sb1, psvc, psd, pbl, pwl, pgr1, pgr2, gr1, gr2, gr3 = createParser()
-	args = Arguments()
-	parser.parse_args(namespace=Arguments)
+	if args.count < 0:
+		print("The number of locks to display cannot be a negative number (from 0 and above.)!")
+		args.count = 0
+	if args.quantity < 0:
+		print("The number of locks to save cannot be a negative number (from 0 and above.)!")
+		args.quantity = 0
+	
+	if args.mask != None:
+		if len(args.mask) > 1:
+			for elem in range(len(args.mask)):
+				if args.mask[elem] < 1:
+					args.mask[elem] = 1
+				elif args.mask[elem] > 32:
+					args.mask[elem] = 32
 	
 	if workdir != args.workdir:
 		workdir = args.workdir
@@ -622,15 +632,24 @@ def main():
 	else:
 		args.tables = 'ip6tables'
 	
+	if not pathlib.Path(str(workdir)).resolve().exists():
+		pathlib.Path(str(workdir)).resolve().mkdir(parents=True)
+
+def main():	
+	''' The main cycle of the program. '''
+		
+	parser, sb1, psvc, psd, pbl, pwl, pgr1, pgr2, gr1, gr2, gr3 = createParser()
+	args = Arguments()
+	parser.parse_args(namespace=Arguments)
+	
+	test_arguments(args)
+	
 	func = {
 			'service': servicework,
 			'systemd': systemdwork,
 			'black': listwork,
 			'white': listwork
 			}
-	
-	if not pathlib.Path(str(workdir)).resolve().exists():
-		pathlib.Path(str(workdir)).resolve().mkdir(parents=True)
 	
 	if args.onlist != None:
 		func.get(args.onlist)(args)
