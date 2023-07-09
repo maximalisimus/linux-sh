@@ -204,6 +204,7 @@ def createParser():
 	group3.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default: "sh").')
 	group3.add_argument("-logfile", '--logfile', dest="logfile", metavar='LOGFILE', type=str, default=f"{log_file}", help='Log file.')
 	group3.add_argument ('-nolog', '--nolog', action='store_false', default=True, help="Don't keep a log file.")
+	group3.add_argument ('-limit', '--limit', action='store_true', default=False, help='Limit the log file.')
 	
 	return parser, subparsers, parser_service, parser_systemd, parser_blist, parser_wlist, pgroup1, pgroup2, group1, group2, group3
 
@@ -762,10 +763,11 @@ def test_arguments(args: Arguments):
 	if not args.logfile.exists():
 		args.logfile.touch(mode=0o744)
 	else:
-		file_date = stampToStr(args.logfile.stat().st_mtime, "%d.%m.%Y")
-		ondate = datetime.now().strftime("%d.%m.%Y")
-		if file_date != ondate:
-			read_write_text(args.logfile, 'w', '\n')
+		if args.limit:
+			file_date = stampToStr(args.logfile.stat().st_mtime, "%d.%m.%Y")
+			ondate = datetime.now().strftime("%d.%m.%Y")
+			if file_date != ondate:
+				read_write_text(args.logfile, 'w', '\n')
 
 def main():	
 	''' The main cycle of the program. '''
