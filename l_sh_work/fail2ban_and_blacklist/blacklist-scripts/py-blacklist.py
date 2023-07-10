@@ -206,6 +206,7 @@ def createParser():
 	group3.add_argument ('-nolog', '--nolog', action='store_false', default=True, help="Don't keep a log file.")
 	group3.add_argument ('-limit', '--limit', action='store_true', default=False, help='Limit the log file.')
 	group3.add_argument ('-viewlog', '--viewlog', action='store_true', default=False, help='View the log file.')
+	group3.add_argument ('-resetlog', '--resetlog', action='store_true', default=False, help='Reset the log file.')
 	
 	return parser, subparsers, parser_service, parser_systemd, parser_blist, parser_wlist, pgroup1, pgroup2, group1, group2, group3
 
@@ -775,6 +776,8 @@ def test_arguments(args: Arguments):
 		if args.viewlog:
 			print(read_write_text(args.logfile, 'r'))
 			sys.exit(0)
+		if args.resetlog:
+			read_write_text(args.logfile, 'w', '\n')
 
 def main():	
 	''' The main cycle of the program. '''
