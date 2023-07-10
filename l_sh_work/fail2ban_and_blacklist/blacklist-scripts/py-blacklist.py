@@ -378,10 +378,6 @@ def systemdwork(args: Arguments):
 		if args.status:
 			args.service_info = shell_run(args.console, switch_systemd('status', args.count))
 			print(f"----- Systemd Info -----\n{args.service_info}\n----- Systemd Info -----")
-			if args.nolog:
-				args.log_txt.append(f"----- Systemd Info -----\n{args.service_info}\n----- Systemd Info -----")
-				args.log_txt.append(f"Exit the blacklist ...")
-				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 			sys.exit(0)
 		if args.enable:
 			print(f"Enable «blacklist@{args.count}.timer» ...")
