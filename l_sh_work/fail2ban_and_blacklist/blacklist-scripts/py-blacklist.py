@@ -774,6 +774,7 @@ def test_arguments(args: Arguments):
 			sys.exit(0)
 		if args.resetlog:
 			read_write_text(args.logfile, 'w', '\n')
+			sys.exit(0)
 
 def main():	
 	''' The main cycle of the program. '''
