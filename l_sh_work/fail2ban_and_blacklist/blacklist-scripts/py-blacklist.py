@@ -344,6 +344,9 @@ def systemdwork(args: Arguments):
 		args.log_txt = []
 		args.log_txt.clear()
 	
+	if args.count == 0:
+		args.count = 3
+	
 	if args.delete:
 		print('Delete systemd «blacklist@.service» and «blacklist@.timer» ...')
 		shell_run(args.console, switch_systemd('stop-timer', args.count))
