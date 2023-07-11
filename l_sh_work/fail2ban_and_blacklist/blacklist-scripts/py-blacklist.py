@@ -267,15 +267,15 @@ def shell_run(shell: str, cmd: str) -> str:
 	proc.kill()
 	return out_data
 
-def switch_iptables(case = None, table = 'iptables', ip = None):
+def switch_iptables(case = None, protocol = 'iptables', ip = None):
 	''' Selecting a command to execute in the command shell. '''
 	return {
-			'add-white': f"sudo {table} -t filter -A INPUT -s {ip} -j ACCEPT",
-			'del-white': f"sudo {table} -t filter -D INPUT -s {ip} -j ACCEPT",
-			'add-black': f"sudo {table} -t filter -A INPUT -s {ip} -j DROP",
-			'del-black': f"sudo {table} -t filter -D INPUT -s {ip} -j DROP",
-			'read': f"sudo {table} -L"
-	}.get(case, f"sudo {table} -L")
+			'add-white': f"sudo {protocol} -t filter -A INPUT -s {ip} -j ACCEPT",
+			'del-white': f"sudo {protocol} -t filter -D INPUT -s {ip} -j ACCEPT",
+			'add-black': f"sudo {protocol} -t filter -A INPUT -s {ip} -j DROP",
+			'del-black': f"sudo {protocol} -t filter -D INPUT -s {ip} -j DROP",
+			'read': f"sudo {protocol} -L"
+	}.get(case, f"sudo {protocol} -L")
 
 def switch_cmds(case = None):
 	''' Selecting a command for the «switch_iptables» method. '''
@@ -498,7 +498,7 @@ def servicework(args: Arguments):
 			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 		sys.exit(0)
 	if args.show:
-		args.iptables_info = shell_run(args.console, switch_iptables('read', args.tables))
+		args.iptables_info = shell_run(args.console, switch_iptables('read', args.protocol))
 		pattern = 'Chain FORWARD'
 		filter_iptables = re.search(pattern, args.iptables_info).span()
 		if filter_iptables != None:
@@ -507,7 +507,7 @@ def servicework(args: Arguments):
 		sys.exit(0)
 	if args.start:
 		print('Start the blacklist ...')
-		args.iptables_info = shell_run(args.console, switch_iptables('read', args.tables))
+		args.iptables_info = shell_run(args.console, switch_iptables('read', args.protocol))
 		if args.nolog:
 			args.log_txt.append('Start the blacklist ...')
 		service_start_stop(args)
@@ -518,7 +518,7 @@ def servicework(args: Arguments):
 		sys.exit(0)
 	if args.stop:
 		print('Stopping the blacklist ...')
-		args.iptables_info = shell_run(args.console, switch_iptables('read', args.tables))
+		args.iptables_info = shell_run(args.console, switch_iptables('read', args.protocol))
 		if args.nolog:
 			args.log_txt.append('Stopping the blacklist ...')
 		service_start_stop(args)
@@ -537,13 +537,13 @@ def servicework(args: Arguments):
 		sys.exit(0)
 	if args.reload:
 		print('Reload the blacklist ...')
-		args.iptables_info = shell_run(args.console, switch_iptables('read', args.tables))
+		args.iptables_info = shell_run(args.console, switch_iptables('read', args.protocol))
 		if args.nolog:
 			args.log_txt.append('Reload the blacklist ...')
 		args.add = False
 		service_start_stop(args)
 		args.add = True
-		args.iptables_info = shell_run(args.console, switch_iptables('read', args.tables))
+		args.iptables_info = shell_run(args.console, switch_iptables('read', args.protocol))
 		service_start_stop(args)
 		print('Exit the blacklist ...')		
 		if args.nolog:
@@ -563,9 +563,9 @@ def ban_unban_one(args: Arguments):
 		nonlocal comm
 		comm = switch_cmds(args.onlist).get(str(args.add), not_found)
 		mess = switch_messages(args.onlist).get(str(args.add), not_found)
-		shell_run(args.console, switch_iptables(comm, args.tables, args.current_ip))
+		shell_run(args.console, switch_iptables(comm, args.protocol, args.current_ip))
 		if ishostname:
-			shell_run(args.console, switch_iptables(comm, args.tables, hostname))
+			shell_run(args.console, switch_iptables(comm, args.protocol, hostname))
 		print(f"* {mess} {args.current_ip} / {hostname}")
 		if args.nolog:
 			args.log_txt.append(f"* {mess} {args.current_ip} / {hostname}")
@@ -620,7 +620,7 @@ def listwork(args: Arguments):
 	
 	def ban_unban_full(args: Arguments):
 		''' Ban or unban all entered ip addresses. '''
-		args.iptables_info = shell_run(args.console, switch_iptables('read', args.tables))
+		args.iptables_info = shell_run(args.console, switch_iptables('read', args.protocol))
 		for elem in range(len(args.ip)):
 			args.current_ip = ip_to_net(args.ip[elem], args.mask[elem]) if len(args.mask) > elem else ip_to_net(args.ip[elem])
 			ban_unban_one(args)
@@ -754,9 +754,9 @@ def test_arguments(args: Arguments):
 			args.logfile = pathlib.Path(f"{args.logfile}").resolve()
 	
 	if not args.ipv6:
-		args.tables = "iptables"
+		args.protocol = "iptables"
 	else:
-		args.tables = 'ip6tables'
+		args.protocol = 'ip6tables'
 	
 	if not pathlib.Path(str(workdir)).resolve().exists():
 		pathlib.Path(str(workdir)).resolve().mkdir(parents=True)
