@@ -720,13 +720,22 @@ def test_arguments(args: Arguments):
 		print("The number of locks to save cannot be a negative number (from 0 and above.)!")
 		args.quantity = 0
 	
+	if not args.ipv6:
+		args.protocol = "iptables"
+		args.minmask = 1
+		args.maxmask = 32
+	else:
+		args.protocol = 'ip6tables'
+		args.minmask = 1
+		args.maxmask = 128
+	
 	if args.mask != None:
 		if len(args.mask) > 1:
 			for elem in range(len(args.mask)):
-				if args.mask[elem] < 1:
-					args.mask[elem] = 1
-				elif args.mask[elem] > 32:
-					args.mask[elem] = 32
+				if args.mask[elem] < args.minmask:
+					args.mask[elem] = args.minmask
+				elif args.mask[elem] > args.maxmask:
+					args.mask[elem] = args.maxmask
 	
 	if workdir != args.workdir:
 		workdir = args.workdir
@@ -752,11 +761,6 @@ def test_arguments(args: Arguments):
 	if args.logfile != '':
 		if args.logfile != None:
 			args.logfile = pathlib.Path(f"{args.logfile}").resolve()
-	
-	if not args.ipv6:
-		args.protocol = "iptables"
-	else:
-		args.protocol = 'ip6tables'
 	
 	if not pathlib.Path(str(workdir)).resolve().exists():
 		pathlib.Path(str(workdir)).resolve().mkdir(parents=True)
