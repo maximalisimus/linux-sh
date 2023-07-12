@@ -51,19 +51,24 @@ script_tmp = f"{workdir}/tmpfile"
 log_name = 'blacklist_log.txt'
 log_file = pathlib.Path(f"{workdir}").resolve().joinpath(log_name)
 
-service_text = '''[Unit]
+service_text = ''
+service_text1 = '''[Unit]
 Description=Blacklist service for banning and unbanning ip addresses of subnets.
 Wants=fail2ban.service
 After=fail2ban.service
 
 [Service]
 Type=oneshot
-RemainAfterExit=yes
-ExecStart=blacklist -c %i service -start
-ExecStop=blacklist -c %i service -stop
-ExecReload=blacklist -c %i service -reload
-[Install]
-WantedBy=multi-user.target'''
+RemainAfterExit=yes'''
+service_text2 = "\nExecStart=blacklist"
+service_text3 = " -nft"
+service_text4 = " -c %i service -start\n"
+service_text5 = "ExecStop=blacklist"
+service_text6 = " -c %i service -stop\n"
+service_text7 = "ExecReload=blacklist"
+service_text8 = " -c %i service -reload\n"
+service_text9 = "[Install]\n"
+service_text10 = "WantedBy=multi-user.target\n"
 
 timer_text = '''[Unit]
 Description=Blacklist timer for banning and unbanning ip addresses of subnets.
@@ -337,6 +342,30 @@ def switch_systemd(case = None, counter = 3):
 			'stop-timer': f"sudo systemctl stop blacklist@{counter}.timer"
 	}.get(case, f"sudo systemctl status blacklist@{counter}.service")
 
+def service_build(args: Arguments):
+	global service_text
+	global service_text1
+	global service_text2
+	global service_text3
+	global service_text4
+	global service_text5
+	global service_text6
+	global service_text7
+	global service_text8
+	global service_text9
+	global service_text10
+	
+	if args.nftables:
+		service_text = service_text1 + service_text2 + service_text3 + \
+					service_text4 + service_text5 + service_text3 + \
+					service_text6 + service_text7 + service_text3 + \
+					service_text8 + service_text9 +	service_text10
+	else:
+		service_text = service_text1 + service_text2 + \
+					service_text4 + service_text5 + service_text6 + \
+					service_text7 + service_text8 + service_text9 + \
+					service_text10
+
 def read_list(args: Arguments):
 	''' Read the input json files, if they are missing, 
 		replace them with an empty dictionary. '''
@@ -398,6 +427,7 @@ def systemdwork(args: Arguments):
 		sys.exit(0)
 	if args.create:
 		print('Create systemd «blacklist@.service» and «blacklist@.timer» ...')
+		service_build(args)
 		shell_run(args.console, switch_systemd('stop-timer', args.count))
 		shell_run(args.console, switch_systemd('stop-service', args.count))
 		shell_run(args.console, switch_systemd('disable', args.count))
