@@ -204,19 +204,19 @@ def createParser():
 	group2.add_argument("-b", '--blacklist', dest="blacklist", metavar='BLACKLIST', type=str, default=f"{json_black}", help='Input blacklist file.')
 	group2.add_argument("-w", '--whitelist', dest="whitelist", metavar='WHITELIST', type=str, default=f"{json_white}", help='Input whitelist file.')
 	
-	group3 = parser.add_argument_group('NFTABLES', 'Configuration nftables.')
-	group3.add_argument ('-nft', '--nftables', action='store_true', default=False, help='Select NFTABLES.')
+	group3 = parser.add_argument_group('{IP,IP6,NF}TABLES', 'Configuration {IP,IP6,NF}TABLES.')
+	group3.add_argument ('-nft', '--nftables', action='store_true', default=False, help='Select the NFTABLES framework (Default IPTABLES/IP6TABLES).')
+	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select IP6TABLES.')
 	group3.add_argument("-table", '--table', dest="table", metavar='TABLE', type=str, default='filter', help='Select the table (Default "filter").')
 	group3.add_argument("-chain", '--chain', dest="chain", metavar='CHAIN', type=str, default='INPUT', help='Choosing a chain of rules (Default: "INPUT").')
-	group3.add_argument ('-create_table', '--create_table', action='store_true', default=False, help='Add a new table. Use carefully and wisely!')
-	group3.add_argument ('-create_chain', '--create_chain', action='store_true', default=False, help='Add a new chain. Use carefully and wisely!')
+	group3.add_argument ('-create_table', '--create_table', action='store_true', default=False, help='Add a new table. Use carefully!')
+	group3.add_argument ('-create_chain', '--create_chain', action='store_true', default=False, help='Add a new chain. Use carefully!')
 	
 	group4 = parser.add_argument_group('Settings', 'Configurations.')
-	group4.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select IP6TABLES.')
 	group4.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default "sh").')
 	group4.add_argument("-logfile", '--logfile', dest="logfile", metavar='LOGFILE', type=str, default=f"{log_file}", help='Log file.')
 	group4.add_argument ('-nolog', '--nolog', action='store_false', default=True, help="Don't keep a log file.")
-	group4.add_argument ('-limit', '--limit', action='store_true', default=False, help='Limit the log file.')
+	group4.add_argument ('-limit', '--limit', action='store_true', default=False, help='Limit the log file. Every day the contents of the log will be completely erased.')
 	group4.add_argument ('-viewlog', '--viewlog', action='store_true', default=False, help='View the log file.')
 	group4.add_argument ('-resetlog', '--resetlog', action='store_true', default=False, help='Reset the log file.')
 	
@@ -280,15 +280,15 @@ def shell_run(shell: str, cmd: str) -> str:
 	proc.kill()
 	return out_data, err_data
 
-def switch_iptables(case = None, protocol = 'iptables', ip = None):
+def switch_iptables(args: Arguments, case = None):
 	''' Selecting a command to execute in the command shell. '''
 	return {
-			'add-white': f"sudo {protocol} -t filter -A INPUT -s {ip} -j ACCEPT",
-			'del-white': f"sudo {protocol} -t filter -D INPUT -s {ip} -j ACCEPT",
-			'add-black': f"sudo {protocol} -t filter -A INPUT -s {ip} -j DROP",
-			'del-black': f"sudo {protocol} -t filter -D INPUT -s {ip} -j DROP",
-			'read': f"sudo {protocol} -L"
-	}.get(case, f"sudo {protocol} -L")
+			'add-white': f"sudo {args.protocol} -t {args.table} -A {args.chain} -s {args.current_ip} -j ACCEPT",
+			'del-white': f"sudo {args.protocol} -t {args.table} -D {args.chain} -s {args.current_ip} -j ACCEPT",
+			'add-black': f"sudo {args.protocol} -t {args.table} -A {args.chain} -s {args.current_ip} -j DROP",
+			'del-black': f"sudo {args.protocol} -t {args.table} -D {args.chain} -s {args.current_ip} -j DROP",
+			'read': f"sudo {args.protocol} -L {args.chain}"
+	}.get(case, f"sudo {args.protocol} -L {args.chain}")
 
 def switch_nftables(args: Arguments, case = None, handle = None):
 	''' Selecting a command to execute NFTABLES in the command shell. '''
@@ -441,68 +441,80 @@ def systemdwork(args: Arguments):
 		sys.exit(0)
 	if systemd_service_file.exists() and systemd_timer_file.exists():
 		if args.status:
-			args.service_info = shell_run(args.console, switch_systemd('status', args.count))
+			args.service_info, args.err = shell_run(args.console, switch_systemd('status', args.count))
 			print(f"----- Systemd Info -----\n{args.service_info}\n----- Systemd Info -----")
+			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 			sys.exit(0)
 		if args.enable:
 			print(f"Enable «blacklist@{args.count}.timer» ...")
-			service_info = shell_run(args.console, switch_systemd('enable', args.count))
+			service_info, args.err = shell_run(args.console, switch_systemd('enable', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
 			if args.nolog:
 				args.log_txt.append(f"Enable «blacklist@{args.count}.timer» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
 				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
+				read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			sys.exit(0)
 		if args.disable:
 			print(f"Disable «blacklist@{args.count}.timer» ...")
-			service_info = shell_run(args.console, switch_systemd('disable', args.count))
+			service_info, args.err = shell_run(args.console, switch_systemd('disable', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
+			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 			if args.nolog:
 				args.log_txt.append(f"Disable «blacklist@{args.count}.timer» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
 				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
+				read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			sys.exit(0)
 		if args.start:
 			print(f"Start «blacklist@{args.count}.service» ...")
-			service_info = shell_run(args.console, switch_systemd('start-service', args.count))
+			service_info, args.err = shell_run(args.console, switch_systemd('start-service', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
+			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 			if args.nolog:
 				args.log_txt.append(f"Start «blacklist@{args.count}.service» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
 				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
+				read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			sys.exit(0)
 		if args.stop:
 			print(f"Stop «blacklist@{args.count}.service» ...")
-			service_info = shell_run(args.console, switch_systemd('stop-service', args.count))
+			service_info, args.err = shell_run(args.console, switch_systemd('stop-service', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
+			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 			if args.nolog:
 				args.log_txt.append(f"Stop «blacklist@{args.count}.service» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
 				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
+				read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			sys.exit(0)
 		if args.starttimer:
 			print(f"Start «blacklist@{args.count}.timer» ...")
-			service_info = shell_run(args.console, switch_systemd('start-timer', args.count))
+			service_info, args.err = shell_run(args.console, switch_systemd('start-timer', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
+			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 			if args.nolog:
 				args.log_txt.append(f"Start «blacklist@{args.count}.timer» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
 				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
+				read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			sys.exit(0)
 		if args.stoptimer:
 			print(f"Stop «blacklist@{args.count}.timer» ...")
-			service_info = shell_run(args.console, switch_systemd('stop-timer', args.count))
+			service_info, args.err = shell_run(args.console, switch_systemd('stop-timer', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
+			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 			if args.nolog:
 				args.log_txt.append(f"Stop «blacklist@{args.count}.timer» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
 				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
+				read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			sys.exit(0)
 
 def servicework(args: Arguments):
@@ -570,44 +582,45 @@ def servicework(args: Arguments):
 		sys.exit(0)
 	if args.show:
 		if not args.nftables:
-			args.iptables_info, args.err = shell_run(args.console, switch_iptables('read', args.protocol))
-			pattern = 'Chain FORWARD'
-			filter_iptables = re.search(pattern, args.iptables_info)
-			if filter_iptables != None:
-				args.iptables_info, args.err = args.iptables_info[:filter_iptables.span()[0]].strip()
+			args.iptables_info, args.err = shell_run(args.console, switch_iptables(args, 'read'))
 			print(f"\n----- IPTABLES Info -----\n{args.iptables_info}\n----- IPTABLES Info -----")
+			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		else:
 			args.iptables_info, args.err = shell_run(args.console, switch_nftables(args, 'read'))
 			print(f"\n----- NFTABLES Info -----\n{args.iptables_info}\n----- NFTABLES Info -----")
-			pass
+			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		sys.exit(0)
 	if args.start:
 		print('Start the blacklist ...')
 		if not args.nftables:
-			args.iptables_info, args.err = shell_run(args.console, switch_iptables('read', args.protocol))
+			args.iptables_info, args.err = shell_run(args.console, switch_iptables(args, 'read'))
 		else:
 			args.iptables_info, args.err = shell_run(args.console, switch_nftables(args, 'search'))
 		if args.nolog:
 			args.log_txt.append('Start the blacklist ...')
 		service_start_stop(args)
 		print('Exit the blacklist ...')
+		print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		if args.nolog:
 			args.log_txt.append(f"Exit the blacklist ...")
 			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
+			read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 		sys.exit(0)
 	if args.stop:
 		print('Stopping the blacklist ...')
 		if not args.nftables:
-			args.iptables_info, args.err = shell_run(args.console, switch_iptables('read', args.protocol))
+			args.iptables_info, args.err = shell_run(args.console, switch_iptables(args, 'read'))
 		else:
 			args.iptables_info, args.err = shell_run(args.console, switch_nftables(args, 'search'))
 		if args.nolog:
 			args.log_txt.append('Stopping the blacklist ...')
 		service_start_stop(args)
 		print('Exit the blacklist ...')
+		print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		if args.nolog:
 			args.log_txt.append(f"Exit the blacklist ...")
 			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
+			read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 		sys.exit(0)
 	if args.nostop:
 		print('No stopped the blacklist.')
@@ -615,26 +628,27 @@ def servicework(args: Arguments):
 		if args.nolog:
 			args.log_txt.append('No stopped the blacklist.')
 			args.log_txt.append(f"Exit the blacklist ...")
-			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 		sys.exit(0)
 	if args.reload:
 		print('Reload the blacklist ...')
 		if not args.nftables:
-			args.iptables_info, args.err = shell_run(args.console, switch_iptables('read', args.protocol))
+			args.iptables_info, args.err = shell_run(args.console, switch_iptables(args, 'read'))
 		else:
 			args.iptables_info, args.err = shell_run(args.console, switch_nftables(args, 'search'))
 		if args.nolog:
 			args.log_txt.append('Reload the blacklist ...')
+			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 		args.add = False
 		service_start_stop(args)
 		args.add = True
 		if not args.nftables:
-			args.iptables_info, args.err = shell_run(args.console, switch_iptables('read', args.protocol))
+			args.iptables_info, args.err = shell_run(args.console, switch_iptables(args, 'read'))
 		else:
 			args.iptables_info, args.err = shell_run(args.console, switch_nftables(args, 'search'))
 		service_start_stop(args)
-		print('Exit the blacklist ...')		
+		print('Exit the blacklist ...')
 		if args.nolog:
+			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			args.log_txt.append(f"Exit the blacklist ...")
 			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 		sys.exit(0)
@@ -679,9 +693,13 @@ def ban_unban_one(args: Arguments):
 		nonlocal comm
 		comm = switch_cmds(args.onlist).get(str(args.add), not_found)
 		mess = switch_messages(args.onlist).get(str(args.add), not_found)
-		shell_run(args.console, switch_iptables(comm, args.protocol, args.current_ip))
+		shell_run(args.console, switch_iptables(args, comm))
 		if ishostname:
-			shell_run(args.console, switch_iptables(comm, args.protocol, hostname))
+			args.old = args.current_ip
+			args.current_ip = hostname
+			shell_run(args.console, switch_iptables(args, comm))
+			args.current_ip = args.old
+			args.old = None
 		print(f"* {mess} {args.current_ip} / {hostname}")
 		if args.nolog:
 			args.log_txt.append(f"* {mess} {args.current_ip} / {hostname}")
@@ -737,7 +755,7 @@ def listwork(args: Arguments):
 	def ban_unban_full(args: Arguments):
 		''' Ban or unban all entered ip addresses. '''
 		if not args.nftables:
-			args.iptables_info, args.err = shell_run(args.console, switch_iptables('read', args.protocol))
+			args.iptables_info, args.err = shell_run(args.console, switch_iptables(args, 'read'))
 		else:
 			args.iptables_info, args.err = shell_run(args.console, switch_nftables(args, 'search'))
 		for elem in range(len(args.ip)):
@@ -820,6 +838,7 @@ def listwork(args: Arguments):
 	if args.nolog:
 		args.log_txt.append(f"Exit the blacklist ...")
 		read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
+		read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 
 def test_arguments(args: Arguments):
 	''' Test arguments and edit online parameters... '''
