@@ -1,15 +1,19 @@
 
 sudo nft list table ip filter
+sudo nft list table ip6 filter
 
-sudo nft --handle --numeric list chain ip filter INPUT
+sudo nft --handle --numeric list chain ip filter INPUT | grep -Ei "ip saddr|# handle" | sed 's/^[ \t]*//' | awk '!/^$/{print $0}'
 
 sudo nft delete rule ip filter INPUT handle 10
 
 sudo nft 'add rule ip filter INPUT ip saddr 165.22.60.249 counter drop'
 sudo nft 'add rule ip filter INPUT ip saddr 165.22.60.249 counter accept'
 
+sudo nft add rule ip6 filter INPUT ip6 saddr 2001:db8:abf2:29ea:5298:ad71:2ca0:4ff1 counter accept
+sudo nft add rule ip6 filter INPUT ip6 saddr 2001:db8:abf2:29ea:5298:ad71:2ca0:4ff1 counter drop
 
 
+sudo nft add chain inet my_table my_tcp_chain
 
 
 
