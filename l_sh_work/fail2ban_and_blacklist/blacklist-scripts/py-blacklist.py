@@ -209,8 +209,8 @@ def createParser():
 	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select IP6TABLES.')
 	group3.add_argument("-table", '--table', dest="table", metavar='TABLE', type=str, default='filter', help='Select the table (Default "filter").')
 	group3.add_argument("-chain", '--chain', dest="chain", metavar='CHAIN', type=str, default='INPUT', help='Choosing a chain of rules (Default: "INPUT").')
-	group3.add_argument ('-crtable', '--crtable', action='store_true', default=False, help='Add a new table. Use carefully!')
-	group3.add_argument ('-crchain', '--crchain', action='store_true', default=False, help='Add a new chain. Use carefully!')
+	group3.add_argument ('-newtable', '--newtable', action='store_true', default=False, help='Add a new table. Use carefully!')
+	group3.add_argument ('-newchain', '--newchain', action='store_true', default=False, help='Add a new chain. Use carefully!')
 	
 	group4 = parser.add_argument_group('Settings', 'Configurations.')
 	group4.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default "sh").')
@@ -862,10 +862,10 @@ def test_arguments(args: Arguments):
 		args.quantity = 0
 	
 	if args.nftables:
-		if args.crtable:
+		if args.newtable:
 			shell_run(args.console, switch_nftables(args, 'create-table'))
 			sys.exit(0)
-		if args.crchain:
+		if args.newchain:
 			shell_run(args.console, switch_nftables(args, 'create-chain'))
 			sys.exit(0)
 	
