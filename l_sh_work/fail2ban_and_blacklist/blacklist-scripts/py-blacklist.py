@@ -158,7 +158,7 @@ def createParser():
 	parser_service = subparsers.add_parser('service', help='Program management.')
 	parser_service.add_argument ('-start', '--start', action='store_true', default=False, help='Launching the blacklist.')
 	parser_service.add_argument ('-stop', '--stop', action='store_true', default=False, help='Stopping the blacklist.')
-	parser_service.add_argument ('-nostop', '--nostop', action='store_true', default=False, help='Stopping the blacklist without clearing IPTABLES.')
+	parser_service.add_argument ('-nostop', '--nostop', action='store_true', default=False, help='Stopping the blacklist without clearing {IP,IP6,NF}TABLES.')
 	parser_service.add_argument ('-reload', '--reload', action='store_true', default=False, help='Restarting the blacklist.')
 	parser_service.add_argument ('-show', '--show', action='store_true', default=False, help='Show the service blacklist and iptables.')
 	parser_service.add_argument ('-link', '--link', action='store_true', default=False, help='Symlink to program on «/usr/bin/».')
@@ -166,8 +166,8 @@ def createParser():
 	parser_service.set_defaults(onlist='service')
 	
 	parser_blist = subparsers.add_parser('black', help='Managing blacklists.')
-	parser_blist.add_argument ('-ban', '--ban', action='store_true', default=False, help='Block the entered ip addresses in IPTABLES.')
-	parser_blist.add_argument ('-unban', '--unban', action='store_true', default=False, help='Unlock the entered ip addresses in IPTABLES.')
+	parser_blist.add_argument ('-ban', '--ban', action='store_true', default=False, help='Block the entered ip addresses in {IP,IP6,NF}TABLES.')
+	parser_blist.add_argument ('-unban', '--unban', action='store_true', default=False, help='Unlock the entered ip addresses in {IP,IP6,NF}TABLES.')
 	parser_blist.add_argument ('-a', '--add', action='store_true', default=False, help='Add to the blacklist.')
 	parser_blist.add_argument ('-d', '--delete', action='store_true', default=False, help='Remove from the blacklist.')
 	parser_blist.add_argument ('-s', '--show', action='store_true', default=False, help='Read the blacklist.')
@@ -181,8 +181,8 @@ def createParser():
 	pgroup1.add_argument("-m", '--mask', dest="mask", metavar='MASK', type=int, default=[], nargs='+', help='The network mask.')
 	
 	parser_wlist = subparsers.add_parser('white', help='Managing whitelists.')
-	parser_wlist.add_argument ('-ban', '--ban', action='store_true', default=False, help='Allow entered ip addresses in IPTABLES.')
-	parser_wlist.add_argument ('-unban', '--unban', action='store_true', default=False, help='Remove the permission of the entered ip addresses in IPTABLES.')
+	parser_wlist.add_argument ('-ban', '--ban', action='store_true', default=False, help='Allow entered ip addresses in {IP,IP6,NF}TABLES.')
+	parser_wlist.add_argument ('-unban', '--unban', action='store_true', default=False, help='Remove the permission of the entered ip addresses in {IP,IP6,NF}TABLES.')
 	parser_wlist.add_argument ('-a', '--add', action='store_true', default=False, help='Add to the whitelist.')
 	parser_wlist.add_argument ('-d', '--delete', action='store_true', default=False, help='Remove from the whitelist.')
 	parser_wlist.add_argument ('-s', '--show', action='store_true', default=False, help='Read the whitelist.')
@@ -196,8 +196,8 @@ def createParser():
 	pgroup2.add_argument("-m", '--mask', dest="mask", metavar='MASK', type=int, default=[], nargs='+', help='The network mask.')
 	
 	group1 = parser.add_argument_group('Parameters', 'Settings for the number of bans.')
-	group1.add_argument("-c", '--count', dest="count", metavar='COUNT', type=int, default=0, help='The number of locks after which the address is entered in IPTABLES (default 0).')
-	group1.add_argument("-q", '--quantity', dest="quantity", metavar='QUANTITY', type=int, default=0, help='How many times the address has been banned (default 0).')
+	group1.add_argument("-c", '--count', dest="count", metavar='COUNT', type=int, default=0, help='The number of locks after which the ip-address is entered in {IP,IP6,NF}TABLES (default 0).')
+	group1.add_argument("-q", '--quantity', dest="quantity", metavar='QUANTITY', type=int, default=0, help='The number of ip address locks to be saved (default 0).')
 	
 	group2 = parser.add_argument_group('Files', 'Working with files.')
 	group2.add_argument("-wd", '--workdir', dest="workdir", metavar='WORKDIR', type=str, default=f"{workdir}", help='Working directory.')
@@ -205,8 +205,8 @@ def createParser():
 	group2.add_argument("-w", '--whitelist', dest="whitelist", metavar='WHITELIST', type=str, default=f"{json_white}", help='Input whitelist file.')
 	
 	group3 = parser.add_argument_group('{IP,IP6,NF}TABLES', 'Configuration {IP,IP6,NF}TABLES.')
-	group3.add_argument ('-nft', '--nftables', action='store_true', default=False, help='Select the NFTABLES framework (Default IPTABLES/IP6TABLES).')
-	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select IP6TABLES.')
+	group3.add_argument ('-nft', '--nftables', action='store_true', default=False, help='Select the NFTABLES (IP,IP6) framework (Default IPTABLES/IP6TABLES).')
+	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select {IP6/NF}TABLES.')
 	group3.add_argument("-table", '--table', dest="table", metavar='TABLE', type=str, default='filter', help='Select the table (Default "filter").')
 	group3.add_argument("-chain", '--chain', dest="chain", metavar='CHAIN', type=str, default='INPUT', help='Choosing a chain of rules (Default: "INPUT").')
 	group3.add_argument ('-newtable', '--newtable', action='store_true', default=False, help='Add a new table. Use carefully!')
