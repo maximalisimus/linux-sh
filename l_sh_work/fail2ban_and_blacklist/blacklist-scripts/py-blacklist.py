@@ -358,14 +358,37 @@ def service_build(args: Arguments):
 	global service_text10
 	
 	if args.nftables:
-		service_text = service_text1 + service_text2 + service_text3 + \
-					service_text4 + service_text5 + service_text3 + \
-					service_text6 + service_text7 + service_text3 + \
-					service_text8 + service_text9 +	service_text10
+		service_text = service_text1 + service_text2 + service_text3
+		service_text = service_text + f" -protocol {args.protocol} -nftproto {args.nftproto}"
+		service_text = service_text + f" -table {args.table} -chain {args.chain}"
+		if args.newtable:
+			service_text = service_text + f" -newtable"
+		if args.newchain:
+			service_text = service_text + f" -newchain"
+		if args.ipv6:
+			service_text = service_text + f" -ipv6"
+		service_text = service_text + service_text4 + service_text5 + service_text3
+		service_text = service_text + f" -protocol {args.protocol} -nftproto {args.nftproto}"
+		service_text = service_text + f" -table {args.table} -chain {args.chain}"
+		if args.ipv6:
+			service_text = service_text + f" -ipv6"
+		service_text = service_text + service_text6 + service_text7 + service_text3
+		service_text = service_text + f" -protocol {args.protocol} -nftproto {args.nftproto}"
+		service_text = service_text + f" -table {args.table} -chain {args.chain}"
+		if args.ipv6:
+			service_text = service_text + f" -ipv6"
+		service_text = service_text + service_text8 + service_text9 +	service_text10
 	else:
-		service_text = service_text1 + service_text2 + \
-					service_text4 + service_text5 + service_text6 + \
-					service_text7 + service_text8 + service_text9 + \
+		service_text = service_text1 + service_text2
+		if args.ipv6:
+			service_text = service_text + f" -ipv6"
+		service_text = service_text + service_text4 + service_text5
+		if args.ipv6:
+			service_text = service_text + f" -ipv6"
+		service_text = service_text + service_text6 + service_text7
+		if args.ipv6:
+			service_text = service_text + f" -ipv6"
+		service_text = service_text + service_text8 + service_text9 + \
 					service_text10
 
 def read_list(args: Arguments):
@@ -866,10 +889,8 @@ def test_arguments(args: Arguments):
 	if args.nftables:
 		if args.newtable:
 			shell_run(args.console, switch_nftables(args, 'create-table'))
-			sys.exit(0)
 		if args.newchain:
 			shell_run(args.console, switch_nftables(args, 'create-chain'))
-			sys.exit(0)
 	
 	if not args.nftables:
 		args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
@@ -941,6 +962,7 @@ def main():
 	''' The main cycle of the program. '''
 	
 	global infromation
+	global service_text
 	
 	parser, sb1, psvc, psd, pbl, pwl, pgr1, pgr2, gr1, gr2, gr3, gr4 = createParser()
 	args = Arguments()
