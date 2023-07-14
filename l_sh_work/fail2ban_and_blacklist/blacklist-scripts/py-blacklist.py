@@ -289,8 +289,8 @@ def switch_iptables(args: Arguments, case = None):
 			'del-white': f"sudo {args.protocol} -t {args.table} -D {args.chain} -s {args.current_ip} -j ACCEPT",
 			'add-black': f"sudo {args.protocol} -t {args.table} -A {args.chain} -s {args.current_ip} -j DROP",
 			'del-black': f"sudo {args.protocol} -t {args.table} -D {args.chain} -s {args.current_ip} -j DROP",
-			'read': f"sudo {args.protocol} -L {args.chain}"
-	}.get(case, f"sudo {args.protocol} -L {args.chain}")
+			'read': f"sudo {args.protocol} -L"
+	}.get(case, f"sudo {args.protocol} -L")
 
 def switch_nftables(args: Arguments, case = None, handle = None):
 	''' Selecting a command to execute NFTABLES in the command shell. '''
