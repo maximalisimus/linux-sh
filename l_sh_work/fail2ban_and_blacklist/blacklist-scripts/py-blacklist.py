@@ -206,6 +206,7 @@ def createParser():
 	
 	group3 = parser.add_argument_group('{IP,IP6,NF}TABLES', 'Configuration {IP,IP6,NF}TABLES.')
 	group3.add_argument ('-nft', '--nftables', action='store_true', default=False, help='Select the NFTABLES (IP,IP6) framework (Default {IP,IP6}TABLES).')
+	group3.add_argument("-protocol", '--protocol', dest="protocol", metavar='PROTOCOL', type=str, default='ip', help='Select the protocol NFTABLES (Default "ip").')
 	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select {IP6/NF}TABLES.')
 	group3.add_argument("-table", '--table', dest="table", metavar='TABLE', type=str, default='filter', help='Select the table (Default "filter").')
 	group3.add_argument("-chain", '--chain', dest="chain", metavar='CHAIN', type=str, default='INPUT', help='Choosing a chain of rules (Default: "INPUT").')
@@ -869,12 +870,16 @@ def test_arguments(args: Arguments):
 			shell_run(args.console, switch_nftables(args, 'create-chain'))
 			sys.exit(0)
 	
+	if not args.nftables:
+		args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
+	else:
+		if args.protocol == 'ip':
+			args.protocol = 'ip' if not args.ipv6 else 'ip6'
+	
 	if not args.ipv6:
-		args.protocol = 'iptables' if not args.nftables else 'ip'
 		args.minmask = 1
 		args.maxmask = 32
 	else:
-		args.protocol = 'ip6tables' if not args.nftables else 'ip6'
 		args.minmask = 1
 		args.maxmask = 128
 	
