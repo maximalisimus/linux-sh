@@ -206,7 +206,8 @@ def createParser():
 	
 	group3 = parser.add_argument_group('{IP,IP6,NF}TABLES', 'Configuration {IP,IP6,NF}TABLES.')
 	group3.add_argument ('-nft', '--nftables', action='store_true', default=False, help='Select the NFTABLES (IP,IP6) framework (Default {IP,IP6}TABLES).')
-	group3.add_argument("-protocol", '--protocol', dest="protocol", metavar='PROTOCOL', type=str, default='ip', help='Select the protocol NFTABLES (Default "ip").')
+	group3.add_argument("-protocol", '--protocol', default='ip', choices=['ip', 'ip6', 'inet'], help='Select the protocol ip-addresses (Auto "ip" or -ipv6 to "ip6").')
+	group3.add_argument("-nftproto", '--nftproto', default='ip', choices=['ip', 'ip6', 'inet'], help='Select the protocol NFTABLES, before rule (Auto "ip" or -ipv6 to "ip6").')
 	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select {IP6/NF}TABLES.')
 	group3.add_argument("-table", '--table', dest="table", metavar='TABLE', type=str, default='filter', help='Select the table (Default "filter").')
 	group3.add_argument("-chain", '--chain', dest="chain", metavar='CHAIN', type=str, default='INPUT', help='Choosing a chain of rules (Default: "INPUT").')
@@ -294,16 +295,16 @@ def switch_iptables(args: Arguments, case = None):
 def switch_nftables(args: Arguments, case = None, handle = None):
 	''' Selecting a command to execute NFTABLES in the command shell. '''
 	return {
-			'add-white': f"sudo nft 'add rule {args.protocol} {args.table} {args.chain} {args.protocol} saddr {args.current_ip} counter accept'",
-			'del-white': f"sudo nft delete rule {args.protocol} {args.table} {args.chain} handle {handle}",
-			'add-black': f"sudo nft 'add rule {args.protocol} {args.table} {args.chain} {args.protocol} saddr {args.current_ip} counter drop'",
-			'del-black': f"sudo nft delete rule {args.protocol} {args.table} {args.chain} handle {handle}",
-			'read': f"sudo nft list table {args.protocol} {args.table}",
-			'search': f"sudo nft --handle --numeric list chain {args.protocol} {args.table} {args.chain} | grep -Ei 'ip saddr|# handle'" + \
+			'add-white': f"sudo nft 'add rule {args.nftproto} {args.table} {args.chain} {args.protocol} saddr {args.current_ip} counter accept'",
+			'del-white': f"sudo nft delete rule {args.nftproto} {args.table} {args.chain} handle {handle}",
+			'add-black': f"sudo nft 'add rule {args.nftproto} {args.table} {args.chain} {args.protocol} saddr {args.current_ip} counter drop'",
+			'del-black': f"sudo nft delete rule {args.nftproto} {args.table} {args.chain} handle {handle}",
+			'read': f"sudo nft list table {args.nftproto} {args.table}",
+			'search': f"sudo nft --handle --numeric list chain {args.nftproto} {args.table} {args.chain} | grep -Ei 'ip saddr|# handle'" + \
 			''' | sed 's/^[ \t]*//' | awk '!/^$/{print $0}' ''',
-			'create-chain': f"nft add chain {args.protocol} {args.table} {args.chain}",
-			'create-table': f"nft add table {args.protocol} {args.table}"
-	}.get(case, f"sudo nft list table {args.protocol} {args.table}")
+			'create-chain': f"nft add chain {args.nftproto} {args.table} {args.chain}",
+			'create-table': f"nft add table {args.nftproto} {args.table}"
+	}.get(case, f"sudo nft list table {args.nftproto} {args.table}")
 
 def switch_cmds(case = None):
 	''' Selecting a command for the «switch_iptables» method. '''
@@ -875,6 +876,8 @@ def test_arguments(args: Arguments):
 	else:
 		if args.protocol == 'ip':
 			args.protocol = 'ip' if not args.ipv6 else 'ip6'
+		if args.nftproto == 'ip':
+			args.nftproto = 'ip' if not args.ipv6 else 'ip6'
 	
 	if not args.ipv6:
 		args.minmask = 1
