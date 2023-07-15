@@ -260,6 +260,20 @@ def AppExit(args: Arguments):
 		read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 	sys.exit(0)
 
+def service_build(args: Arguments):
+	global service_text, st1, st2, st3, st4, st5, st6, st7, st8, st9, st10
+	
+	if args.nftables:
+		if args.personal:
+			pass
+		else:
+			pass
+	else:
+		if args.personal:
+			pass
+		else:
+			pass
+
 def read_write_json(jfile, typerw, data = dict()):
 	''' The function of reading and writing JSON objects. '''
 	with open(jfile, typerw) as fp:
@@ -389,20 +403,6 @@ def switch_systemd(case = None, counter = 3):
 			'start-timer': f"sudo systemctl start blacklist@{counter}.timer",
 			'stop-timer': f"sudo systemctl stop blacklist@{counter}.timer"
 	}.get(case, f"sudo systemctl status blacklist@{counter}.service")
-
-def service_build(args: Arguments):
-	global service_text, st1, st2, st3, st4, st5, st6, st7, st8, st9, st10
-	
-	if args.nftables:
-		if args.personal:
-			pass
-		else:
-			pass
-	else:
-		if args.personal:
-			pass
-		else:
-			pass
 
 def read_list(args: Arguments):
 	''' Read the input json files, if they are missing, 
