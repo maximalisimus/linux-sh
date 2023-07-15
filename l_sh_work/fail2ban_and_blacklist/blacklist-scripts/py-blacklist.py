@@ -218,7 +218,7 @@ def createParser():
 	group3.add_argument ('-cleartable', '--cleartable', action='store_true', default=False, help='Clear the table in NFTABLES. Use carefully!')
 	group3.add_argument ('-clearchain', '--clearchain', action='store_true', default=False, help='Clear the chain in {IP,IP6,NF}TABLES. Use carefully!')
 	group3.add_argument ('-personal', '--personal', action='store_true', default=False, help='Personal settings of {IP,IP6,NF}TABLES tables, regardless of the data entered.')
-	group3.add_argument ('-fine', '--fine', action='store_true', default=False, help='Clearing {IP,IP6,NF}TABLES tables from personal settings.')
+	group3.add_argument ('-fine', '--fine', action='store_true', default=False, help='Full clearing {IP,IP6,NF}TABLES tables from all settings. Use carefully!')
 	group3.add_argument ('-e', '-exit', '--exit', action='store_true', default=False, help='Finish creating the table/chain.')
 	
 	group4 = parser.add_argument_group('Settings', 'Configurations.')
