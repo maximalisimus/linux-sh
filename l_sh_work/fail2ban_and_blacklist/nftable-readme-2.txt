@@ -1,47 +1,46 @@
 
 
-sudo iptables -N blacklist
-sudo iptables -A blacklist -j RETURN
-sudo iptables -I INPUT -j blacklist
+sudo iptables -N blackwhite
+sudo iptables -A blackwhite -j RETURN
+sudo iptables -I INPUT -j blackwhite
 
-sudo iptables -D INPUT -j blacklist
+sudo iptables -D INPUT -j blackwhite
 
 # clear
-sudo iptables -F blacklist
+sudo iptables -F blackwhite
 
 # Delete chain
-sudo iptables -X blacklist
+sudo iptables -X blackwhite
 
-sudo iptables -n -L INPUT | grep -q 'blacklist[ \t]'
+sudo iptables -n -L INPUT | grep -q 'blackwhite[ \t]'
 
-sudo iptables -I blacklist 1 -s 192.168.0.107 -j DROP
-sudo iptables -D blacklist -s 192.168.0.107 -j DROP
+sudo iptables -I blackwhite 1 -s 192.168.0.107 -j DROP
+sudo iptables -D blackwhite -s 192.168.0.107 -j DROP
 
-sudo iptables -I blacklist 1 -s 192.168.0.107 -j ACCEPT
-sudo iptables -D blacklist -s 192.168.0.107 -j ACCEPT
-
-
+sudo iptables -I blackwhite 1 -s 192.168.0.107 -j ACCEPT
+sudo iptables -D blackwhite -s 192.168.0.107 -j ACCEPT
 
 
 
-sudo nft add table inet blacklist
-sudo nft list table inet blacklist
 
-sudo nft delete table inet blacklist
 
-sudo nft flush table inet blacklist
-#sudo nft add chain inet blacklist INPUT
-sudo nft add chain inet blacklist INPUT '{ type filter hook input priority 0; policy accept; }'
+sudo nft delete table inet blackwhite
+sudo nft flush table inet blackwhite
+sudo nft delete chain inet blackwhite INPUT
+sudo nft flush chain inet blackwhite INPUT
 
-sudo nft delete chain inet blacklist INPUT
 
-sudo nft flush chain inet blacklist INPUT
+sudo nft add table inet blackwhite
+sudo nft list table inet blackwhite
 
-sudo nft 'add rule inet blacklist INPUT ip saddr 192.168.0.107 counter drop'
+#sudo nft add chain inet blackwhite INPUT
+sudo nft add chain inet blackwhite INPUT '{ type filter hook input priority 0; policy accept; }'
 
-sudo nft --handle --numeric list chain inet blacklist INPUT | grep -Ei 'ip saddr|# handle' | sed 's/^[ \t]*//' | awk '!/^$/{print $0}'
+sudo nft 'add rule inet blackwhite INPUT ip saddr 192.168.0.107 counter drop'
 
-sudo nft delete rule inet blacklist INPUT handle 3
+sudo nft --handle --numeric list chain inet blackwhite INPUT | grep -Ei 'ip saddr|# handle' | sed 's/^[ \t]*//' | awk '!/^$/{print $0}'
+
+sudo nft delete rule inet blackwhite INPUT handle 3
 
 
 

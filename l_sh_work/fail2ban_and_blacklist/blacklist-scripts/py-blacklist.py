@@ -205,14 +205,15 @@ def createParser():
 	group2.add_argument("-w", '--whitelist', dest="whitelist", metavar='WHITELIST', type=str, default=f"{json_white}", help='Input whitelist file.')
 	
 	group3 = parser.add_argument_group('{IP,IP6,NF}TABLES', 'Configuration {IP,IP6,NF}TABLES.')
+	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select {IP6/NF}TABLES.')
 	group3.add_argument ('-nft', '--nftables', action='store_true', default=False, help='Select the NFTABLES (IP,IP6) framework (Default {IP,IP6}TABLES).')
 	group3.add_argument("-protocol", '--protocol', default='ip', choices=['ip', 'ip6', 'inet'], help='Select the protocol ip-addresses (Auto "ip" or -ipv6 to "ip6").')
 	group3.add_argument("-nftproto", '--nftproto', default='ip', choices=['ip', 'ip6', 'inet'], help='Select the protocol NFTABLES, before rule (Auto "ip" or -ipv6 to "ip6").')
-	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select {IP6/NF}TABLES.')
 	group3.add_argument("-table", '--table', dest="table", metavar='TABLE', type=str, default='filter', help='Select the table (Default "filter").')
 	group3.add_argument("-chain", '--chain', dest="chain", metavar='CHAIN', type=str, default='INPUT', help='Choosing a chain of rules (Default: "INPUT").')
-	group3.add_argument ('-newtable', '--newtable', action='store_true', default=False, help='Add a new table. Use carefully!')
-	group3.add_argument ('-newchain', '--newchain', action='store_true', default=False, help='Add a new chain. Use carefully!')
+	group3.add_argument ('-newtable', '--newtable', action='store_true', default=False, help='Add a new table in NFTABLES. Use carefully!')
+	group3.add_argument ('-newchain', '--newchain', action='store_true', default=False, help='Add a new chain in {IP,IP6,NF}TABLES. Use carefully!')
+	# del-table del-chain flush-table flush-chain personal fine
 	
 	group4 = parser.add_argument_group('Settings', 'Configurations.')
 	group4.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default "sh").')
@@ -289,8 +290,14 @@ def switch_iptables(args: Arguments, case = None):
 			'del-white': f"sudo {args.protocol} -t {args.table} -D {args.chain} -s {args.current_ip} -j ACCEPT",
 			'add-black': f"sudo {args.protocol} -t {args.table} -A {args.chain} -s {args.current_ip} -j DROP",
 			'del-black': f"sudo {args.protocol} -t {args.table} -D {args.chain} -s {args.current_ip} -j DROP",
-			'read': f"sudo {args.protocol} -L"
-	}.get(case, f"sudo {args.protocol} -L")
+			'read': f"sudo {args.protocol} -L {args.chain}",
+			'create-chain': f"sudo {args.protocol} -N {args.chain}",
+			'create-return': f"sudo {args.protocol} -A {args.chain} -j RETURN",
+			'create-input': f"sudo {args.protocol} -I INPUT -j {args.chain}",
+			'del-input': f"sudo {args.protocol} -D INPUT -j {args.chain}",
+			'flush-chain': f"sudo {args.protocol} -F {args.chain}",
+			'del-chain': f"sudo {args.protocol} -X {args.chain}"
+	}.get(case, f"sudo {args.protocol} -L {args.chain}")
 
 def switch_nftables(args: Arguments, case = None, handle = None):
 	''' Selecting a command to execute NFTABLES in the command shell. '''
@@ -302,8 +309,12 @@ def switch_nftables(args: Arguments, case = None, handle = None):
 			'read': f"sudo nft list table {args.nftproto} {args.table}",
 			'search': f"sudo nft --handle --numeric list chain {args.nftproto} {args.table} {args.chain} | grep -Ei 'ip saddr|# handle'" + \
 			''' | sed 's/^[ \t]*//' | awk '!/^$/{print $0}' ''',
-			'create-chain': f"nft add chain {args.nftproto} {args.table} {args.chain}",
-			'create-table': f"nft add table {args.nftproto} {args.table}"
+			'create-chain': f"nft add chain {args.nftproto} {args.table} {args.chain}" + ''' '{ type filter hook input priority 0; policy accept; }\'''',
+			'create-table': f"nft add table {args.nftproto} {args.table}",
+			'del-table': f"sudo nft delete table {args.nftproto} {args.table}",
+			'del-chain': f"sudo nft delete chain {args.nftproto} {args.table} {args.chain}",
+			'flush-table': f"sudo nft flush table {args.nftproto} {args.table}",
+			'flush-chain': f"sudo nft flush chain {args.nftproto} {args.table} {args.chain}"
 	}.get(case, f"sudo nft list table {args.nftproto} {args.table}")
 
 def switch_cmds(case = None):
@@ -423,6 +434,12 @@ def search_handle(text: str, in_ip):
 	else:
 		return None
 
+def AppExit(args: Arguments):
+	if args.nolog:
+		read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
+		read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+	sys.exit(0)
+
 def systemdwork(args: Arguments):
 	''' Systemd management. '''
 	global service_text
@@ -448,8 +465,7 @@ def systemdwork(args: Arguments):
 		if args.nolog:
 			args.log_txt.append(f"Delete systemd «blacklist@.service» and «blacklist@.timer» ...")
 			args.log_txt.append(f"Exit the blacklist ...")
-			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-		sys.exit(0)
+		AppExit(args)
 	if args.create:
 		print('Create systemd «blacklist@.service» and «blacklist@.timer» ...')
 		service_build(args)
@@ -462,14 +478,13 @@ def systemdwork(args: Arguments):
 		if args.nolog:
 			args.log_txt.append(f"Create systemd «blacklist@.service» and «blacklist@.timer» ...")
 			args.log_txt.append(f"Exit the blacklist ...")
-			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-		sys.exit(0)
+		AppExit(args)
 	if systemd_service_file.exists() and systemd_timer_file.exists():
 		if args.status:
 			args.service_info, args.err = shell_run(args.console, switch_systemd('status', args.count))
 			print(f"----- Systemd Info -----\n{args.service_info}\n----- Systemd Info -----")
 			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
-			sys.exit(0)
+			AppExit(args)
 		if args.enable:
 			print(f"Enable «blacklist@{args.count}.timer» ...")
 			service_info, args.err = shell_run(args.console, switch_systemd('enable', args.count))
@@ -478,9 +493,7 @@ def systemdwork(args: Arguments):
 			if args.nolog:
 				args.log_txt.append(f"Enable «blacklist@{args.count}.timer» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
-				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-				read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
-			sys.exit(0)
+			AppExit(args)
 		if args.disable:
 			print(f"Disable «blacklist@{args.count}.timer» ...")
 			service_info, args.err = shell_run(args.console, switch_systemd('disable', args.count))
@@ -490,9 +503,7 @@ def systemdwork(args: Arguments):
 			if args.nolog:
 				args.log_txt.append(f"Disable «blacklist@{args.count}.timer» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
-				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-				read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
-			sys.exit(0)
+			AppExit(args)
 		if args.start:
 			print(f"Start «blacklist@{args.count}.service» ...")
 			service_info, args.err = shell_run(args.console, switch_systemd('start-service', args.count))
@@ -502,9 +513,7 @@ def systemdwork(args: Arguments):
 			if args.nolog:
 				args.log_txt.append(f"Start «blacklist@{args.count}.service» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
-				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-				read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
-			sys.exit(0)
+			AppExit(args)
 		if args.stop:
 			print(f"Stop «blacklist@{args.count}.service» ...")
 			service_info, args.err = shell_run(args.console, switch_systemd('stop-service', args.count))
@@ -514,9 +523,7 @@ def systemdwork(args: Arguments):
 			if args.nolog:
 				args.log_txt.append(f"Stop «blacklist@{args.count}.service» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
-				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-				read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
-			sys.exit(0)
+			AppExit(args)
 		if args.starttimer:
 			print(f"Start «blacklist@{args.count}.timer» ...")
 			service_info, args.err = shell_run(args.console, switch_systemd('start-timer', args.count))
@@ -526,9 +533,7 @@ def systemdwork(args: Arguments):
 			if args.nolog:
 				args.log_txt.append(f"Start «blacklist@{args.count}.timer» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
-				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-				read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
-			sys.exit(0)
+			AppExit(args)
 		if args.stoptimer:
 			print(f"Stop «blacklist@{args.count}.timer» ...")
 			service_info, args.err = shell_run(args.console, switch_systemd('stop-timer', args.count))
@@ -538,9 +543,7 @@ def systemdwork(args: Arguments):
 			if args.nolog:
 				args.log_txt.append(f"Stop «blacklist@{args.count}.timer» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
-				read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-				read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
-			sys.exit(0)
+			AppExit(args)
 
 def servicework(args: Arguments):
 	''' Processing of service commands. '''
@@ -590,8 +593,7 @@ def servicework(args: Arguments):
 		if args.nolog:
 			args.log_txt.append('Cryate the symlink to program on «/usr/bin/» ...')
 			args.log_txt.append(f"Exit the blacklist ...")
-			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-		sys.exit(0)
+		AppExit(args)
 	if args.unlink:
 		print('Delete the symlink to program on «/usr/bin/» ...')
 		src1 = pathlib.Path(script_full).resolve()
@@ -603,8 +605,7 @@ def servicework(args: Arguments):
 		if args.nolog:
 			args.log_txt.append('Delete the symlink to program on «/usr/bin/» ...')
 			args.log_txt.append(f"Exit the blacklist ...")
-			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-		sys.exit(0)
+		AppExit(args)
 	if args.show:
 		if not args.nftables:
 			args.iptables_info, args.err = shell_run(args.console, switch_iptables(args, 'read'))
@@ -628,9 +629,7 @@ def servicework(args: Arguments):
 		print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		if args.nolog:
 			args.log_txt.append(f"Exit the blacklist ...")
-			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-			read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
-		sys.exit(0)
+		AppExit(args)
 	if args.stop:
 		print('Stopping the blacklist ...')
 		if not args.nftables:
@@ -644,15 +643,10 @@ def servicework(args: Arguments):
 		print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		if args.nolog:
 			args.log_txt.append(f"Exit the blacklist ...")
-			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-			read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
-		sys.exit(0)
+		AppExit(args)
 	if args.nostop:
 		print('No stopped the blacklist.')
 		print('Exit the blacklist ...')
-		if args.nolog:
-			args.log_txt.append('No stopped the blacklist.')
-			args.log_txt.append(f"Exit the blacklist ...")
 		sys.exit(0)
 	if args.reload:
 		print('Reload the blacklist ...')
@@ -675,8 +669,7 @@ def servicework(args: Arguments):
 		if args.nolog:
 			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			args.log_txt.append(f"Exit the blacklist ...")
-			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-		sys.exit(0)
+		AppExit(args)
 
 def nft_ban_unban_one(args: Arguments):
 	''' NFTABLES ban or unban one ip address. '''
@@ -862,36 +855,10 @@ def listwork(args: Arguments):
 	print('Exit the blacklist ...')
 	if args.nolog:
 		args.log_txt.append(f"Exit the blacklist ...")
-		read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-		read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+	AppExit(args)
 
-def test_arguments(args: Arguments):
-	''' Test arguments and edit online parameters... '''
-	
-	def stampToStr(timeStamp: int, strFormat = "%d.%m.%Y-%H:%M:%S") -> str:
-		dateTime = datetime.fromtimestamp(timeStamp)
-		datestr = dateTime.strftime(strFormat)
-		return datestr
-	
-	global workdir
-	global json_black
-	global json_white
-	global blacklist_name
-	global whitelist_name
-	
-	if args.count < 0:
-		print("The number of locks to display cannot be a negative number (from 0 and above.)!")
-		args.count = 0
-	if args.quantity < 0:
-		print("The number of locks to save cannot be a negative number (from 0 and above.)!")
-		args.quantity = 0
-	
-	if args.nftables:
-		if args.newtable:
-			shell_run(args.console, switch_nftables(args, 'create-table'))
-		if args.newchain:
-			shell_run(args.console, switch_nftables(args, 'create-chain'))
-	
+def EditTableParam(args: Arguments):
+	''' Edit online param on {IP,IP6,NF}TABLES. '''
 	if not args.nftables:
 		args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
 	else:
@@ -907,6 +874,12 @@ def test_arguments(args: Arguments):
 		args.minmask = 1
 		args.maxmask = 128
 	
+	if args.nftables:
+		if args.newtable:
+			shell_run(args.console, switch_nftables(args, 'create-table'))
+		if args.newchain:
+			shell_run(args.console, switch_nftables(args, 'create-chain'))
+	
 	if args.mask != None:
 		if len(args.mask) > 1:
 			for elem in range(len(args.mask)):
@@ -914,6 +887,15 @@ def test_arguments(args: Arguments):
 					args.mask[elem] = args.minmask
 				elif args.mask[elem] > args.maxmask:
 					args.mask[elem] = args.maxmask
+
+def EditDirParam(args: Arguments):
+	''' Edit online directoryes Params. '''	
+	
+	global workdir
+	global json_black
+	global json_white
+	global blacklist_name
+	global whitelist_name
 	
 	if workdir != args.workdir:
 		workdir = args.workdir
@@ -942,6 +924,14 @@ def test_arguments(args: Arguments):
 	
 	if not pathlib.Path(str(workdir)).resolve().exists():
 		pathlib.Path(str(workdir)).resolve().mkdir(parents=True)
+
+def EditLogParam(args: Arguments):
+	''' Edit online Log Params. '''
+	
+	def stampToStr(timeStamp: int, strFormat = "%d.%m.%Y-%H:%M:%S") -> str:
+		dateTime = datetime.fromtimestamp(timeStamp)
+		datestr = dateTime.strftime(strFormat)
+		return datestr
 	
 	if not args.logfile.exists():
 		args.logfile.touch(mode=0o744)
@@ -957,6 +947,20 @@ def test_arguments(args: Arguments):
 		if args.resetlog:
 			read_write_text(args.logfile, 'w', '\n')
 			sys.exit(0)
+
+def test_arguments(args: Arguments):
+	''' Test arguments and edit online parameters... '''
+	
+	if args.count < 0:
+		print("The number of locks to display cannot be a negative number (from 0 and above.)!")
+		args.count = 0
+	if args.quantity < 0:
+		print("The number of locks to save cannot be a negative number (from 0 and above.)!")
+		args.quantity = 0
+	
+	EditDirParam(args)
+	EditLogParam(args)
+	EditTableParam(args)
 
 def main():	
 	''' The main cycle of the program. '''
