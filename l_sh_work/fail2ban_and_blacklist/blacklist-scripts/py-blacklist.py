@@ -232,22 +232,21 @@ def createParser():
 
 def AppExit(args: Arguments):
 	''' Shutting down the application. '''
-	if args.personal:
-		if args.fine:
-			if args.nftables:
-				if args.clearchain:
-					pass
-				if args.delchain:
-					pass
-				if args.cleartable:
-					pass
-				if args.deltable:
-					pass
-			else:
-				if args.clearchain:
-					pass
-				if args.delchain:
-					pass
+	if args.fine:
+		if args.nftables:
+			if args.clearchain:
+				pass
+			if args.delchain:
+				pass
+			if args.cleartable:
+				pass
+			if args.deltable:
+				pass
+		else:
+			if args.clearchain:
+				pass
+			if args.delchain:
+				pass
 	if args.nolog:
 		read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 		read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
