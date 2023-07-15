@@ -473,74 +473,81 @@ def systemdwork(args: Arguments):
 		AppExit(args)
 	if systemd_service_file.exists() and systemd_timer_file.exists():
 		if args.status:
-			args.service_info, args.err = shell_run(args.console, switch_systemd('status', args.count))
-			print(f"----- Systemd Info -----\n{args.service_info}\n----- Systemd Info -----")
-			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
-			AppExit(args)
+			service_info, err = shell_run(args.console, switch_systemd('status', args.count))
+			print(f"----- Systemd Info -----\n{service_info}\n----- Systemd Info -----")
+			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+			sys.exit(0)
 		if args.enable:
 			print(f"Enable «blacklist@{args.count}.timer» ...")
 			service_info, args.err = shell_run(args.console, switch_systemd('enable', args.count))
 			print(service_info)
+			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 			print('Exit the blacklist ...')
 			if args.nolog:
 				args.log_txt.append(f"Enable «blacklist@{args.count}.timer» ...")
+				args.log_txt.append(service_info)
 				args.log_txt.append(f"Exit the blacklist ...")
-				args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+				args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 			AppExit(args)
 		if args.disable:
 			print(f"Disable «blacklist@{args.count}.timer» ...")
-			service_info, args.err = shell_run(args.console, switch_systemd('disable', args.count))
+			service_info, err = shell_run(args.console, switch_systemd('disable', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
-			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
+			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			if args.nolog:
 				args.log_txt.append(f"Disable «blacklist@{args.count}.timer» ...")
+				args.log_txt.append(service_info)
 				args.log_txt.append(f"Exit the blacklist ...")
-				args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+				args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			AppExit(args)
 		if args.start:
 			print(f"Start «blacklist@{args.count}.service» ...")
-			service_info, args.err = shell_run(args.console, switch_systemd('start-service', args.count))
+			service_info, err = shell_run(args.console, switch_systemd('start-service', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
-			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
+			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			if args.nolog:
 				args.log_txt.append(f"Start «blacklist@{args.count}.service» ...")
+				args.log_txt.append(service_info)
 				args.log_txt.append(f"Exit the blacklist ...")
-				args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+				args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			AppExit(args)
 		if args.stop:
 			print(f"Stop «blacklist@{args.count}.service» ...")
-			service_info, args.err = shell_run(args.console, switch_systemd('stop-service', args.count))
+			service_info, err = shell_run(args.console, switch_systemd('stop-service', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
-			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
+			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			if args.nolog:
 				args.log_txt.append(f"Stop «blacklist@{args.count}.service» ...")
+				args.log_txt.append(service_info)
 				args.log_txt.append(f"Exit the blacklist ...")
-				args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+				args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			AppExit(args)
 		if args.starttimer:
 			print(f"Start «blacklist@{args.count}.timer» ...")
-			service_info, args.err = shell_run(args.console, switch_systemd('start-timer', args.count))
+			service_info, err = shell_run(args.console, switch_systemd('start-timer', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
-			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
+			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			if args.nolog:
 				args.log_txt.append(f"Start «blacklist@{args.count}.timer» ...")
+				args.log_txt.append(service_info)
 				args.log_txt.append(f"Exit the blacklist ...")
-				args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+				args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			AppExit(args)
 		if args.stoptimer:
 			print(f"Stop «blacklist@{args.count}.timer» ...")
-			service_info, args.err = shell_run(args.console, switch_systemd('stop-timer', args.count))
+			service_info, err = shell_run(args.console, switch_systemd('stop-timer', args.count))
 			print(service_info)
 			print('Exit the blacklist ...')
-			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
+			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			if args.nolog:
 				args.log_txt.append(f"Stop «blacklist@{args.count}.timer» ...")
+				args.log_txt.append(service_info)
 				args.log_txt.append(f"Exit the blacklist ...")
-				args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+				args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			AppExit(args)
 
 def servicework(args: Arguments):
@@ -623,7 +630,7 @@ def servicework(args: Arguments):
 		print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		if args.nolog:
 			args.log_txt.append(f"Exit the blacklist ...")
-			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		AppExit(args)
 	if args.stop:
 		print('Stopping the blacklist ...')
@@ -638,7 +645,7 @@ def servicework(args: Arguments):
 		print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		if args.nolog:
 			args.log_txt.append(f"Exit the blacklist ...")
-			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		AppExit(args)
 	if args.nostop:
 		print('No stopped the blacklist.')
@@ -652,7 +659,7 @@ def servicework(args: Arguments):
 			args.iptables_info, args.err = shell_run(args.console, switch_nftables(args, 'search'))
 		if args.nolog:
 			args.log_txt.append('Reload the blacklist ...')
-			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		args.add = False
 		service_start_stop(args)
 		args.add = True
@@ -663,7 +670,7 @@ def servicework(args: Arguments):
 		service_start_stop(args)
 		print('Exit the blacklist ...')
 		if args.nolog:
-			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 			args.log_txt.append(f"Exit the blacklist ...")
 		AppExit(args)
 
@@ -823,7 +830,7 @@ def listwork(args: Arguments):
 		ban_unban_full(args)
 		args.add = args.old
 		args.old = None
-		args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+		args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 	if args.unban:
 		print('Unban the blacklist or delete ignored the whitelist ip addresses ...')
 		if args.nolog:
@@ -833,7 +840,7 @@ def listwork(args: Arguments):
 		ban_unban_full(args)
 		args.add = args.old
 		args.old = None
-		args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+		args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 	if args.add:
 		print('Adding the blacklist or whitelist ip addresses ...')
 		if args.nolog:
@@ -877,8 +884,8 @@ def PersonalParam(args: Arguments):
 			args.log_txt.append(service_info)
 			print(service_info)
 			args.log_txt.append('Exit the blacklist ...')
-			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----\n")
-			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----\n")
+			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			print('Exit the blacklist ...')
 			if args.exit:
 				AppExit(args)
@@ -891,8 +898,8 @@ def PersonalParam(args: Arguments):
 			args.log_txt.append(service_info)
 			print(service_info)
 			args.log_txt.append('Exit the blacklist ...')
-			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----\n")
-			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----\n")
+			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			print('Exit the blacklist ...')
 			if args.exit:
 				AppExit(args)
@@ -905,8 +912,8 @@ def PersonalParam(args: Arguments):
 			service_info, err = shell_run(args.console, switch_iptables(args, 'create-chain'))
 			args.log_txt.append(service_info)
 			print(service_info)
-			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----\n")
-			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----\n")
+			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			print('Next the blacklist ...')
 			args.log_txt.append('Next the blacklist ...')
 			args.log_txt.append(switch_iptables(args, 'create-return'))
@@ -914,8 +921,8 @@ def PersonalParam(args: Arguments):
 			service_info, err = shell_run(args.console, switch_iptables(args, 'create-return'))
 			args.log_txt.append(service_info)
 			print(service_info)
-			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----\n")
-			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----\n")
+			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			print('Next the blacklist ...')
 			args.log_txt.append('Next the blacklist ...')
 			args.log_txt.append(switch_iptables(args, 'create-input'))
@@ -923,8 +930,8 @@ def PersonalParam(args: Arguments):
 			service_info, err = shell_run(args.console, switch_iptables(args, 'create-input'))
 			args.log_txt.append(service_info)
 			print(service_info)
-			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----\n")
-			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----\n")
+			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			print('Exit the blacklist ...')
 			args.log_txt.append('Exit the blacklist ...')
 			if args.exit:
