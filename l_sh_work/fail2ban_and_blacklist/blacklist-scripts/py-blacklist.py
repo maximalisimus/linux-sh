@@ -52,7 +52,7 @@ log_name = 'blacklist_log.txt'
 log_file = pathlib.Path(f"{workdir}").resolve().joinpath(log_name)
 
 service_text = ''
-service_text1 = '''[Unit]
+st1 = '''[Unit]
 Description=Blacklist service for banning and unbanning ip addresses of subnets.
 Wants=fail2ban.service
 After=fail2ban.service
@@ -60,15 +60,15 @@ After=fail2ban.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes'''
-service_text2 = "\nExecStart=blacklist"
-service_text3 = " -nft"
-service_text4 = " -c %i service -start\n"
-service_text5 = "ExecStop=blacklist"
-service_text6 = " -c %i service -stop\n"
-service_text7 = "ExecReload=blacklist"
-service_text8 = " -c %i service -reload\n"
-service_text9 = "[Install]\n"
-service_text10 = "WantedBy=multi-user.target\n"
+st2 = "\nExecStart=blacklist"
+st3 = " -nft"
+st4 = " -c %i service -start\n"
+st5 = "ExecStop=blacklist"
+st6 = " -c %i service -stop\n"
+st7 = "ExecReload=blacklist"
+st8 = " -c %i service -reload\n"
+st9 = "[Install]\n"
+st10 = "WantedBy=multi-user.target\n"
 
 timer_text = '''[Unit]
 Description=Blacklist timer for banning and unbanning ip addresses of subnets.
@@ -232,24 +232,29 @@ def createParser():
 
 def AppExit(args: Arguments):
 	''' Shutting down the application. '''
-	if args.fine:
-		if args.nftables:
-			if args.clearchain:
-				pass
-			if args.delchain:
-				pass
-			if args.cleartable:
-				pass
-			if args.deltable:
-				pass
-		else:
-			if args.clearchain:
-				pass
-			if args.delchain:
-				pass
+	
+	# switch_nftables(args, case)
+	# 'del-table' 'del-chain' 'flush-table' 'flush-chain'
+	#
+	# switch_iptables(args, case)
+	# 'del-input' 'flush-chain' 'del-chain'
+	
+	if args.nftables:
+		if args.clearchain:
+			pass
+		if args.delchain:
+			pass
+		if args.cleartable:
+			pass
+		if args.deltable:
+			pass
+	else:
+		if args.clearchain:
+			pass
+		if args.delchain:
+			pass
 	if args.nolog:
 		read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-		read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 	sys.exit(0)
 
 def read_write_json(jfile, typerw, data = dict()):
@@ -383,51 +388,18 @@ def switch_systemd(case = None, counter = 3):
 	}.get(case, f"sudo systemctl status blacklist@{counter}.service")
 
 def service_build(args: Arguments):
-	global service_text
-	global service_text1
-	global service_text2
-	global service_text3
-	global service_text4
-	global service_text5
-	global service_text6
-	global service_text7
-	global service_text8
-	global service_text9
-	global service_text10
+	global service_text, st1, st2, st3, st4, st5, st6, st7, st8, st9, st10
 	
 	if args.nftables:
-		service_text = service_text1 + service_text2 + service_text3
-		service_text = service_text + f" -protocol {args.protocol} -nftproto {args.nftproto}"
-		service_text = service_text + f" -table {args.table} -chain {args.chain}"
-		if args.newtable:
-			service_text = service_text + f" -newtable"
-		if args.newchain:
-			service_text = service_text + f" -newchain"
-		if args.ipv6:
-			service_text = service_text + f" -ipv6"
-		service_text = service_text + service_text4 + service_text5 + service_text3
-		service_text = service_text + f" -protocol {args.protocol} -nftproto {args.nftproto}"
-		service_text = service_text + f" -table {args.table} -chain {args.chain}"
-		if args.ipv6:
-			service_text = service_text + f" -ipv6"
-		service_text = service_text + service_text6 + service_text7 + service_text3
-		service_text = service_text + f" -protocol {args.protocol} -nftproto {args.nftproto}"
-		service_text = service_text + f" -table {args.table} -chain {args.chain}"
-		if args.ipv6:
-			service_text = service_text + f" -ipv6"
-		service_text = service_text + service_text8 + service_text9 +	service_text10
+		if args.personal:
+			pass
+		else:
+			pass
 	else:
-		service_text = service_text1 + service_text2
-		if args.ipv6:
-			service_text = service_text + f" -ipv6"
-		service_text = service_text + service_text4 + service_text5
-		if args.ipv6:
-			service_text = service_text + f" -ipv6"
-		service_text = service_text + service_text6 + service_text7
-		if args.ipv6:
-			service_text = service_text + f" -ipv6"
-		service_text = service_text + service_text8 + service_text9 + \
-					service_text10
+		if args.personal:
+			pass
+		else:
+			pass
 
 def read_list(args: Arguments):
 	''' Read the input json files, if they are missing, 
@@ -467,10 +439,6 @@ def systemdwork(args: Arguments):
 	global timer_text
 	global systemd_service_file
 	global systemd_timer_file
-	
-	if args.nolog:
-		args.log_txt = []
-		args.log_txt.clear()
 	
 	if args.count == 0:
 		args.count = 3
@@ -514,6 +482,7 @@ def systemdwork(args: Arguments):
 			if args.nolog:
 				args.log_txt.append(f"Enable «blacklist@{args.count}.timer» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
+				args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			AppExit(args)
 		if args.disable:
 			print(f"Disable «blacklist@{args.count}.timer» ...")
@@ -524,6 +493,7 @@ def systemdwork(args: Arguments):
 			if args.nolog:
 				args.log_txt.append(f"Disable «blacklist@{args.count}.timer» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
+				args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			AppExit(args)
 		if args.start:
 			print(f"Start «blacklist@{args.count}.service» ...")
@@ -534,6 +504,7 @@ def systemdwork(args: Arguments):
 			if args.nolog:
 				args.log_txt.append(f"Start «blacklist@{args.count}.service» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
+				args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			AppExit(args)
 		if args.stop:
 			print(f"Stop «blacklist@{args.count}.service» ...")
@@ -544,6 +515,7 @@ def systemdwork(args: Arguments):
 			if args.nolog:
 				args.log_txt.append(f"Stop «blacklist@{args.count}.service» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
+				args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			AppExit(args)
 		if args.starttimer:
 			print(f"Start «blacklist@{args.count}.timer» ...")
@@ -554,6 +526,7 @@ def systemdwork(args: Arguments):
 			if args.nolog:
 				args.log_txt.append(f"Start «blacklist@{args.count}.timer» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
+				args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			AppExit(args)
 		if args.stoptimer:
 			print(f"Stop «blacklist@{args.count}.timer» ...")
@@ -564,6 +537,7 @@ def systemdwork(args: Arguments):
 			if args.nolog:
 				args.log_txt.append(f"Stop «blacklist@{args.count}.timer» ...")
 				args.log_txt.append(f"Exit the blacklist ...")
+				args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			AppExit(args)
 
 def servicework(args: Arguments):
@@ -571,10 +545,6 @@ def servicework(args: Arguments):
 	global script_full
 	global script_name
 	global script_tmp
-	
-	if args.nolog:
-		args.log_txt = []
-		args.log_txt.clear()
 	
 	def service_start_stop(args: Arguments):
 		''' Launching or stopping the blacklist service. '''
@@ -650,6 +620,7 @@ def servicework(args: Arguments):
 		print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		if args.nolog:
 			args.log_txt.append(f"Exit the blacklist ...")
+			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 		AppExit(args)
 	if args.stop:
 		print('Stopping the blacklist ...')
@@ -664,6 +635,7 @@ def servicework(args: Arguments):
 		print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		if args.nolog:
 			args.log_txt.append(f"Exit the blacklist ...")
+			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 		AppExit(args)
 	if args.nostop:
 		print('No stopped the blacklist.')
@@ -774,10 +746,6 @@ def ban_unban_one(args: Arguments):
 def listwork(args: Arguments):
 	''' Working with lists. '''
 	
-	if args.nolog:
-		args.log_txt = []
-		args.log_txt.clear()
-	
 	def show_list(args: Arguments):
 		''' Displaying information on the screen, 
 			according to the specified criteria. '''
@@ -852,6 +820,7 @@ def listwork(args: Arguments):
 		ban_unban_full(args)
 		args.add = args.old
 		args.old = None
+		args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 	if args.unban:
 		print('Unban the blacklist or delete ignored the whitelist ip addresses ...')
 		if args.nolog:
@@ -861,6 +830,7 @@ def listwork(args: Arguments):
 		ban_unban_full(args)
 		args.add = args.old
 		args.old = None
+		args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 	if args.add:
 		print('Adding the blacklist or whitelist ip addresses ...')
 		if args.nolog:
@@ -888,11 +858,11 @@ def PersonalParam(args: Arguments):
 		else:
 			args.table = 'filter'
 			args.chain = 'blackwhite'
-		if args.fine:
-			args.clearchain = True
-			args.delchain = True
-			args.cleartable = True
-			args.deltable = True
+	if args.fine:
+		args.clearchain = True
+		args.delchain = True
+		args.cleartable = True
+		args.deltable = True
 	
 	if args.nftables:
 		if args.newtable:
@@ -903,8 +873,10 @@ def PersonalParam(args: Arguments):
 			args.info, args.err = shell_run(args.console, switch_nftables(args, 'create-table'))
 			args.log_txt.append(args.info)
 			args.log_txt.append('Exit the blacklist ...')
+			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			print('Exit the blacklist ...')
-			AppExit(args)
+			#AppExit(args)
 		if args.newchain:
 			print('Start the blacklist ...')
 			args.log_txt.append('Start the blacklist ...')
@@ -913,11 +885,39 @@ def PersonalParam(args: Arguments):
 			args.info, args.err = shell_run(args.console, switch_nftables(args, 'create-chain'))
 			args.log_txt.append(args.info)
 			args.log_txt.append('Exit the blacklist ...')
+			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
 			print('Exit the blacklist ...')
-			AppExit(args)
+			#AppExit(args)
 	else:
 		if args.newchain:
-			pass
+			print('Start the blacklist ...')
+			args.log_txt.append('Start the blacklist ...')
+			args.log_txt.append(f"New chain in IP(6)TABLES  = {args.chain}")
+			print(f"New chain in IP(6)TABLES  = {args.chain}")
+			args.info, args.err = shell_run(args.console, switch_iptables(args, 'create-chain'))
+			args.log_txt.append(args.info)
+			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+			print('Next the blacklist ...')
+			args.log_txt.append('Next the blacklist ...')
+			args.log_txt.append(switch_iptables(args, 'create-return'))
+			print(switch_iptables(args, 'create-return'))
+			args.info, args.err = shell_run(args.console, switch_iptables(args, 'create-return'))
+			args.log_txt.append(args.info)
+			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+			print('Next the blacklist ...')
+			args.log_txt.append('Next the blacklist ...')
+			args.log_txt.append(switch_iptables(args, 'create-input'))
+			print(switch_iptables(args, 'create-input'))
+			args.info, args.err = shell_run(args.console, switch_iptables(args, 'create-input'))
+			args.log_txt.append(args.info)
+			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+			print('Exit the blacklist ...')
+			args.log_txt.append('Exit the blacklist ...')
+			#AppExit(args)
 
 def EditTableParam(args: Arguments):
 	''' Edit online param on {IP,IP6,NF}TABLES. '''
@@ -1029,6 +1029,10 @@ def main():
 	parser, sb1, psvc, psd, pbl, pwl, pgr1, pgr2, gr1, gr2, gr3, gr4 = createParser()
 	args = Arguments()
 	parser.parse_args(namespace=Arguments)
+	
+	if args.nolog:
+		args.log_txt = []
+		args.log_txt.clear()
 	
 	test_arguments(args)
 	
