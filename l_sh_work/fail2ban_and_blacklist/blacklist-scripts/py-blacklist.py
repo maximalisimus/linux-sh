@@ -219,6 +219,7 @@ def createParser():
 	group3.add_argument ('-clearchain', '--clearchain', action='store_true', default=False, help='Clear the chain in {IP,IP6,NF}TABLES. Use carefully!')
 	group3.add_argument ('-personal', '--personal', action='store_true', default=False, help='Personal settings of {IP,IP6,NF}TABLES tables, regardless of the data entered.')
 	group3.add_argument ('-fine', '--fine', action='store_true', default=False, help='Clearing {IP,IP6,NF}TABLES tables from personal settings.')
+	group3.add_argument ('-e', '-exit', '--exit', action='store_true', default=False, help='Finish creating the table/chain.')
 	
 	group4 = parser.add_argument_group('Settings', 'Configurations.')
 	group4.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default "sh").')
@@ -879,7 +880,8 @@ def PersonalParam(args: Arguments):
 			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----\n")
 			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----\n")
 			print('Exit the blacklist ...')
-			#AppExit(args)
+			if args.exit:
+				AppExit(args)
 		if args.newchain:
 			print('Start the blacklist ...')
 			args.log_txt.append('Start the blacklist ...')
@@ -892,7 +894,8 @@ def PersonalParam(args: Arguments):
 			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----\n")
 			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----\n")
 			print('Exit the blacklist ...')
-			#AppExit(args)
+			if args.exit:
+				AppExit(args)
 	else:
 		if args.newchain:
 			print('Start the blacklist ...')
@@ -924,7 +927,8 @@ def PersonalParam(args: Arguments):
 			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----\n")
 			print('Exit the blacklist ...')
 			args.log_txt.append('Exit the blacklist ...')
-			#AppExit(args)
+			if args.exit:
+				AppExit(args)
 
 def EditTableParam(args: Arguments):
 	''' Edit online param on {IP,IP6,NF}TABLES. '''
