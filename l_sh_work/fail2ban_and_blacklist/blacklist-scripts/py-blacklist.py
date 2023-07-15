@@ -213,7 +213,12 @@ def createParser():
 	group3.add_argument("-chain", '--chain', dest="chain", metavar='CHAIN', type=str, default='INPUT', help='Choosing a chain of rules (Default: "INPUT").')
 	group3.add_argument ('-newtable', '--newtable', action='store_true', default=False, help='Add a new table in NFTABLES. Use carefully!')
 	group3.add_argument ('-newchain', '--newchain', action='store_true', default=False, help='Add a new chain in {IP,IP6,NF}TABLES. Use carefully!')
-	# del-table del-chain flush-table flush-chain personal fine
+	group3.add_argument ('-deltable', '--deltable', action='store_true', default=False, help='Del the table in NFTABLES. Use carefully!')
+	group3.add_argument ('-delchain', '--delchain', action='store_true', default=False, help='Del the chain in {IP,IP6,NF}TABLES. Use carefully!')
+	group3.add_argument ('-cleartable', '--cleartable', action='store_true', default=False, help='Clear the table in NFTABLES. Use carefully!')
+	group3.add_argument ('-clearchain', '--clearchain', action='store_true', default=False, help='Clear the chain in {IP,IP6,NF}TABLES. Use carefully!')
+	group3.add_argument ('-personal', '--personal', action='store_true', default=False, help='Personal settings of {IP,IP6,NF}TABLES tables, regardless of the data entered.')
+	group3.add_argument ('-fine', '--fine', action='store_true', default=False, help='Clearing {IP,IP6,NF}TABLES tables from personal settings.')
 	
 	group4 = parser.add_argument_group('Settings', 'Configurations.')
 	group4.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default "sh").')
@@ -224,6 +229,29 @@ def createParser():
 	group4.add_argument ('-resetlog', '--resetlog', action='store_true', default=False, help='Reset the log file.')
 	
 	return parser, subparsers, parser_service, parser_systemd, parser_blist, parser_wlist, pgroup1, pgroup2, group1, group2, group3, group4
+
+def AppExit(args: Arguments):
+	''' Shutting down the application. '''
+	if args.personal:
+		if args.fine:
+			if args.nftables:
+				if args.clearchain:
+					pass
+				if args.delchain:
+					pass
+				if args.cleartable:
+					pass
+				if args.deltable:
+					pass
+			else:
+				if args.clearchain:
+					pass
+				if args.delchain:
+					pass
+	if args.nolog:
+		read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
+		read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
+	sys.exit(0)
 
 def read_write_json(jfile, typerw, data = dict()):
 	''' The function of reading and writing JSON objects. '''
@@ -433,12 +461,6 @@ def search_handle(text: str, in_ip):
 		return text.split('\n')[rez].split(' ')[-1]
 	else:
 		return None
-
-def AppExit(args: Arguments):
-	if args.nolog:
-		read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
-		read_write_text(args.logfile, 'a', f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----\n")
-	sys.exit(0)
 
 def systemdwork(args: Arguments):
 	''' Systemd management. '''
@@ -857,6 +879,47 @@ def listwork(args: Arguments):
 		args.log_txt.append(f"Exit the blacklist ...")
 	AppExit(args)
 
+def PersonalParam(args: Arguments):
+	''' Uses personal standart {IP,IP6,NF}TABLES Params. '''
+	if args.personal:
+		if args.nftables:
+			args.nftproto = 'inet'
+			args.table = 'blackwhite'
+			args.chain = 'INPUT'
+		else:
+			args.table = 'filter'
+			args.chain = 'blackwhite'
+		if args.fine:
+			args.clearchain = True
+			args.delchain = True
+			args.cleartable = True
+			args.deltable = True
+	
+	if args.nftables:
+		if args.newtable:
+			print('Start the blacklist ...')
+			args.log_txt.append('Start the blacklist ...')
+			args.log_txt.append(f"New table in NFTABLES  = {args.table}")
+			print(f"New table in NFTABLES  = {args.table}")
+			args.info, args.err = shell_run(args.console, switch_nftables(args, 'create-table'))
+			args.log_txt.append(args.info)
+			args.log_txt.append('Exit the blacklist ...')
+			print('Exit the blacklist ...')
+			AppExit(args)
+		if args.newchain:
+			print('Start the blacklist ...')
+			args.log_txt.append('Start the blacklist ...')
+			args.log_txt.append(f"New chain in NFTABLES  = {args.chain}")
+			print(f"New chain in NFTABLES  = {args.chain}")
+			args.info, args.err = shell_run(args.console, switch_nftables(args, 'create-chain'))
+			args.log_txt.append(args.info)
+			args.log_txt.append('Exit the blacklist ...')
+			print('Exit the blacklist ...')
+			AppExit(args)
+	else:
+		if args.newchain:
+			pass
+
 def EditTableParam(args: Arguments):
 	''' Edit online param on {IP,IP6,NF}TABLES. '''
 	if not args.nftables:
@@ -874,12 +937,6 @@ def EditTableParam(args: Arguments):
 		args.minmask = 1
 		args.maxmask = 128
 	
-	if args.nftables:
-		if args.newtable:
-			shell_run(args.console, switch_nftables(args, 'create-table'))
-		if args.newchain:
-			shell_run(args.console, switch_nftables(args, 'create-chain'))
-	
 	if args.mask != None:
 		if len(args.mask) > 1:
 			for elem in range(len(args.mask)):
@@ -887,6 +944,8 @@ def EditTableParam(args: Arguments):
 					args.mask[elem] = args.minmask
 				elif args.mask[elem] > args.maxmask:
 					args.mask[elem] = args.maxmask
+	
+	PersonalParam(args)
 
 def EditDirParam(args: Arguments):
 	''' Edit online directoryes Params. '''	
