@@ -86,6 +86,8 @@ WantedBy=timers.target'''
 systemd_service_file = pathlib.Path('/etc/systemd/system/blacklist@.service').resolve()
 systemd_timer_file = pathlib.Path('/etc/systemd/system/blacklist@.timer').resolve()
 
+parser = ""
+
 class Arguments:
 	''' Class «Arguments».
 	
@@ -132,10 +134,7 @@ def createParser():
 	''' The function of creating a parser with a certain hierarchy 
 		of calls. Returns the parser itself and the sub-parser, 
 		as well as groups of parsers, if any. '''
-	global json_black
-	global json_white
-	global workdir
-	global log_file
+	global json_black, json_white, workdir, log_file
 	
 	parser = argparse.ArgumentParser(prog=__progname__,description='The Fail2Ban black and white list in Python.')
 	parser.add_argument ('-v', '--version', action='version', version=f'{__progname__} {__version__}',  help='Version.')
@@ -207,14 +206,14 @@ def createParser():
 	group3 = parser.add_argument_group('{IP,IP6,NF}TABLES', 'Configuration {IP,IP6,NF}TABLES.')
 	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select {IP6/NF}TABLES.')
 	group3.add_argument ('-nft', '--nftables', action='store_true', default=False, help='Select the NFTABLES (IP,IP6) framework (Default {IP,IP6}TABLES).')
-	group3.add_argument("-protocol", '--protocol', default='ip', choices=['ip', 'ip6', 'inet'], help='Select the protocol ip-addresses (Auto "ip" or -ipv6 to "ip6").')
-	group3.add_argument("-nftproto", '--nftproto', default='ip', choices=['ip', 'ip6', 'inet'], help='Select the protocol NFTABLES, before rule (Auto "ip" or -ipv6 to "ip6").')
+	group3.add_argument("-protocol", '--protocol', default='ip', choices=['ip', 'ip6', 'inet'], help='Select the protocol ip-addresses (Auto ipv4 on "ip" or -ipv6 to "ip6").')
+	group3.add_argument("-nftproto", '--nftproto', default='ip', choices=['ip', 'ip6', 'inet'], help='Select the protocol NFTABLES, before rule (Auto ipv4 on "ip" or -ipv6 to "ip6").')
 	group3.add_argument("-table", '--table', dest="table", metavar='TABLE', type=str, default='filter', help='Select the table (Default "filter").')
 	group3.add_argument("-chain", '--chain', dest="chain", metavar='CHAIN', type=str, default='INPUT', help='Choosing a chain of rules (Default: "INPUT").')
 	group3.add_argument ('-newtable', '--newtable', action='store_true', default=False, help='Add a new table in NFTABLES. Use carefully!')
 	group3.add_argument ('-newchain', '--newchain', action='store_true', default=False, help='Add a new chain in {IP,IP6,NF}TABLES. Use carefully!')
-	group3.add_argument ('-deltable', '--deltable', action='store_true', default=False, help='Del the table in NFTABLES. Use carefully!')
-	group3.add_argument ('-delchain', '--delchain', action='store_true', default=False, help='Del the chain in {IP,IP6,NF}TABLES. Use carefully!')
+	group3.add_argument ('-Deltable', '--Deltable', action='store_true', default=False, help='Del the table in NFTABLES. Use carefully!')
+	group3.add_argument ('-Delchain', '--Delchain', action='store_true', default=False, help='Del the chain in {IP,IP6,NF}TABLES. Use carefully!')
 	group3.add_argument ('-cleartable', '--cleartable', action='store_true', default=False, help='Clear the table in NFTABLES. Use carefully!')
 	group3.add_argument ('-clearchain', '--clearchain', action='store_true', default=False, help='Clear the chain in {IP,IP6,NF}TABLES. Use carefully!')
 	group3.add_argument ('-personal', '--personal', action='store_true', default=False, help='Personal settings of {IP,IP6,NF}TABLES tables, regardless of the data entered.')
@@ -245,19 +244,20 @@ def AppExit(args: Arguments):
 	if args.nftables:
 		if args.clearchain:
 			pass
-		if args.delchain:
+		if args.Delchain:
 			pass
 		if args.cleartable:
 			pass
-		if args.deltable:
+		if args.Deltable:
 			pass
 	else:
 		if args.clearchain:
 			pass
-		if args.delchain:
+		if args.Delchain:
 			pass
 	if args.nolog:
-		read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
+		if args.log_txt:
+			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 	sys.exit(0)
 
 def service_build(args: Arguments):
@@ -438,10 +438,7 @@ def search_handle(text: str, in_ip):
 
 def systemdwork(args: Arguments):
 	''' Systemd management. '''
-	global service_text
-	global timer_text
-	global systemd_service_file
-	global systemd_timer_file
+	global service_text, timer_text, systemd_service_file, systemd_timer_file, parser
 	
 	if args.count == 0:
 		args.count = 3
@@ -474,6 +471,8 @@ def systemdwork(args: Arguments):
 	if systemd_service_file.exists() and systemd_timer_file.exists():
 		if args.status:
 			service_info, err = shell_run(args.console, switch_systemd('status', args.count))
+			args.log_txt.append(f"----- Systemd Info -----\n{service_info}\n----- Systemd Info -----")
+			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			print(f"----- Systemd Info -----\n{service_info}\n----- Systemd Info -----")
 			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			sys.exit(0)
@@ -549,12 +548,16 @@ def systemdwork(args: Arguments):
 				args.log_txt.append(f"Exit the blacklist ...")
 				args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			AppExit(args)
+	else:
+		print(f"\nSystemd file «{systemd_service_file.name}» and «{systemd_timer_file.name}» not found!")
+		print(f"Please enter «-create» to create systemd files!\n")
+	if not args.log_txt:
+		parser.parse_args(['systemd', '-h'])
+		sys.exit(0)
 
 def servicework(args: Arguments):
 	''' Processing of service commands. '''
-	global script_full
-	global script_name
-	global script_tmp
+	global script_full, script_name, script_tmp, parser
 	
 	def service_start_stop(args: Arguments):
 		''' Launching or stopping the blacklist service. '''
@@ -614,6 +617,8 @@ def servicework(args: Arguments):
 			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		else:
 			args.iptables_info, args.err = shell_run(args.console, switch_nftables(args, 'read'))
+			args.log_txt.append(f"\n----- NFTABLES Info -----\n{args.iptables_info}\n----- NFTABLES Info -----")
+			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 			print(f"\n----- NFTABLES Info -----\n{args.iptables_info}\n----- NFTABLES Info -----")
 			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		sys.exit(0)
@@ -673,6 +678,9 @@ def servicework(args: Arguments):
 			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 			args.log_txt.append(f"Exit the blacklist ...")
 		AppExit(args)
+	if not args.log_txt:
+		parser.parse_args(['service', '-h'])
+		sys.exit(0)
 
 def nft_ban_unban_one(args: Arguments):
 	''' NFTABLES ban or unban one ip address. '''
@@ -756,6 +764,8 @@ def ban_unban_one(args: Arguments):
 def listwork(args: Arguments):
 	''' Working with lists. '''
 	
+	global parser
+	
 	def show_list(args: Arguments):
 		''' Displaying information on the screen, 
 			according to the specified criteria. '''
@@ -817,6 +827,8 @@ def listwork(args: Arguments):
 	
 	if args.show:
 		print('Viewing a blacklist or whitelist of ip addresses ...')
+		args.log_txt.append('Viewing a blacklist or whitelist of ip addresses ...')
+		args.log_txt.append('Exit the blacklist ...')
 		read_list(args)
 		show_list(args)
 		print('Exit the blacklist ...')
@@ -855,6 +867,13 @@ def listwork(args: Arguments):
 		add_dell_full(args)
 	print('Exit the blacklist ...')
 	if args.nolog:
+		rez = args.show + args.ban + args.unban + args.add + args.delete
+		if rez == 0:
+			if args.onlist == 'black':
+				parser.parse_args(['black', '-h'])
+			if args.onlist == 'white':
+				parser.parse_args(['white', '-h'])
+			sys.exit(0)
 		args.log_txt.append(f"Exit the blacklist ...")
 	AppExit(args)
 
@@ -1041,8 +1060,7 @@ def test_arguments(args: Arguments):
 def main():	
 	''' The main cycle of the program. '''
 	
-	global infromation
-	global service_text
+	global infromation, service_text, parser
 	
 	parser, sb1, psvc, psd, pbl, pwl, pgr1, pgr2, gr1, gr2, gr3, gr4 = createParser()
 	args = Arguments()
@@ -1068,6 +1086,8 @@ def main():
 	if args.onlist != None:
 		func.get(args.onlist)(args)
 	else:
+		if args.exit:
+			AppExit(args)
 		parser.parse_args(['-h'])
 
 if __name__ == '__main__':
