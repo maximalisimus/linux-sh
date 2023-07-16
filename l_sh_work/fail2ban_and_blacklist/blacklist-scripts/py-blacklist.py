@@ -406,7 +406,10 @@ def service_build(args: Arguments):
 		_stop_var = f"{_start_var} {_cch} {_dch}".strip()
 	
 	if args.personal:
-		service_tmp_text.append(f"{st2} -personal {st3}")
+		if args.nftables:
+			service_tmp_text.append(f"{st2} -personal -newtable -newchain {st3}")
+		else:
+			service_tmp_text.append(f"{st2} -personal -newchain {st3}")
 		service_tmp_text.append(f"{st4} -personal -fine {st5}")
 		service_tmp_text.append(f"{st6} -personal {st7}")
 		service_tmp_text.append(st8)
