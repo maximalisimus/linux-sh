@@ -371,7 +371,7 @@ def AppExit(args: Arguments):
 					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")	
 	if args.nolog:
 		if args.log_txt:
-			ondatetime = datetime.now().strftime("%a %d %b %Y %H:%M:%S %Z %:::z")
+			ondatetime = datetime.now().strftime("%a %d %b %Y %H:%M:%S %Z %z")
 			read_write_text(args.logfile, 'a', f"\n{ondatetime}\n")
 			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt) + '\n')
 	sys.exit(0)
