@@ -238,7 +238,34 @@ def AppExit(args: Arguments):
 			if (args.table != 'filter') ^ (args.chain != 'INPUT'):
 				if args.cmd:
 					print(switch_nftables(args, 'flush-chain'))
-					sys.exit(0)
+		if args.Delchain:
+			if (args.table != 'filter') ^ (args.chain != 'INPUT'):
+				if args.cmd:
+					print(switch_nftables(args, 'del-chain'))
+		if args.cleartable:
+			if args.table != 'filter':
+				if args.cmd:
+					print(switch_nftables(args, 'flush-table'))
+		if args.Deltable:
+			if args.table != 'filter':
+				if args.cmd:
+					print(switch_nftables(args, 'del-table'))
+	else:
+		if args.clearchain:
+			if args.chain != 'INPUT':	
+				if args.cmd:
+					print(switch_iptables(args, 'flush-chain'))
+		if args.Delchain:
+			if args.chain != 'INPUT':
+				if args.cmd:
+					print(switch_iptables(args, 'del-input'))
+					print(switch_iptables(args, 'del-chain'))
+	if args.cmd:
+		sys.exit(0)
+	
+	if args.nftables:
+		if args.clearchain:
+			if (args.table != 'filter') ^ (args.chain != 'INPUT'):
 				print('Close the blacklist on NFTABLES ...')
 				print(f"Clear the сhain: «{args.chain}».")
 				service_info, err = shell_run(args.console, switch_nftables(args, 'flush-chain'))
@@ -253,9 +280,6 @@ def AppExit(args: Arguments):
 					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 		if args.Delchain:
 			if (args.table != 'filter') ^ (args.chain != 'INPUT'):
-				if args.cmd:
-					print(switch_nftables(args, 'del-chain'))
-					sys.exit(0)
 				print('Close the blacklist on NFTABLES ...')
 				print(f"Delete the сhain: «{args.chain}».")
 				service_info, err = shell_run(args.console, switch_nftables(args, 'del-chain'))
@@ -270,9 +294,6 @@ def AppExit(args: Arguments):
 					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 		if args.cleartable:
 			if args.table != 'filter':
-				if args.cmd:
-					print(switch_nftables(args, 'flush-table'))
-					sys.exit(0)
 				print('Close the blacklist on NFTABLES...')
 				print(f"Clear the table: «{args.table}».")
 				service_info, err = shell_run(args.console, switch_nftables(args, 'flush-table'))
@@ -287,9 +308,6 @@ def AppExit(args: Arguments):
 					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 		if args.Deltable:
 			if args.table != 'filter':
-				if args.cmd:
-					print(switch_nftables(args, 'del-table'))
-					sys.exit(0)
 				print('Close the blacklist on NFTABLES ...')
 				print(f"Delete the table: «{args.table}».")
 				service_info, err = shell_run(args.console, switch_nftables(args, 'del-table'))
@@ -304,10 +322,7 @@ def AppExit(args: Arguments):
 					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 	else:
 		if args.clearchain:
-			if args.chain != 'INPUT':	
-				if args.cmd:
-					print(switch_iptables(args, 'flush-chain'))
-					sys.exit(0)			
+			if args.chain != 'INPUT':		
 				print('Close the blacklist on {IP,IP6}TABLES ...')
 				print(f"Clear the сhain: «{args.chain}».")
 				service_info, err = shell_run(args.console, switch_iptables(args, 'flush-chain'))
@@ -322,10 +337,6 @@ def AppExit(args: Arguments):
 					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 		if args.Delchain:
 			if args.chain != 'INPUT':
-				if args.cmd:
-					print(switch_iptables(args, 'del-input'))
-					print(switch_iptables(args, 'del-chain'))
-					sys.exit(0)
 				print('Close the blacklist on {IP,IP6}TABLES ...')
 				print(f"Removing the symbolic link to the chain «{args.chain}» from «INPUT».")
 				service_info, err = shell_run(args.console, switch_iptables(args, 'del-input'))
@@ -1147,9 +1158,9 @@ def PersonalParam(args: Arguments):
 			args.chain = 'blackwhite'
 	if args.fine:
 		args.clearchain = True
-		args.delchain = True
+		args.Delchain = True
 		args.cleartable = True
-		args.deltable = True
+		args.Deltable = True
 	
 	if args.nftables:
 		if args.newtable:
