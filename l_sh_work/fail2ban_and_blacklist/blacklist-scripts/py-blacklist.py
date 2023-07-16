@@ -1228,8 +1228,6 @@ def PersonalParam(args: Arguments):
 					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 					print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 					print('Exit the blacklist ...')
-					if args.exit:
-						AppExit(args)
 			if args.newchain:
 				if (args.table != 'filter') ^ (args.chain != 'INPUT'):
 					print('Start the blacklist ...')
@@ -1243,8 +1241,8 @@ def PersonalParam(args: Arguments):
 					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 					print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 					print('Exit the blacklist ...')
-					if args.exit:
-						AppExit(args)
+			if args.exit:
+				AppExit(args)
 		else:
 			if args.newchain:
 				if args.chain != 'INPUT':
@@ -1259,8 +1257,6 @@ def PersonalParam(args: Arguments):
 					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 					print('Exit the blacklist ...')
 					print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
-					if args.exit:
-						AppExit(args)
 			if args.inschain:
 				if args.chain != 'INPUT':
 					args.log_txt.append('Start the blacklist ...')
@@ -1273,8 +1269,6 @@ def PersonalParam(args: Arguments):
 					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 					print('Exit the blacklist ...')
 					print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
-					if args.exit:
-						AppExit(args)
 			if args.insreturn:
 				if args.chain != 'INPUT':
 					print('Start the blacklist ...')
@@ -1288,8 +1282,8 @@ def PersonalParam(args: Arguments):
 					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 					print('Exit the blacklist ...')
 					print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
-					if args.exit:
-						AppExit(args)
+			if args.exit:
+				AppExit(args)
 
 def EditTableParam(args: Arguments):
 	''' Edit online param on {IP,IP6,NF}TABLES. '''
