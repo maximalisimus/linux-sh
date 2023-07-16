@@ -945,9 +945,10 @@ def servicework(args: Arguments):
 			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 			args.log_txt.append(f"Exit the blacklist ...")
 		AppExit(args)
-	if not args.log_txt:
-		parser.parse_args(['service', '-h'])
-		sys.exit(0)
+	if not args.cmd:
+		if not args.log_txt:
+			parser.parse_args(['service', '-h'])
+			sys.exit(0)
 
 def nft_ban_unban_one(args: Arguments):
 	''' NFTABLES ban or unban one ip address. '''
@@ -1165,16 +1166,17 @@ def listwork(args: Arguments):
 			args.log_txt.append(f"Deleting the blacklist or whitelist ip addresses ...")
 		read_list(args)
 		add_dell_full(args)
-	print('Exit the blacklist ...')
-	if args.nolog:
-		rez = args.show + args.ban + args.unban + args.add + args.delete
-		if rez == 0:
-			if args.onlist == 'black':
-				parser.parse_args(['black', '-h'])
-			if args.onlist == 'white':
-				parser.parse_args(['white', '-h'])
-			sys.exit(0)
-		args.log_txt.append(f"Exit the blacklist ...")
+	if not args.cmd:
+		print('Exit the blacklist ...')
+		if args.nolog:
+			rez = args.show + args.ban + args.unban + args.add + args.delete
+			if rez == 0:
+				if args.onlist == 'black':
+					parser.parse_args(['black', '-h'])
+				if args.onlist == 'white':
+					parser.parse_args(['white', '-h'])
+				sys.exit(0)
+			args.log_txt.append(f"Exit the blacklist ...")
 	AppExit(args)
 
 def CreateTableChain(args: Arguments):
