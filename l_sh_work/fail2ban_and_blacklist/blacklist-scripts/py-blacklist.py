@@ -60,15 +60,14 @@ After=fail2ban.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes'''
-st2 = "\nExecStart=blacklist"
-st3 = " -nft"
-st4 = " -c %i service -start\n"
-st5 = "ExecStop=blacklist"
-st6 = " -c %i service -stop\n"
-st7 = "ExecReload=blacklist"
-st8 = " -c %i service -reload\n"
-st9 = "[Install]\n"
-st10 = "WantedBy=multi-user.target\n"
+st2 = "ExecStart=blacklist"
+st3 = "-c %i service -start"
+st4 = "ExecStop=blacklist"
+st5 = "-c %i service -stop"
+st6 = "ExecReload=blacklist"
+st7 = "-c %i service -reload"
+st8 = "[Install]"
+st9 = "WantedBy=multi-user.target"
 
 timer_text = '''[Unit]
 Description=Blacklist timer for banning and unbanning ip addresses of subnets.
@@ -359,41 +358,55 @@ def AppExit(args: Arguments):
 	sys.exit(0)
 
 def service_build(args: Arguments):
-	global service_text, st1, st2, st3, st4, st5, st6, st7, st8, st9, st10
+	global service_text, st1, st2, st3, st4, st5, st6, st7, st8, st9
 	
-	#service_text = ''
-	#st1 = '''[Unit]
-	#Description=Blacklist service for banning and unbanning ip addresses of subnets.
-	#Wants=fail2ban.service
-	#After=fail2ban.service
-	#
-	#[Service]
-	#Type=oneshot
-	#RemainAfterExit=yes'''
-	#st2 = "\nExecStart=blacklist"
-	#st3 = " -nft"
-	#st4 = " -c %i service -start\n"
-	#st5 = "ExecStop=blacklist"
-	#st6 = " -c %i service -stop\n"
-	#st7 = "ExecReload=blacklist"
-	#st8 = " -c %i service -reload\n"
-	#st9 = "[Install]\n"
-	#st10 = "WantedBy=multi-user.target\n"
-	
-	# ipv6 nft nftables protocol nftproto table chain 
-	# newtable newchain Deltable Delchain cleartable clearchain
-	# personal fine
-	
+	service_tmp_text = []
+	service_tmp_text.append(st1)
 	if args.nftables:
-		if args.personal:
-			pass
-		else:
-			pass
+		_ipv6 = '-ipv6' if args.ipv6 else ''
+		_nft = '-nft' if args.nftables else ''
+		_proto = f"-protocol {args.protocol}"
+		_nfproto = f"-nftproto {args.nftproto}"
+		_tbl = f"-table {args.table}"
+		_ch = f"-chain {args.chain}"
+		
+		_ntbl = '-newtable' if args.newtable else ''
+		_nch = '-newchain' if args.newchain else ''
+		
+		_dtbl = '-Deltable' if args.Deltable else ''
+		_dch = '-Delchain' if args.Delchain else ''
+		_ctbl = '-cleartable' if args.cleartable else ''
+		_cch = '-clearchain' if args.clearchain else ''
+		
+		_start_var = f"{_ipv6} {_nft} {_nfproto} {_proto} {_tbl} {_ch}".strip()
+		_exec_var = f"{_start_var} {_ntbl} {_nch}".strip()
+		_stop_var = f"{_start_var} {_cch} {_dch} {_ctbl} {_dtbl}".strip()
 	else:
-		if args.personal:
-			pass
-		else:
-			pass
+		_ipv6 = '-ipv6' if args.ipv6 else ''
+		_proto = f"-protocol {args.protocol}"
+		_ch = f"-chain {args.chain}"
+		
+		_nch = '-newchain' if args.newchain else ''
+		_dch = '-Delchain' if args.Delchain else ''
+		_cch = '-clearchain' if args.clearchain else ''
+		
+		_start_var = f"{_ipv6} {_proto} {_ch}".strip()
+		_exec_var = f"{_start_var} {_nch}".strip()
+		_stop_var = f"{_start_var} {_cch} {_dch}".strip()
+	
+	if args.personal:
+		service_tmp_text.append(f"{st2} -personal {st3}")
+		service_tmp_text.append(f"{st4} -personal -fine {st5}")
+		service_tmp_text.append(f"{st6} -personal {st7}")
+		service_tmp_text.append(st8)
+		service_tmp_text.append(st9)
+	else:
+		service_tmp_text.append(f"{st2} {_exec_var} {st3}")
+		service_tmp_text.append(f"{st4} {_stop_var} {st5}")
+		service_tmp_text.append(f"{st6} {_start_var} {st7}")
+		service_tmp_text.append(st8)
+		service_tmp_text.append(st9)
+	service_text = '\n'.join(service_tmp_text)
 
 def read_write_json(jfile, typerw, data = dict()):
 	''' The function of reading and writing JSON objects. '''
