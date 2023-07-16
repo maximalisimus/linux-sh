@@ -785,6 +785,8 @@ def servicework(args: Arguments):
 		args.onlist = None
 		args.add = None
 	
+	CreateTableChain(args)
+	
 	read_list(args)
 	args.add = args.start
 	if args.count == 0:
@@ -1031,6 +1033,8 @@ def listwork(args: Arguments):
 	
 	global parser
 	
+	CreateTableChain(args)
+	
 	def show_list(args: Arguments):
 		''' Displaying information on the screen, 
 			according to the specified criteria. '''
@@ -1085,6 +1089,7 @@ def listwork(args: Arguments):
 			read_write_json(args.output, 'w', args.json_data)
 		args.current_ip = None
 		args.json_data = None
+	
 	if not args.cmd:
 		print('Launching the blacklist ...')
 		if args.nolog:
@@ -1172,47 +1177,9 @@ def listwork(args: Arguments):
 		args.log_txt.append(f"Exit the blacklist ...")
 	AppExit(args)
 
-def PersonalParam(args: Arguments):
-	''' Uses personal standart {IP,IP6,NF}TABLES Params. '''
-	if args.personal:
-		if args.nftables:
-			args.nftproto = 'inet'
-			args.table = 'blackwhite'
-			args.chain = 'INPUT'
-		else:
-			args.table = 'filter'
-			args.chain = 'blackwhite'
-	if args.fine:
-		args.clearchain = True
-		args.Delchain = True
-		args.cleartable = True
-		args.Deltable = True
-		args.Delreturn = True
-		args.Delinput = True
-	if args.run:
-		args.newtable = True
-		args.newchain = True
-		args.inschain = True
-		args.insreturn = True
-	
-	if args.cmd:
-		if args.nftables:
-			if args.newtable:
-				if args.table != 'filter':
-					print(switch_nftables(args, 'create-table'))
-			if args.newchain:
-				if (args.table != 'filter') ^ (args.chain != 'INPUT'):
-					print(switch_nftables(args, 'create-chain'))
-		else:
-			if args.newchain:
-				if args.chain != 'INPUT':
-					print(switch_iptables(args, 'create-chain'))
-			if args.inschain:
-				if args.chain != 'INPUT':
-					print(switch_iptables(args, 'insert-input'))
-			if args.insreturn:
-				if args.chain != 'INPUT':
-					print(switch_iptables(args, 'create-return'))
+def CreateTableChain(args: Arguments):
+	''' Function to create your table, chain, 
+		insert return, insert input '''
 	if not args.cmd:
 		if args.nftables:
 			if args.newtable:
@@ -1284,6 +1251,29 @@ def PersonalParam(args: Arguments):
 					print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			if args.exit:
 				AppExit(args)
+
+def PersonalParam(args: Arguments):
+	''' Uses personal standart {IP,IP6,NF}TABLES Params. '''
+	if args.personal:
+		if args.nftables:
+			args.nftproto = 'inet'
+			args.table = 'blackwhite'
+			args.chain = 'INPUT'
+		else:
+			args.table = 'filter'
+			args.chain = 'blackwhite'
+	if args.fine:
+		args.clearchain = True
+		args.Delchain = True
+		args.cleartable = True
+		args.Deltable = True
+		args.Delreturn = True
+		args.Delinput = True
+	if args.run:
+		args.newtable = True
+		args.newchain = True
+		args.inschain = True
+		args.insreturn = True
 
 def EditTableParam(args: Arguments):
 	''' Edit online param on {IP,IP6,NF}TABLES. '''
@@ -1386,6 +1376,25 @@ def test_arguments(args: Arguments):
 	EditDirParam(args)
 	EditLogParam(args)
 	EditTableParam(args)
+	
+	if args.cmd:
+		if args.nftables:
+			if args.newtable:
+				if args.table != 'filter':
+					print(switch_nftables(args, 'create-table'))
+			if args.newchain:
+				if (args.table != 'filter') ^ (args.chain != 'INPUT'):
+					print(switch_nftables(args, 'create-chain'))
+		else:
+			if args.newchain:
+				if args.chain != 'INPUT':
+					print(switch_iptables(args, 'create-chain'))
+			if args.inschain:
+				if args.chain != 'INPUT':
+					print(switch_iptables(args, 'insert-input'))
+			if args.insreturn:
+				if args.chain != 'INPUT':
+					print(switch_iptables(args, 'create-return'))
 
 def main():	
 	''' The main cycle of the program. '''
