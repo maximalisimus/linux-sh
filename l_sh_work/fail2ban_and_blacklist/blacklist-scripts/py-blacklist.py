@@ -361,6 +361,29 @@ def AppExit(args: Arguments):
 def service_build(args: Arguments):
 	global service_text, st1, st2, st3, st4, st5, st6, st7, st8, st9, st10
 	
+	#service_text = ''
+	#st1 = '''[Unit]
+	#Description=Blacklist service for banning and unbanning ip addresses of subnets.
+	#Wants=fail2ban.service
+	#After=fail2ban.service
+	#
+	#[Service]
+	#Type=oneshot
+	#RemainAfterExit=yes'''
+	#st2 = "\nExecStart=blacklist"
+	#st3 = " -nft"
+	#st4 = " -c %i service -start\n"
+	#st5 = "ExecStop=blacklist"
+	#st6 = " -c %i service -stop\n"
+	#st7 = "ExecReload=blacklist"
+	#st8 = " -c %i service -reload\n"
+	#st9 = "[Install]\n"
+	#st10 = "WantedBy=multi-user.target\n"
+	
+	# ipv6 nft nftables protocol nftproto table chain 
+	# newtable newchain Deltable Delchain cleartable clearchain
+	# personal fine
+	
 	if args.nftables:
 		if args.personal:
 			pass
