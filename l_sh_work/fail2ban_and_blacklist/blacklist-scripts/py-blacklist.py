@@ -208,7 +208,7 @@ def createParser():
 	group3.add_argument ('-nft', '--nftables', action='store_true', default=False, help='Select the NFTABLES (IP,IP6) framework (Default {IP,IP6}TABLES).')
 	group3.add_argument("-protocol", '--protocol', default='ip', choices=['ip', 'ip6', 'inet'], help='Select the protocol ip-addresses (Auto ipv4 on "ip" or -ipv6 to "ip6").')
 	group3.add_argument("-nftproto", '--nftproto', default='ip', choices=['ip', 'ip6', 'inet'], help='Select the protocol NFTABLES, before rule (Auto ipv4 on "ip" or -ipv6 to "ip6").')
-	group3.add_argument("-table", '--table', dest="table", metavar='TABLE', type=str, default='filter', help='Select the table (Default "filter").')
+	group3.add_argument("-table", '--table', dest="table", metavar='TABLE', type=str, default='filter', help='Select the table for NFTABLES (Default "filter").')
 	group3.add_argument("-chain", '--chain', dest="chain", metavar='CHAIN', type=str, default='INPUT', help='Choosing a chain of rules (Default: "INPUT").')
 	group3.add_argument ('-newtable', '--newtable', action='store_true', default=False, help='Add a new table in NFTABLES. Use carefully!')
 	group3.add_argument ('-newchain', '--newchain', action='store_true', default=False, help='Add a new chain in {IP,IP6,NF}TABLES. Use carefully!')
@@ -240,21 +240,30 @@ def AppExit(args: Arguments):
 	# 'del-input' 'flush-chain' 'del-chain'
 	# args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 	# service_info, args.err = shell_run(args.console, switch_systemd('start-timer', args.count))
+	# args.nftproto = 'ip' / 'ip6' args.table = 'filter'  args.chain = 'INPUT'
+	# print('Close the blacklist ...')
+	# print('Exit the blacklist ...')
 	
 	if args.nftables:
 		if args.clearchain:
-			pass
+			if (args.table != 'filter') ^ (args.chain != 'INPUT'):
+				pass
 		if args.Delchain:
-			pass
+			if (args.table != 'filter') ^ (args.chain != 'INPUT'):
+				pass
 		if args.cleartable:
-			pass
+			if args.table != 'filter':
+				pass
 		if args.Deltable:
-			pass
+			if args.table != 'filter':
+				pass
 	else:
 		if args.clearchain:
-			pass
+			if args.chain != 'INPUT':
+				pass
 		if args.Delchain:
-			pass
+			if args.chain != 'INPUT':
+				pass
 	if args.nolog:
 		if args.log_txt:
 			ondatetime = datetime.now().strftime("%a %d %b %Y %H:%M:%S %Z")
@@ -897,71 +906,75 @@ def PersonalParam(args: Arguments):
 	
 	if args.nftables:
 		if args.newtable:
-			print('Start the blacklist ...')
-			args.log_txt.append('Start the blacklist ...')
-			args.log_txt.append(f"New table in NFTABLES  = {args.table}")
-			print(f"New table in NFTABLES  = {args.table}")
-			service_info, err = shell_run(args.console, switch_nftables(args, 'create-table'))
-			args.log_txt.append(service_info)
-			print(service_info)
-			args.log_txt.append('Exit the blacklist ...')
-			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
-			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
-			print('Exit the blacklist ...')
-			if args.exit:
-				AppExit(args)
+			if args.table != 'filter':
+				print('Start the blacklist ...')
+				args.log_txt.append('Start the blacklist ...')
+				args.log_txt.append(f"New table in NFTABLES  = {args.table}")
+				print(f"New table in NFTABLES  = {args.table}")
+				service_info, err = shell_run(args.console, switch_nftables(args, 'create-table'))
+				args.log_txt.append(service_info)
+				print(service_info)
+				args.log_txt.append('Exit the blacklist ...')
+				args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				print('Exit the blacklist ...')
+				if args.exit:
+					AppExit(args)
 		if args.newchain:
-			print('Start the blacklist ...')
-			args.log_txt.append('Start the blacklist ...')
-			args.log_txt.append(f"New chain in NFTABLES  = {args.chain}")
-			print(f"New chain in NFTABLES  = {args.chain}")
-			service_info, err = shell_run(args.console, switch_nftables(args, 'create-chain'))
-			args.log_txt.append(service_info)
-			print(service_info)
-			args.log_txt.append('Exit the blacklist ...')
-			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
-			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
-			print('Exit the blacklist ...')
-			if args.exit:
-				AppExit(args)
+			if (args.table != 'filter') ^ (args.chain != 'INPUT'):
+				print('Start the blacklist ...')
+				args.log_txt.append('Start the blacklist ...')
+				args.log_txt.append(f"New chain in NFTABLES  = {args.chain}")
+				print(f"New chain in NFTABLES  = {args.chain}")
+				service_info, err = shell_run(args.console, switch_nftables(args, 'create-chain'))
+				args.log_txt.append(service_info)
+				print(service_info)
+				args.log_txt.append('Exit the blacklist ...')
+				args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				print('Exit the blacklist ...')
+				if args.exit:
+					AppExit(args)
 	else:
 		if args.newchain:
-			print('Start the blacklist ...')
-			args.log_txt.append('Start the blacklist ...')
-			args.log_txt.append(f"New chain in IP(6)TABLES  = {args.chain}")
-			print(f"New chain in IP(6)TABLES  = {args.chain}")
-			service_info, err = shell_run(args.console, switch_iptables(args, 'create-chain'))
-			args.log_txt.append(service_info)
-			print(service_info)
-			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
-			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
-			print('Next the blacklist ...')
-			args.log_txt.append('Next the blacklist ...')
-			args.log_txt.append(switch_iptables(args, 'create-return'))
-			print(switch_iptables(args, 'create-return'))
-			service_info, err = shell_run(args.console, switch_iptables(args, 'create-return'))
-			args.log_txt.append(service_info)
-			print(service_info)
-			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
-			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
-			print('Next the blacklist ...')
-			args.log_txt.append('Next the blacklist ...')
-			args.log_txt.append(switch_iptables(args, 'create-input'))
-			print(switch_iptables(args, 'create-input'))
-			service_info, err = shell_run(args.console, switch_iptables(args, 'create-input'))
-			args.log_txt.append(service_info)
-			print(service_info)
-			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
-			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
-			print('Exit the blacklist ...')
-			args.log_txt.append('Exit the blacklist ...')
-			if args.exit:
-				AppExit(args)
+			if args.chain != 'INPUT':
+				print('Start the blacklist ...')
+				args.log_txt.append('Start the blacklist ...')
+				args.log_txt.append(f"New chain in IP(6)TABLES  = {args.chain}")
+				print(f"New chain in IP(6)TABLES  = {args.chain}")
+				service_info, err = shell_run(args.console, switch_iptables(args, 'create-chain'))
+				args.log_txt.append(service_info)
+				print(service_info)
+				args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				print('Next the blacklist ...')
+				args.log_txt.append('Next the blacklist ...')
+				args.log_txt.append(switch_iptables(args, 'create-return'))
+				print(switch_iptables(args, 'create-return'))
+				service_info, err = shell_run(args.console, switch_iptables(args, 'create-return'))
+				args.log_txt.append(service_info)
+				print(service_info)
+				args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				print('Next the blacklist ...')
+				args.log_txt.append('Next the blacklist ...')
+				args.log_txt.append(switch_iptables(args, 'create-input'))
+				print(switch_iptables(args, 'create-input'))
+				service_info, err = shell_run(args.console, switch_iptables(args, 'create-input'))
+				args.log_txt.append(service_info)
+				print(service_info)
+				args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				print('Exit the blacklist ...')
+				args.log_txt.append('Exit the blacklist ...')
+				if args.exit:
+					AppExit(args)
 
 def EditTableParam(args: Arguments):
 	''' Edit online param on {IP,IP6,NF}TABLES. '''
 	if not args.nftables:
 		args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
+		args.table = 'filter'
 	else:
 		if args.protocol == 'ip':
 			args.protocol = 'ip' if not args.ipv6 else 'ip6'
