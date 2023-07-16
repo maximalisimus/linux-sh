@@ -222,6 +222,7 @@ def createParser():
 	
 	group4 = parser.add_argument_group('Settings', 'Configurations.')
 	group4.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default "sh").')
+	group4.add_argument ('-cmd', '--cmd', action='store_true', default=False, help='View the command and exit the program without executing it.')
 	group4.add_argument("-logfile", '--logfile', dest="logfile", metavar='LOGFILE', type=str, default=f"{log_file}", help='Log file.')
 	group4.add_argument ('-nolog', '--nolog', action='store_false', default=True, help="Don't keep a log file.")
 	group4.add_argument ('-limit', '--limit', action='store_true', default=False, help='Limit the log file. Every day the contents of the log will be completely erased.')
@@ -455,6 +456,13 @@ def systemdwork(args: Arguments):
 		args.count = 3
 	
 	if args.delete:
+		if args.cmd:
+			print(switch_systemd('stop-timer', args.count))
+			print(switch_systemd('stop-service', args.count))
+			print(switch_systemd('disable', args.count))
+			print(f"sudo rm -rf {systemd_service_file.resolve()}")
+			print(f"sudo rm -rf {systemd_timer_file.resolve()}")
+			sys.exit(0)
 		print('Delete systemd «blacklist@.service» and «blacklist@.timer» ...')
 		shell_run(args.console, switch_systemd('stop-timer', args.count))
 		shell_run(args.console, switch_systemd('stop-service', args.count))
@@ -467,8 +475,12 @@ def systemdwork(args: Arguments):
 			args.log_txt.append(f"Exit the blacklist ...")
 		AppExit(args)
 	if args.create:
-		print('Create systemd «blacklist@.service» and «blacklist@.timer» ...')
 		service_build(args)
+		if args.cmd:
+			print(f"sudo echo \"{service_text}\" > {systemd_service_file.resolve()}")
+			print(f"sudo echo \"{timer_text}\" > {systemd_timer_file.resolve()}")
+			sys.exit(0)
+		print('Create systemd «blacklist@.service» and «blacklist@.timer» ...')
 		shell_run(args.console, switch_systemd('stop-timer', args.count))
 		shell_run(args.console, switch_systemd('stop-service', args.count))
 		shell_run(args.console, switch_systemd('disable', args.count))
@@ -481,6 +493,9 @@ def systemdwork(args: Arguments):
 		AppExit(args)
 	if systemd_service_file.exists() and systemd_timer_file.exists():
 		if args.status:
+			if args.cmd:
+				print(switch_systemd('status', args.count))
+				sys.exit(0)
 			service_info, err = shell_run(args.console, switch_systemd('status', args.count))
 			args.log_txt.append(f"----- Systemd Info -----\n{service_info}\n----- Systemd Info -----")
 			args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
@@ -488,6 +503,9 @@ def systemdwork(args: Arguments):
 			print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			sys.exit(0)
 		if args.enable:
+			if args.cmd:
+				print(switch_systemd('enable', args.count))
+				sys.exit(0)
 			print(f"Enable «blacklist@{args.count}.timer» ...")
 			service_info, args.err = shell_run(args.console, switch_systemd('enable', args.count))
 			print(service_info)
@@ -500,6 +518,9 @@ def systemdwork(args: Arguments):
 				args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 			AppExit(args)
 		if args.disable:
+			if args.cmd:
+				print(switch_systemd('disable', args.count))
+				sys.exit(0)
 			print(f"Disable «blacklist@{args.count}.timer» ...")
 			service_info, err = shell_run(args.console, switch_systemd('disable', args.count))
 			print(service_info)
@@ -512,6 +533,9 @@ def systemdwork(args: Arguments):
 				args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			AppExit(args)
 		if args.start:
+			if args.cmd:
+				print(switch_systemd('start-service', args.count))
+				sys.exit(0)
 			print(f"Start «blacklist@{args.count}.service» ...")
 			service_info, err = shell_run(args.console, switch_systemd('start-service', args.count))
 			print(service_info)
@@ -524,6 +548,9 @@ def systemdwork(args: Arguments):
 				args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			AppExit(args)
 		if args.stop:
+			if args.cmd:
+				print(switch_systemd('stop-service', args.count))
+				sys.exit(0)
 			print(f"Stop «blacklist@{args.count}.service» ...")
 			service_info, err = shell_run(args.console, switch_systemd('stop-service', args.count))
 			print(service_info)
@@ -536,6 +563,9 @@ def systemdwork(args: Arguments):
 				args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			AppExit(args)
 		if args.starttimer:
+			if args.cmd:
+				print(switch_systemd('start-timer', args.count))
+				sys.exit(0)
 			print(f"Start «blacklist@{args.count}.timer» ...")
 			service_info, err = shell_run(args.console, switch_systemd('start-timer', args.count))
 			print(service_info)
@@ -548,6 +578,9 @@ def systemdwork(args: Arguments):
 				args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 			AppExit(args)
 		if args.stoptimer:
+			if args.cmd:
+				print(switch_systemd('stop-timer', args.count))
+				sys.exit(0)
 			print(f"Stop «blacklist@{args.count}.timer» ...")
 			service_info, err = shell_run(args.console, switch_systemd('stop-timer', args.count))
 			print(service_info)
@@ -599,9 +632,13 @@ def servicework(args: Arguments):
 		args.count = 3
 	
 	if args.link:
-		print('Cryate the symlink to program on «/usr/bin/» ...')
 		script_full = pathlib.Path(f"{script_full}").resolve()
 		script_usr_bin = pathlib.Path('/usr/bin/blacklist').resolve()
+		if args.cmd:
+			print(f"sudo ln -s {script_full} {script_usr_bin}")
+			print(f"sudo chmod +x {script_usr_bin}")
+			sys.exit(0)
+		print('Cryate the symlink to program on «/usr/bin/» ...')
 		shell_run(args.console, f"sudo ln -s {script_full} {script_usr_bin}")
 		shell_run(args.console, f"sudo chmod +x {script_usr_bin}")
 		print('Exit the blacklist ...')
@@ -610,11 +647,16 @@ def servicework(args: Arguments):
 			args.log_txt.append(f"Exit the blacklist ...")
 		AppExit(args)
 	if args.unlink:
-		print('Delete the symlink to program on «/usr/bin/» ...')
 		src1 = pathlib.Path(script_full).resolve()
 		src2 = pathlib.Path(script_tmp).resolve()
+		if args.cmd:
+			print(f"sudo mv {src1} {src2}")
+			print(f"sudo rm -rf /usr/bin/blacklist")
+			print(f"sudo mv {src2} {src1}")
+			sys.exit(0)
+		print('Delete the symlink to program on «/usr/bin/» ...')
 		src1.rename(src2)
-		shell_run(args.console, f"rm -rf /usr/bin/blacklist")
+		shell_run(args.console, f"sudo rm -rf /usr/bin/blacklist")
 		src2.rename(src1)
 		print('Exit the blacklist ...')
 		if args.nolog:
@@ -623,10 +665,16 @@ def servicework(args: Arguments):
 		AppExit(args)
 	if args.show:
 		if not args.nftables:
+			if args.cmd:
+				print(switch_iptables(args, 'read'))
+				sys.exit(0)
 			args.iptables_info, args.err = shell_run(args.console, switch_iptables(args, 'read'))
 			print(f"\n----- IPTABLES Info -----\n{args.iptables_info}\n----- IPTABLES Info -----")
 			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		else:
+			if args.cmd:
+				print(switch_nftables(args, 'read'))
+				sys.exit(0)
 			args.iptables_info, args.err = shell_run(args.console, switch_nftables(args, 'read'))
 			args.log_txt.append(f"\n----- NFTABLES Info -----\n{args.iptables_info}\n----- NFTABLES Info -----")
 			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
@@ -634,6 +682,19 @@ def servicework(args: Arguments):
 			print(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		sys.exit(0)
 	if args.start:
+		if args.cmd:
+			args.current_ip = 'ip/mask'
+			if not args.nftables:
+				print(switch_iptables(args, 'read'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_iptables(args, 'add-white'))
+				print('\t',switch_iptables(args, 'add-black'))
+			else:
+				print(switch_nftables(args, 'search'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_nftables(args, 'add-white', 'NUM'))
+				print('\t',switch_nftables(args, 'add-black', 'NUM'))
+			sys.exit(0)
 		print('Start the blacklist ...')
 		if not args.nftables:
 			args.iptables_info, args.err = shell_run(args.console, switch_iptables(args, 'read'))
@@ -649,6 +710,19 @@ def servicework(args: Arguments):
 			args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 		AppExit(args)
 	if args.stop:
+		if args.cmd:
+			args.current_ip = 'ip/mask'
+			if not args.nftables:
+				print(switch_iptables(args, 'read'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_iptables(args, 'del-white'))
+				print('\t',switch_iptables(args, 'del-black'))
+			else:
+				print(switch_nftables(args, 'search'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_nftables(args, 'del-white', 'NUM'))
+				print('\t',switch_nftables(args, 'del-black', 'NUM'))
+			sys.exit(0)
 		print('Stopping the blacklist ...')
 		if not args.nftables:
 			args.iptables_info, args.err = shell_run(args.console, switch_iptables(args, 'read'))
@@ -668,6 +742,27 @@ def servicework(args: Arguments):
 		print('Exit the blacklist ...')
 		sys.exit(0)
 	if args.reload:
+		if args.cmd:
+			args.current_ip = 'ip/mask'
+			if not args.nftables:
+				print(switch_iptables(args, 'read'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_iptables(args, 'del-white'))
+				print('\t',switch_iptables(args, 'del-black'))
+				print(switch_iptables(args, 'read'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_iptables(args, 'add-white'))
+				print('\t',switch_iptables(args, 'add-black'))
+			else:
+				print(switch_nftables(args, 'search'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_nftables(args, 'del-white', 'NUM'))
+				print('\t',switch_nftables(args, 'del-black', 'NUM'))
+				print(switch_nftables(args, 'search'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_nftables(args, 'add-white', 'NUM'))
+				print('\t',switch_nftables(args, 'add-black', 'NUM'))
+			sys.exit(0)
 		print('Reload the blacklist ...')
 		if not args.nftables:
 			args.iptables_info, args.err = shell_run(args.console, switch_iptables(args, 'read'))
@@ -831,10 +926,10 @@ def listwork(args: Arguments):
 			read_write_json(args.output, 'w', args.json_data)
 		args.current_ip = None
 		args.json_data = None
-	
-	print('Launching the blacklist ...')
-	if args.nolog:
-		args.log_txt.append(f"Launching the blacklist ...")
+	if not args.cmd:
+		print('Launching the blacklist ...')
+		if args.nolog:
+			args.log_txt.append(f"Launching the blacklist ...")
 	
 	if args.show:
 		print('Viewing a blacklist or whitelist of ip addresses ...')
@@ -845,6 +940,21 @@ def listwork(args: Arguments):
 		print('Exit the blacklist ...')
 		sys.exit(0)
 	if args.ban:
+		if args.cmd:
+			args.current_ip = 'ip/mask'
+			if not args.nftables:
+				print(switch_iptables(args, 'read'))
+				if args.onlist == 'black':
+					print(switch_iptables(args, 'add-black'))
+				else:
+					print(switch_iptables(args, 'add-white'))
+			else:
+				print(switch_nftables(args, 'read'))
+				if args.onlist == 'black':
+					print(switch_nftables(args, 'add-black', 'NUM'))
+				else:
+					print(switch_nftables(args, 'add-white', 'NUM'))
+			sys.exit(0)
 		print('Ban the blacklist or ignore the whitelist ip addresses ...')
 		if args.nolog:
 			args.log_txt.append(f"Ban the blacklist or ignore the whitelist ip addresses ...")
@@ -855,6 +965,21 @@ def listwork(args: Arguments):
 		args.old = None
 		args.log_txt.append(f"----- ERROR Info -----\n{args.err}\n----- ERROR Info -----")
 	if args.unban:
+		if args.cmd:
+			args.current_ip = 'ip/mask'
+			if not args.nftables:
+				print(switch_iptables(args, 'read'))
+				if args.onlist == 'black':
+					print(switch_iptables(args, 'del-black'))
+				else:
+					print(switch_iptables(args, 'del-white'))
+			else:
+				print(switch_nftables(args, 'search'))
+				if args.onlist == 'black':
+					print(switch_nftables(args, 'del-black', 'NUM'))
+				else:
+					print(switch_nftables(args, 'del-white', 'NUM'))
+			sys.exit(0)
 		print('Unban the blacklist or delete ignored the whitelist ip addresses ...')
 		if args.nolog:
 			args.log_txt.append(f"Unban the blacklist or delete ignored the whitelist ip addresses ...")
