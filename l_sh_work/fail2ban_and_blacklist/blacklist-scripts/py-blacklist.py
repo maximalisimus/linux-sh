@@ -80,7 +80,8 @@ OnBootSec=20s
 AccuracySec=1s
 
 [Install]
-WantedBy=timers.target'''
+WantedBy=timers.target
+'''
 
 systemd_service_file = pathlib.Path('/etc/systemd/system/blacklist@.service').resolve()
 systemd_timer_file = pathlib.Path('/etc/systemd/system/blacklist@.timer').resolve()
@@ -443,7 +444,7 @@ def service_build(args: Arguments):
 		service_tmp_text.append(f"{st6} {_start_var} {st7}")
 		service_tmp_text.append(st8)
 		service_tmp_text.append(st9)
-	service_text = '\n'.join(service_tmp_text)
+	service_text = '\n'.join(service_tmp_text) + '\n'
 
 def read_write_json(jfile, typerw, data = dict()):
 	''' The function of reading and writing JSON objects. '''
