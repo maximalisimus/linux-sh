@@ -647,7 +647,10 @@ def systemdwork(args: Arguments):
 		read_write_text(systemd_timer_file, 'w', timer_text)
 		print('Exit the blacklist ...')
 		if args.nolog:
-			args.log_txt.append(f"Create systemd «blacklist@.service» and «blacklist@.timer» ...")
+			args.log_txt.append(f"Create systemd «blacklist@.service»:")
+			args.log_txt.append(service_text)
+			args.log_txt.append(f"Create systemd «blacklist@.timer»:")
+			args.log_txt.append(timer_text)
 			args.log_txt.append(f"Exit the blacklist ...")
 		AppExit(args)
 	if systemd_service_file.exists() and systemd_timer_file.exists():
