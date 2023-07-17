@@ -392,71 +392,93 @@ def AppExit(args: Arguments):
 
 def service_build(args: Arguments):
 	global service_text, st1, st2, st3, st4, st5, st6, st7, st8, st9
-	
+		
 	service_tmp_text = []
 	service_tmp_text.append(st1)
 	if args.nftables:
 		_ipv6 = '-ipv6' if args.ipv6 else ''
-		_nft = '-nft' if args.nftables else ''
 		_proto = f"-protocol {args.protocol}"
 		_nfproto = f"-nftproto {args.nftproto}"
 		_tbl = f"-table {args.table}"
 		_ch = f"-chain {args.chain}"
 		
-		_ntbl = '-newtable' if args.newtable else ''
-		_nch = '-newchain' if args.newchain else ''
+		if not args.run:
+			_ntbl = '-newtable' if args.newtable else ''
+			_nch = '-newchain' if args.newchain else ''
+		else:
+			_ntbl = '-run'
+			_nch = ''
 		
-		_dtbl = '-Deltable' if args.Deltable else ''
-		_dch = '-Delchain' if args.Delchain else ''
-		_ctbl = '-cleartable' if args.cleartable else ''
-		_cch = '-clearchain' if args.clearchain else ''
+		if not args.fine:
+			_dtbl = '-Deltable' if args.Deltable else ''
+			_dch = '-Delchain' if args.Delchain else ''
+			_ctbl = '-cleartable' if args.cleartable else ''
+			_cch = '-clearchain' if args.clearchain else ''
+		else:
+			_dtbl = ''
+			_dch = ''
+			_ctbl = ''
+			_cch = '-fine'
 		
-		_start_var = f"{_ipv6} {_nft} {_nfproto} {_proto} {_tbl} {_ch}".strip()
+		_start_var = f"{_ipv6} -nft {_nfproto} {_proto} {_tbl} {_ch}".strip()
 		_exec_var = f"{_start_var} {_ntbl} {_nch}".strip()
 		_stop_var = f"{_start_var} {_cch} {_dch} {_ctbl} {_dtbl}".strip()
+		
+		if args.personal:
+			start_sv_text = f"-nft -personal"
+			stop_sv_text = f"-nft -personal"
+			reload_sv_text = f"-nft -personal"
+			if args.run:
+				start_sv_text = f"{start_sv_text} -run"
+			if args.fine:
+				stop_sv_text = f"{stop_sv_text} -fine"
+		else:
+			start_sv_text = f"{_exec_var}"
+			stop_sv_text = f"{_stop_var}"
+			reload_sv_text = f"{_start_var}"		
 	else:
 		_ipv6 = '-ipv6' if args.ipv6 else ''
 		_proto = f"-protocol {args.protocol}"
 		_ch = f"-chain {args.chain}"
-		
-		_nch = '-newchain' if args.newchain else ''
-		_ich = '-inschain' if args.inschain else ''
-		_irt = '-insreturn' if args.insreturn else ''
-		_dch = '-Delchain' if args.Delchain else ''
-		_cch = '-clearchain' if args.clearchain else ''
-		_din = '-Delinput' if args.Delinput else ''
+		if not args.run:
+			_nch = '-newchain' if args.newchain else ''
+			_ich = '-inschain' if args.inschain else ''
+			_irt = '-insreturn' if args.insreturn else ''
+		else:
+			_nch = '-run'
+			_ich = ''
+			_irt = ''
+		if not args.fine:
+			_dch = '-Delchain' if args.Delchain else ''
+			_cch = '-clearchain' if args.clearchain else ''
+			_din = '-Delinput' if args.Delinput else ''
+		else:
+			_dch = ''
+			_cch = '-fine'
+			_din = ''
 		
 		_start_var = f"{_ipv6} {_proto} {_ch}".strip()
 		_exec_var = f"{_start_var} {_nch} {_ich} {_irt}".strip()
 		_stop_var = f"{_start_var} {_cch} {_dch} {_din}".strip()
+		
+		if args.personal:
+			start_sv_text = f"-personal"
+			stop_sv_text = f"-personal"
+			reload_sv_text = f"-personal"
+			if args.run:
+				start_sv_text = f"{start_sv_text} -run"
+			if args.fine:
+				stop_sv_text = f"{stop_sv_text} -fine"
+		else:
+			start_sv_text = f"{_exec_var}"
+			stop_sv_text = f"{_stop_var}"
+			reload_sv_text = f"{_start_var}"
 	
-	if args.personal:
-		if args.nftables:
-			if args.run:
-				service_tmp_text.append(f"{st2} -personal -run {st3}")
-			else:
-				service_tmp_text.append(f"{st2} -personal -newtable -newchain {st3}")
-		else:
-			if args.run:
-				service_tmp_text.append(f"{st2} -personal -run {st3}")
-			else:
-				service_tmp_text.append(f"{st2} -personal -newchain -inschain -insreturn {st3}")
-		if args.fine:
-			service_tmp_text.append(f"{st4} -personal -fine {st5}")
-		else:
-			service_tmp_text.append(f"{st4} -personal {_stop_var} {st5}")
-		service_tmp_text.append(f"{st6} -personal {st7}")
-		service_tmp_text.append(st8)
-		service_tmp_text.append(st9)
-	else:
-		service_tmp_text.append(f"{st2} {_exec_var} {st3}")
-		if args.fine:
-			service_tmp_text.append(f"{st4} -fine {st5}")
-		else:
-			service_tmp_text.append(f"{st4} {_stop_var} {st5}")
-		service_tmp_text.append(f"{st6} {_start_var} {st7}")
-		service_tmp_text.append(st8)
-		service_tmp_text.append(st9)
+	service_tmp_text.append(f"{st2} {start_sv_text} {st3}")
+	service_tmp_text.append(f"{st4} {stop_sv_text} {st5}")
+	service_tmp_text.append(f"{st6} {reload_sv_text} {st7}")
+	service_tmp_text.append(st8)
+	service_tmp_text.append(st9)	
 	service_text = '\n'.join(service_tmp_text) + '\n'
 
 def read_write_json(jfile, typerw, data = dict()):
@@ -1199,6 +1221,26 @@ def listwork(args: Arguments):
 def CreateTableChain(args: Arguments):
 	''' Function to create your table, chain, 
 		insert return, insert input '''
+	
+	if args.cmd:
+		if args.nftables:
+			if args.newtable:
+				if args.table != 'filter':
+					print(switch_nftables(args, 'create-table'))
+			if args.newchain:
+				if (args.table != 'filter') ^ (args.chain != 'INPUT'):
+					print(switch_nftables(args, 'create-chain'))
+		else:
+			if args.newchain:
+				if args.chain != 'INPUT':
+					print(switch_iptables(args, 'create-chain'))
+			if args.inschain:
+				if args.chain != 'INPUT':
+					print(switch_iptables(args, 'insert-input'))
+			if args.insreturn:
+				if args.chain != 'INPUT':
+					print(switch_iptables(args, 'create-return'))
+	
 	if not args.cmd:
 		if args.nftables:
 			if args.newtable:
@@ -1281,18 +1323,6 @@ def PersonalParam(args: Arguments):
 		else:
 			args.table = 'filter'
 			args.chain = 'blackwhite'
-	if args.fine:
-		args.clearchain = True
-		args.Delchain = True
-		args.cleartable = True
-		args.Deltable = True
-		args.Delreturn = True
-		args.Delinput = True
-	if args.run:
-		args.newtable = True
-		args.newchain = True
-		args.inschain = True
-		args.insreturn = True
 
 def EditTableParam(args: Arguments):
 	''' Edit online param on {IP,IP6,NF}TABLES. '''
@@ -1319,6 +1349,20 @@ def EditTableParam(args: Arguments):
 					args.mask[elem] = args.minmask
 				elif args.mask[elem] > args.maxmask:
 					args.mask[elem] = args.maxmask
+	
+	if args.fine:
+		args.clearchain = True
+		args.Delchain = True
+		args.cleartable = True
+		args.Deltable = True
+		args.Delreturn = True
+		args.Delinput = True
+	
+	if args.run:
+		args.newtable = True
+		args.newchain = True
+		args.inschain = True
+		args.insreturn = True
 	
 	PersonalParam(args)
 
@@ -1395,25 +1439,6 @@ def test_arguments(args: Arguments):
 	EditDirParam(args)
 	EditLogParam(args)
 	EditTableParam(args)
-	
-	if args.cmd:
-		if args.nftables:
-			if args.newtable:
-				if args.table != 'filter':
-					print(switch_nftables(args, 'create-table'))
-			if args.newchain:
-				if (args.table != 'filter') ^ (args.chain != 'INPUT'):
-					print(switch_nftables(args, 'create-chain'))
-		else:
-			if args.newchain:
-				if args.chain != 'INPUT':
-					print(switch_iptables(args, 'create-chain'))
-			if args.inschain:
-				if args.chain != 'INPUT':
-					print(switch_iptables(args, 'insert-input'))
-			if args.insreturn:
-				if args.chain != 'INPUT':
-					print(switch_iptables(args, 'create-return'))
 
 def main():	
 	''' The main cycle of the program. '''
