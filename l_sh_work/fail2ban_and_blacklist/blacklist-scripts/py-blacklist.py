@@ -1026,15 +1026,14 @@ def nft_ban_unban_one(args: Arguments):
 				args.log_txt.append(f"{service_info}")
 				print(f"{service_info}")
 			if err != '':
-				args.log_txt.append(f"{err}")
 				_commands = switch_nftables(args, comm, on_handle)
-				args.log_txt.append(_commands)
+				args.log_txt.append(f"{err}{_commands}")
 			else:
 				args.log_txt.append(f"* {mess} {args.current_ip}")
 		if err == '':
 			print(f"* {mess} {args.current_ip}")
 		else:
-			print(f"{err}\n{_commands}")
+			print(f"{err}{_commands}")
 	
 	nomask = ip_no_mask(args.current_ip)
 	comm = ''
@@ -1064,15 +1063,14 @@ def ban_unban_one(args: Arguments):
 			if service_info != '':
 				args.log_txt.append(f"{service_info}")
 			if err != '':
-				args.log_txt.append(f"{err}")
 				_commands = switch_iptables(args, comm)
-				args.log_txt.append(_commands)
+				args.log_txt.append(f"{err}{_commands}")
 			else:
 				args.log_txt.append(f"* {mess} {args.current_ip}")
 		if err == '':
 			print(f"* {mess} {args.current_ip}")
 		else:
-			print(f"{err}\n{_commands}")
+			print(f"{err}{_commands}")
 		if ishostname:
 			args.old = args.current_ip
 			args.current_ip = hostname
@@ -1083,15 +1081,14 @@ def ban_unban_one(args: Arguments):
 				if service_info != '':
 					args.log_txt.append(f"{service_info}")
 				if err != '':
-					args.log_txt.append(f"{err}")
 					_commands = switch_iptables(args, comm)
-					args.log_txt.append(_commands)
+					args.log_txt.append(f"{err}{_commands}")
 				else:
 					args.log_txt.append(f"* {mess} {args.current_ip} = {hostname}")
 			if err == '':
 				print(f"* {mess} {args.current_ip} = {hostname}")
 			else:
-				print(f"{err}\n{_commands}")
+				print(f"{err}{_commands}")
 	
 	def quastion_hostname_nomask(not_found: str):
 		''' The issue of processing a domain name 
