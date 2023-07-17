@@ -163,6 +163,7 @@ def createParser():
 	parser_service.add_argument ('-show', '--show', action='store_true', default=False, help='Show the service blacklist and iptables.')
 	parser_service.add_argument ('-link', '--link', action='store_true', default=False, help='Symlink to program on «/usr/bin/».')
 	parser_service.add_argument ('-unlink', '--unlink', action='store_true', default=False, help='Unlink to program on «/usr/bin/».')
+	parser_service.add_argument("-name", '--name', dest="name", metavar='NAME', type=str, default='blacklist', help='The name of the symlink for the location in the programs directory is «/usr/bin/». (Default "blacklist").')
 	parser_service.set_defaults(onlist='service')
 	
 	parser_blist = subparsers.add_parser('black', help='Managing blacklists.')
@@ -224,7 +225,6 @@ def createParser():
 	
 	group4 = parser.add_argument_group('Settings', 'Configurations.')
 	group4.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default "sh").')
-	group4.add_argument("-name", '--name', dest="name", metavar='NAME', type=str, default='blacklist', help='The name of the symlink for the location in the programs directory is «/usr/bin/». (Default "blacklist").')
 	group4.add_argument ('-cmd', '--cmd', action='store_true', default=False, help='View the command and exit the program without executing it.')
 	group4.add_argument("-logfile", '--logfile', dest="logfile", metavar='LOGFILE', type=str, default=f"{log_file}", help='Log file.')
 	group4.add_argument ('-nolog', '--nolog', action='store_false', default=True, help="Don't keep a log file.")
@@ -1274,8 +1274,7 @@ def listwork(args: Arguments):
 	AppExit(args)
 
 def CreateTableChain(args: Arguments):
-	''' Function to create your table, chain, 
-		insert return, insert input '''
+	''' Function to create your table, chain on NFTABLES '''
 	
 	if args.cmd:
 		if args.nftables:
@@ -1330,7 +1329,8 @@ def CreateTableChain(args: Arguments):
 				AppExit(args)
 
 def PersonalParam(args: Arguments):
-	''' Uses personal standart {IP,IP6,NF}TABLES Params. '''
+	''' Uses personal standart NFTABLES Params. '''
+	
 	if args.personal:
 		if args.nftables:
 			args.nftproto = 'inet'
@@ -1339,6 +1339,7 @@ def PersonalParam(args: Arguments):
 
 def EditTableParam(args: Arguments):
 	''' Edit online param on {IP,IP6,NF}TABLES. '''
+	
 	if not args.nftables:
 		args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
 		args.table = 'filter'
@@ -1436,8 +1437,8 @@ def EditLogParam(args: Arguments):
 			read_write_text(args.logfile, 'w', '\n')
 			sys.exit(0)
 
-def test_arguments(args: Arguments):
-	''' Test arguments and edit online parameters... '''
+def test_edit_arguments(args: Arguments):
+	''' Test and edit arguments and edit online parameters... '''
 	
 	if args.count < 0:
 		print("The number of locks to display cannot be a negative number (from 0 and above.)!")
@@ -1463,7 +1464,7 @@ def main():
 		args.log_txt = []
 		args.log_txt.clear()
 	
-	test_arguments(args)
+	test_edit_arguments(args)
 	
 	func = {
 			'service': servicework,
