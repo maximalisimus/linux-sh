@@ -1325,15 +1325,6 @@ def CreateTableChain(args: Arguments):
 			if args.exit:
 				AppExit(args)
 
-def PersonalParam(args: Arguments):
-	''' Uses personal standart NFTABLES Params. '''
-	
-	if args.personal:
-		if args.nftables:
-			args.nftproto = 'inet'
-			args.table = 'blackwhite'
-			args.chain = 'INPUT'
-
 def EditTableParam(args: Arguments):
 	''' Edit online param on {IP,IP6,NF}TABLES. '''
 	
@@ -1372,7 +1363,11 @@ def EditTableParam(args: Arguments):
 		args.newtable = True
 		args.newchain = True
 	
-	PersonalParam(args)
+	if args.personal:
+		if args.nftables:
+			args.nftproto = 'inet'
+			args.table = 'blackwhite'
+			args.chain = 'INPUT'
 
 def EditDirParam(args: Arguments):
 	''' Edit online directoryes Params. '''	
