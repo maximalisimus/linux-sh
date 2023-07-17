@@ -203,6 +203,8 @@ def createParser():
 	group2.add_argument("-w", '--whitelist', dest="whitelist", metavar='WHITELIST', type=str, default=f"{json_white}", help='Input whitelist file.')
 	
 	group3 = parser.add_argument_group('{IP,IP6,NF}TABLES', 'Configuration {IP,IP6,NF}TABLES.')
+	group3.add_argument ('-personal', '--personal', action='store_true', default=False, help='Personal settings of {IP,IP6,NF}TABLES tables, regardless of the data entered.')
+	group3.add_argument ('-e', '-exit', '--exit', action='store_true', default=False, help='Finish creating the table/chain.')
 	group3.add_argument ('-run', '--run', action='store_true', default=False, help='Full starting {IP,IP6,NF}TABLES tables from all settings. Use carefully!')
 	group3.add_argument ('-fine', '--fine', action='store_true', default=False, help='Full clearing {IP,IP6,NF}TABLES tables from all settings. Use carefully!')
 	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select {IP6/NF}TABLES.')
@@ -221,9 +223,7 @@ def createParser():
 	group3.add_argument ('-Delinput', '--Delinput', action='store_true', default=False, help='Del "RETURN" in the «-chain» of {IP,IP6}TABLES. Use carefully!')
 	group3.add_argument ('-cleartable', '--cleartable', action='store_true', default=False, help='Clear the table in NFTABLES. Use carefully!')
 	group3.add_argument ('-clearchain', '--clearchain', action='store_true', default=False, help='Clear the chain in {IP,IP6,NF}TABLES. Use carefully!')
-	group3.add_argument ('-personal', '--personal', action='store_true', default=False, help='Personal settings of {IP,IP6,NF}TABLES tables, regardless of the data entered.')
-	group3.add_argument ('-e', '-exit', '--exit', action='store_true', default=False, help='Finish creating the table/chain.')
-	
+		
 	group4 = parser.add_argument_group('Settings', 'Configurations.')
 	group4.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default "sh").')
 	group4.add_argument ('-cmd', '--cmd', action='store_true', default=False, help='View the command and exit the program without executing it.')
