@@ -223,7 +223,7 @@ def createParser():
 	group3.add_argument ('-Delinput', '--Delinput', action='store_true', default=False, help='Del "RETURN" in the «-chain» of {IP,IP6}TABLES. Use carefully!')
 	group3.add_argument ('-cleartable', '--cleartable', action='store_true', default=False, help='Clear the table in NFTABLES. Use carefully!')
 	group3.add_argument ('-clearchain', '--clearchain', action='store_true', default=False, help='Clear the chain in {IP,IP6,NF}TABLES. Use carefully!')
-		
+	
 	group4 = parser.add_argument_group('Settings', 'Configurations.')
 	group4.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default "sh").')
 	group4.add_argument ('-cmd', '--cmd', action='store_true', default=False, help='View the command and exit the program without executing it.')
