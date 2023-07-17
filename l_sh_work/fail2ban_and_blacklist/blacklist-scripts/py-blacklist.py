@@ -686,7 +686,7 @@ def systemdwork(args: Arguments):
 		if args.nolog:
 			args.log_txt.append(f"Create systemd «blacklist@.service»:")
 			args.log_txt.append(service_text)
-			args.log_txt.append(f"Create systemd «blacklist@.timer»:")
+			args.log_txt.append(f"\nCreate systemd «blacklist@.timer»:")
 			args.log_txt.append(timer_text)
 			args.log_txt.append(f"Exit the blacklist ...")
 		AppExit(args)
