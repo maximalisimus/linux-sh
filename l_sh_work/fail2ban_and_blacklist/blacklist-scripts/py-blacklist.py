@@ -1084,7 +1084,7 @@ def servicework(args: Arguments):
 				print('Repeat commands for all ip addresses:')
 				print('\t',switch_nftables(args, 'del-white', 'NUM'))
 				print('\t',switch_nftables(args, 'del-black', 'NUM'))
-				print(switch_nftables(args, 'search'))
+				print(switch_nftables(args, 'search').replace('\t','\\t'))
 				print('Repeat commands for all ip addresses:')
 				print('\t',switch_nftables(args, 'add-white', 'NUM'))
 				print('\t',switch_nftables(args, 'add-black', 'NUM'))
@@ -1347,7 +1347,7 @@ def listwork(args: Arguments):
 				else:
 					print(switch_iptables(args, 'del-white'))
 			else:
-				print(switch_nftables(args, 'search'))
+				print(switch_nftables(args, 'search').replace('\t','\\t'))
 				if args.onlist == 'black':
 					print(switch_nftables(args, 'del-black', 'NUM'))
 				else:
