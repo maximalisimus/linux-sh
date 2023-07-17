@@ -205,10 +205,10 @@ def createParser():
 	group2.add_argument("-w", '--whitelist', dest="whitelist", metavar='WHITELIST', type=str, default=f"{json_white}", help='Input whitelist file.')
 	
 	group3 = parser.add_argument_group('{IP,IP6,NF}TABLES', 'Configuration {IP,IP6,NF}TABLES.')
-	group3.add_argument ('-personal', '--personal', action='store_true', default=False, help='Personal settings of {IP,IP6,NF}TABLES tables, regardless of the data entered.')
-	group3.add_argument ('-e', '-exit', '--exit', action='store_true', default=False, help='Finish creating the table/chain.')
-	group3.add_argument ('-run', '--run', action='store_true', default=False, help='Full starting {IP,IP6,NF}TABLES tables from all settings. Use carefully!')
-	group3.add_argument ('-fine', '--fine', action='store_true', default=False, help='Full clearing {IP,IP6,NF}TABLES tables from all settings. Use carefully!')
+	group3.add_argument ('-personal', '--personal', action='store_true', default=False, help='Personal settings of NFTABLES tables, regardless of the data entered.')
+	group3.add_argument ('-e', '-exit', '--exit', action='store_true', default=False, help='Finish creating the table/chain on NFTABLES.')
+	group3.add_argument ('-run', '--run', action='store_true', default=False, help='Full starting NFTABLES tables from all settings. Use carefully!')
+	group3.add_argument ('-fine', '--fine', action='store_true', default=False, help='Full clearing NFTABLES tables from all settings. Use carefully!')
 	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select {IP6/NF}TABLES.')
 	group3.add_argument ('-nft', '--nftables', action='store_true', default=False, help='Select the NFTABLES (IP,IP6) framework (Default {IP,IP6}TABLES).')
 	group3.add_argument("-protocol", '--protocol', default='ip', choices=['ip', 'ip6', 'inet'], help='Select the protocol ip-addresses (Auto ipv4 on "ip" or -ipv6 to "ip6").')
@@ -216,15 +216,11 @@ def createParser():
 	group3.add_argument("-table", '--table', dest="table", metavar='TABLE', type=str, default='filter', help='Select the table for NFTABLES (Default "filter").')
 	group3.add_argument("-chain", '--chain', dest="chain", metavar='CHAIN', type=str, default='INPUT', help='Choosing a chain of rules (Default: "INPUT").')
 	group3.add_argument ('-newtable', '--newtable', action='store_true', default=False, help='Add a new table in NFTABLES. Use carefully!')
-	group3.add_argument ('-newchain', '--newchain', action='store_true', default=False, help='Add a new chain in {IP,IP6,NF}TABLES. Use carefully!')
-	group3.add_argument ('-inschain', '--inschain', action='store_true', default=False, help='Insert a symlink to «-chain» in the «INPUT» chain on {IP,IP6}TABLES. Use carefully!')
-	group3.add_argument ('-insreturn', '--insreturn', action='store_true', default=False, help='Insert "RETURN" in the «-chain» of {IP,IP6}TABLES. Use carefully!')
+	group3.add_argument ('-newchain', '--newchain', action='store_true', default=False, help='Add a new chain in NFTABLES. Use carefully!')
 	group3.add_argument ('-Deltable', '--Deltable', action='store_true', default=False, help='Del the table in NFTABLES. Use carefully!')
-	group3.add_argument ('-Delchain', '--Delchain', action='store_true', default=False, help='Del the chain in {IP,IP6,NF}TABLES. Use carefully!')
-	group3.add_argument ('-Delreturn', '--Delreturn', action='store_true', default=False, help='Del the symlink to «-chain» in the «INPUT» chain on {IP,IP6}TABLES. Use carefully!')
-	group3.add_argument ('-Delinput', '--Delinput', action='store_true', default=False, help='Del "RETURN" in the «-chain» of {IP,IP6}TABLES. Use carefully!')
+	group3.add_argument ('-Delchain', '--Delchain', action='store_true', default=False, help='Del the chain in NFTABLES. Use carefully!')
 	group3.add_argument ('-cleartable', '--cleartable', action='store_true', default=False, help='Clear the table in NFTABLES. Use carefully!')
-	group3.add_argument ('-clearchain', '--clearchain', action='store_true', default=False, help='Clear the chain in {IP,IP6,NF}TABLES. Use carefully!')
+	group3.add_argument ('-clearchain', '--clearchain', action='store_true', default=False, help='Clear the chain in NFTABLES. Use carefully!')
 	
 	group4 = parser.add_argument_group('Settings', 'Configurations.')
 	group4.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default "sh").')
@@ -258,19 +254,6 @@ def show_commands_fine(args: Arguments):
 			if args.table != 'filter':
 				if args.cmd:
 					print(switch_nftables(args, 'del-table'))
-	else:
-		if args.clearchain:
-			if args.chain != 'INPUT':	
-				if args.cmd:
-					print(switch_iptables(args, 'flush-chain'))
-		if args.Delinput:
-			if args.chain != 'INPUT':
-				if args.cmd:
-					print(switch_iptables(args, 'del-input'))
-		if args.Delchain:
-			if args.chain != 'INPUT':
-				if args.cmd:
-					print(switch_iptables(args, 'del-chain'))
 	if args.cmd:
 		sys.exit(0)
 
@@ -355,63 +338,6 @@ def AppFine(args: Arguments):
 					args.log_txt.append('Exit the blacklist ...')
 					if err != '':
 						args.log_txt.append(f"----- ERROR Info -----\n{err}\n{_commands}\n----- ERROR Info -----")
-	else:
-		if args.clearchain:
-			if args.chain != 'INPUT':		
-				print('Close the blacklist on {IP,IP6}TABLES ...')
-				print(f"Clear the сhain: «{args.chain}».")
-				service_info, err = shell_run(args.console, switch_iptables(args, 'flush-chain'))
-				if service_info != '':
-					print(service_info)
-				print('Exit the blacklist ...')
-				if err != '':
-					_commands = switch_iptables(args, 'flush-chain')
-					print(f"----- ERROR Info -----\n{err}\n{_commands}\n----- ERROR Info -----")
-				if args.nolog:
-					args.log_txt.append('Close the blacklist on {IP,IP6}TABLES ...')
-					args.log_txt.append(f"Clear the сhain: «{args.chain}».")
-					if service_info != '':
-						args.log_txt.append(service_info)
-					args.log_txt.append('Exit the blacklist ...')
-					if err != '':
-						args.log_txt.append(f"----- ERROR Info -----\n{err}\n{_commands}\n----- ERROR Info -----")
-		if args.Delinput:
-			if args.chain != 'INPUT':
-				print('Close the blacklist on {IP,IP6}TABLES ...')
-				print(f"Removing the symbolic link to the chain «{args.chain}» from «INPUT».")
-				service_info, err = shell_run(args.console, switch_iptables(args, 'del-input'))
-				if service_info != '':
-					print(service_info)
-				print('Exit the blacklist ...')
-				if err != '':
-					_commands = switch_iptables(args, 'del-input')
-					print(f"----- ERROR Info -----\n{err}\n{_commands}\n----- ERROR Info -----")
-				if args.nolog:
-					args.log_txt.append('Close the blacklist on {IP,IP6}TABLES ...')
-					args.log_txt.append(f"Removing the symbolic link to the chain «{args.chain}» from «INPUT».")
-					if service_info != '':
-						args.log_txt.append(service_info)
-					args.log_txt.append('Exit the blacklist ...')
-					if err != '':
-						args.log_txt.append(f"----- ERROR Info -----\n{err}\n{_commands}\n----- ERROR Info -----")
-		if args.Delchain:
-			if args.chain != 'INPUT':
-				print(f"Delete the сhain: «{args.chain}».")
-				service_info, err = shell_run(args.console, switch_iptables(args, 'del-chain'))
-				if service_info != '':
-					print(service_info)
-				print('Exit the blacklist ...')
-				if err != '':
-					_commands = switch_iptables(args, 'del-chain')
-					print(f"----- ERROR Info -----\n{err}\n{_commands}\n----- ERROR Info -----")
-				if args.nolog:
-					args.log_txt.append('Close the blacklist on {IP,IP6}TABLES ...')
-					args.log_txt.append(f"Delete the сhain: «{args.chain}».")
-					if service_info != '':
-						args.log_txt.append(service_info)
-					args.log_txt.append('Exit the blacklist ...')
-					if err != '':
-						args.log_txt.append(f"----- ERROR Info -----\n{err}\n{_commands}\n----- ERROR Info -----")
 
 def AppExit(args: Arguments):
 	''' Shutting down the application. '''
@@ -476,42 +402,9 @@ def service_build(args: Arguments):
 			stop_sv_text = f"{_stop_var}"
 			reload_sv_text = f"{_start_var}"		
 	else:
-		_ipv6 = '-ipv6' if args.ipv6 else ''
-		_proto = f"-protocol {args.protocol}"
-		_ch = f"-chain {args.chain}"
-		if not args.run:
-			_nch = '-newchain' if args.newchain else ''
-			_ich = '-inschain' if args.inschain else ''
-			_irt = '-insreturn' if args.insreturn else ''
-		else:
-			_nch = '-run'
-			_ich = ''
-			_irt = ''
-		if not args.fine:
-			_dch = '-Delchain' if args.Delchain else ''
-			_cch = '-clearchain' if args.clearchain else ''
-			_din = '-Delinput' if args.Delinput else ''
-		else:
-			_dch = ''
-			_cch = '-fine'
-			_din = ''
-		
-		_start_var = f"{_ipv6} {_proto} {_ch}".strip()
-		_exec_var = f"{_start_var} {_nch} {_ich} {_irt}".strip()
-		_stop_var = f"{_start_var} {_cch} {_dch} {_din}".strip()
-		
-		if args.personal:
-			start_sv_text = f"-personal"
-			stop_sv_text = f"-personal"
-			reload_sv_text = f"-personal"
-			if args.run:
-				start_sv_text = f"{start_sv_text} -run"
-			if args.fine:
-				stop_sv_text = f"{stop_sv_text} -fine"
-		else:
-			start_sv_text = f"{_exec_var}"
-			stop_sv_text = f"{_stop_var}"
-			reload_sv_text = f"{_start_var}"
+		start_sv_text = f""
+		stop_sv_text = f""
+		reload_sv_text = f""
 	
 	service_tmp_text.append(f"{st2} {start_sv_text} {st3}")
 	service_tmp_text.append(f"{st4} {stop_sv_text} {st5}")
@@ -585,13 +478,7 @@ def switch_iptables(args: Arguments, case = None):
 			'del-white': f"sudo {args.protocol} -t {args.table} -D {args.chain} -s {args.current_ip} -j ACCEPT",
 			'add-black': f"sudo {args.protocol} -t {args.table} -A {args.chain} -s {args.current_ip} -j DROP",
 			'del-black': f"sudo {args.protocol} -t {args.table} -D {args.chain} -s {args.current_ip} -j DROP",
-			'read': f"sudo {args.protocol} -L {args.chain}",
-			'create-chain': f"sudo {args.protocol} -N {args.chain}",
-			'create-return': f"sudo {args.protocol} -A {args.chain} -j RETURN",
-			'insert-input': f"sudo {args.protocol} -I INPUT -j {args.chain}",
-			'del-input': f"sudo {args.protocol} -D INPUT -j {args.chain}",
-			'flush-chain': f"sudo {args.protocol} -F {args.chain}",
-			'del-chain': f"sudo {args.protocol} -X {args.chain}"
+			'read': f"sudo {args.protocol} -L {args.chain}"
 	}.get(case, f"sudo {args.protocol} -L {args.chain}")
 
 def switch_nftables(args: Arguments, case = None, handle = None):
@@ -1398,16 +1285,6 @@ def CreateTableChain(args: Arguments):
 			if args.newchain:
 				if (args.table != 'filter') ^ (args.chain != 'INPUT'):
 					print(switch_nftables(args, 'create-chain'))
-		else:
-			if args.newchain:
-				if args.chain != 'INPUT':
-					print(switch_iptables(args, 'create-chain'))
-			if args.inschain:
-				if args.chain != 'INPUT':
-					print(switch_iptables(args, 'insert-input'))
-			if args.insreturn:
-				if args.chain != 'INPUT':
-					print(switch_iptables(args, 'create-return'))
 	
 	if not args.cmd:
 		if args.nftables:
@@ -1451,65 +1328,6 @@ def CreateTableChain(args: Arguments):
 							args.log_txt.append(f"----- ERROR Info -----\n{err}\n{_commands}\n----- ERROR Info -----")
 			if args.exit:
 				AppExit(args)
-		else:
-			if args.newchain:
-				if args.chain != 'INPUT':
-					print('Start the blacklist ...')
-					args.log_txt.append('Start the blacklist ...')
-					args.log_txt.append(f"New chain in IP(6)TABLES  = {args.chain}")
-					print(f"New chain in IP(6)TABLES  = {args.chain}")
-					service_info, err = shell_run(args.console, switch_iptables(args, 'create-chain'))
-					_commands = switch_iptables(args, 'create-chain')
-					if service_info != '':
-						print(service_info)
-					if err != '':
-						print(f"----- ERROR Info -----\n{err}\n{_commands}\n----- ERROR Info -----")
-					print('Exit the blacklist ...')
-					if args.nolog:
-						if service_info != '':
-							args.log_txt.append(service_info)
-						args.log_txt.append('Exit the blacklist ...')
-						if err != '':
-							args.log_txt.append(f"----- ERROR Info -----\n{err}\n{_commands}\n----- ERROR Info -----")
-			if args.inschain:
-				if args.chain != 'INPUT':
-					args.log_txt.append('Start the blacklist ...')
-					args.log_txt.append(f"Insert to INPUT chain on {args.chain}.")
-					print(f"Insert to INPUT chain on {args.chain}.")
-					service_info, err = shell_run(args.console, switch_iptables(args, 'insert-input'))
-					_commands = switch_iptables(args, 'insert-input')
-					if service_info != '':
-						print(service_info)
-					if err != '':
-						print(f"----- ERROR Info -----\n{err}\n{_commands}\n----- ERROR Info -----")
-					print('Exit the blacklist ...')
-					if args.nolog:
-						if service_info != '':
-							args.log_txt.append(service_info)
-						args.log_txt.append('Exit the blacklist ...')
-						if err != '':
-							args.log_txt.append(f"----- ERROR Info -----\n{err}\n{_commands}\n----- ERROR Info -----")
-			if args.insreturn:
-				if args.chain != 'INPUT':
-					print('Start the blacklist ...')
-					args.log_txt.append('Start the blacklist ...')
-					print(f"Create RETURN in IP(6)TABLES.")
-					args.log_txt.append(f"Create RETURN in IP(6)TABLES.")
-					service_info, err = shell_run(args.console, switch_iptables(args, 'create-return'))
-					_commands = switch_iptables(args, 'create-return')
-					if service_info != '':
-						print(service_info)
-					if err != '':
-						print(f"----- ERROR Info -----\n{err}\n{_commands}\n----- ERROR Info -----")
-					print('Exit the blacklist ...')
-					if args.nolog:
-						if service_info != '':
-							args.log_txt.append(service_info)
-						args.log_txt.append('Exit the blacklist ...')
-						if err != '':
-							args.log_txt.append(f"----- ERROR Info -----\n{err}\n{_commands}\n----- ERROR Info -----")
-			if args.exit:
-				AppExit(args)
 
 def PersonalParam(args: Arguments):
 	''' Uses personal standart {IP,IP6,NF}TABLES Params. '''
@@ -1518,15 +1336,13 @@ def PersonalParam(args: Arguments):
 			args.nftproto = 'inet'
 			args.table = 'blackwhite'
 			args.chain = 'INPUT'
-		else:
-			args.table = 'filter'
-			args.chain = 'blackwhite'
 
 def EditTableParam(args: Arguments):
 	''' Edit online param on {IP,IP6,NF}TABLES. '''
 	if not args.nftables:
 		args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
 		args.table = 'filter'
+		args.chain = 'INPUT'
 	else:
 		if args.protocol == 'ip':
 			args.protocol = 'ip' if not args.ipv6 else 'ip6'
@@ -1553,14 +1369,10 @@ def EditTableParam(args: Arguments):
 		args.Delchain = True
 		args.cleartable = True
 		args.Deltable = True
-		args.Delreturn = True
-		args.Delinput = True
 	
 	if args.run:
 		args.newtable = True
 		args.newchain = True
-		args.inschain = True
-		args.insreturn = True
 	
 	PersonalParam(args)
 
