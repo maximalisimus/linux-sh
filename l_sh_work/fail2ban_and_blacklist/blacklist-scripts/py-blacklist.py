@@ -1008,7 +1008,7 @@ def servicework(args: Arguments):
 				print('\t',switch_iptables(args, 'add-white'))
 				print('\t',switch_iptables(args, 'add-black'))
 			else:
-				print(switch_nftables(args, 'search'))
+				print(switch_nftables(args, 'search').replace('\t','\\t'))
 				print('Repeat commands for all ip addresses:')
 				print('\t',switch_nftables(args, 'add-white', 'NUM'))
 				print('\t',switch_nftables(args, 'add-black', 'NUM'))
@@ -1019,7 +1019,7 @@ def servicework(args: Arguments):
 			_commands = switch_iptables(args, 'read')
 		else:
 			args.iptables_info, err = shell_run(args.console, switch_nftables(args, 'search'))
-			_commands = switch_nftables(args, 'search')
+			_commands = switch_nftables(args, 'search').replace('\t','\\t')
 		if args.nolog:
 			args.log_txt.append('Start the blacklist ...')
 		service_start_stop(args)
@@ -1040,7 +1040,7 @@ def servicework(args: Arguments):
 				print('\t',switch_iptables(args, 'del-white'))
 				print('\t',switch_iptables(args, 'del-black'))
 			else:
-				print(switch_nftables(args, 'search'))
+				print(switch_nftables(args, 'search').replace('\t','\\t'))
 				print('Repeat commands for all ip addresses:')
 				print('\t',switch_nftables(args, 'del-white', 'NUM'))
 				print('\t',switch_nftables(args, 'del-black', 'NUM'))
@@ -1051,7 +1051,7 @@ def servicework(args: Arguments):
 			_commands = switch_iptables(args, 'read')
 		else:
 			args.iptables_info, err = shell_run(args.console, switch_nftables(args, 'search'))
-			_commands = switch_nftables(args, 'search')
+			_commands = switch_nftables(args, 'search').replace('\t','\\t')
 		if args.nolog:
 			args.log_txt.append('Stopping the blacklist ...')
 		service_start_stop(args)
@@ -1080,7 +1080,7 @@ def servicework(args: Arguments):
 				print('\t',switch_iptables(args, 'add-white'))
 				print('\t',switch_iptables(args, 'add-black'))
 			else:
-				print(switch_nftables(args, 'search'))
+				print(switch_nftables(args, 'search').replace('\t','\\t'))
 				print('Repeat commands for all ip addresses:')
 				print('\t',switch_nftables(args, 'del-white', 'NUM'))
 				print('\t',switch_nftables(args, 'del-black', 'NUM'))
@@ -1095,7 +1095,7 @@ def servicework(args: Arguments):
 			_commands = switch_iptables(args, 'read')
 		else:
 			args.iptables_info, err = shell_run(args.console, switch_nftables(args, 'search'))
-			_commands = switch_nftables(args, 'search')
+			_commands = switch_nftables(args, 'search').replace('\t','\\t')
 		if args.nolog:
 			args.log_txt.append('Reload the blacklist ...')
 			if err != '':
@@ -1108,7 +1108,7 @@ def servicework(args: Arguments):
 			_commands = switch_iptables(args, 'read')
 		else:
 			args.iptables_info, err = shell_run(args.console, switch_nftables(args, 'search'))
-			_commands = switch_nftables(args, 'search')
+			_commands = switch_nftables(args, 'search').replace('\t','\\t')
 		service_start_stop(args)
 		print('Exit the blacklist ...')
 		if args.nolog:
@@ -1261,7 +1261,7 @@ def listwork(args: Arguments):
 			_commands = switch_iptables(args, 'read')
 		else:
 			args.iptables_info, err = shell_run(args.console, switch_nftables(args, 'search'))
-			_commands = switch_nftables(args, 'search')
+			_commands = switch_nftables(args, 'search').replace('\t','\\t')
 		if err != '':
 			args.log_txt.append(f"----- ERROR Info -----\n{err}\n{_commands}\n----- ERROR Info -----")
 		for elem in range(len(args.ip)):
