@@ -227,6 +227,7 @@ def createParser():
 	
 	group4 = parser.add_argument_group('Settings', 'Configurations.')
 	group4.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default "sh").')
+	group4.add_argument("-name", '--name', dest="name", metavar='NAME', type=str, default='blacklist', help='The name of the symlink for the location in the programs directory is «/usr/bin/». (Default "blacklist").')
 	group4.add_argument ('-cmd', '--cmd', action='store_true', default=False, help='View the command and exit the program without executing it.')
 	group4.add_argument("-logfile", '--logfile', dest="logfile", metavar='LOGFILE', type=str, default=f"{log_file}", help='Log file.')
 	group4.add_argument ('-nolog', '--nolog', action='store_false', default=True, help="Don't keep a log file.")
@@ -833,17 +834,17 @@ def servicework(args: Arguments):
 	
 	if args.link:
 		script_full = pathlib.Path(f"{script_full}").resolve()
-		script_usr_bin = pathlib.Path('/usr/bin/blacklist').resolve()
+		script_usr_bin = pathlib.Path(f"/usr/bin/{args.name}").resolve()
 		if args.cmd:
 			print(f"sudo ln -s {script_full} {script_usr_bin}")
 			print(f"sudo chmod +x {script_usr_bin}")
 			sys.exit(0)
-		print('Cryate the symlink to program on «/usr/bin/» ...')
+		print(f"Cryate the symlink to program on «/usr/bin/{args.name}».")
 		shell_run(args.console, f"sudo ln -s {script_full} {script_usr_bin}")
 		shell_run(args.console, f"sudo chmod +x {script_usr_bin}")
 		print('Exit the blacklist ...')
 		if args.nolog:
-			args.log_txt.append('Cryate the symlink to program on «/usr/bin/» ...')
+			args.log_txt.append(f"Cryate the symlink to program on «/usr/bin/{args.name}».")
 			args.log_txt.append(f"Exit the blacklist ...")
 		AppExit(args)
 	if args.unlink:
@@ -851,16 +852,16 @@ def servicework(args: Arguments):
 		src2 = pathlib.Path(script_tmp).resolve()
 		if args.cmd:
 			print(f"sudo mv {src1} {src2}")
-			print(f"sudo rm -rf /usr/bin/blacklist")
+			print(f"sudo rm -rf /usr/bin/{args.name}")
 			print(f"sudo mv {src2} {src1}")
 			sys.exit(0)
-		print('Delete the symlink to program on «/usr/bin/» ...')
+		print(f"Delete the symlink to program on «/usr/bin/{args.name}».")
 		src1.rename(src2)
-		shell_run(args.console, f"sudo rm -rf /usr/bin/blacklist")
+		shell_run(args.console, f"sudo rm -rf /usr/bin/{args.name}")
 		src2.rename(src1)
 		print('Exit the blacklist ...')
 		if args.nolog:
-			args.log_txt.append('Delete the symlink to program on «/usr/bin/» ...')
+			args.log_txt.append(f"Delete the symlink to program on «/usr/bin/{args.name}».")
 			args.log_txt.append(f"Exit the blacklist ...")
 		AppExit(args)
 	if args.show:
