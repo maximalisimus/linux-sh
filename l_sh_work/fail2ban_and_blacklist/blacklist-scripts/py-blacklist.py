@@ -236,9 +236,9 @@ def createParser():
 	
 	return parser, subparsers, parser_service, parser_systemd, parser_blist, parser_wlist, pgroup1, pgroup2, group1, group2, group3, group4
 
-def AppExit(args: Arguments):
-	''' Shutting down the application. '''
-	
+def show_commands_fine(args: Arguments):
+	''' View commands to delete tables and/or chains 
+		before exiting the program. '''
 	if args.nftables:
 		if args.clearchain:
 			if (args.table != 'filter') ^ (args.chain != 'INPUT'):
@@ -270,6 +270,10 @@ def AppExit(args: Arguments):
 				print(switch_iptables(args, 'del-chain'))
 	if args.cmd:
 		sys.exit(0)
+
+def AppFine(args: Arguments):
+	''' Commands to delete tables and/or chains 
+		before exiting the program. '''
 	
 	if args.nftables:
 		if args.clearchain:
@@ -369,7 +373,16 @@ def AppExit(args: Arguments):
 					args.log_txt.append(f"Delete the сhain: «{args.chain}».")
 					args.log_txt.append(service_info)
 					args.log_txt.append('Exit the blacklist ...')
-					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")	
+					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+
+def AppExit(args: Arguments):
+	''' Shutting down the application. '''
+	
+	show_commands_fine(args)
+	
+	if args.onlist != 'systemd':
+		AppFine(args)
+	
 	if args.nolog:
 		if args.log_txt:
 			ondatetime = datetime.now().strftime("%a %d %b %Y %H:%M:%S %Z %z")
