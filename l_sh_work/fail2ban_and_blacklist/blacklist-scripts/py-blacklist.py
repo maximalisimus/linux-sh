@@ -268,7 +268,8 @@ def show_commands_fine(args: Arguments):
 					print(switch_iptables(args, 'del-input'))
 		if args.Delchain:
 			if args.chain != 'INPUT':
-				print(switch_iptables(args, 'del-chain'))
+				if args.cmd:
+					print(switch_iptables(args, 'del-chain'))
 	if args.cmd:
 		sys.exit(0)
 
@@ -282,99 +283,127 @@ def AppFine(args: Arguments):
 				print('Close the blacklist on NFTABLES ...')
 				print(f"Clear the сhain: «{args.chain}».")
 				service_info, err = shell_run(args.console, switch_nftables(args, 'flush-chain'))
-				print(service_info)
+				if service_info != '':
+					print(service_info)
 				print('Exit the blacklist ...')
-				print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				if err != '':
+					print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 				if args.nolog:
 					args.log_txt.append('Close the blacklist  on NFTABLES ...')
 					args.log_txt.append(f"Clear the сhain: «{args.chain}».")
-					args.log_txt.append(service_info)
+					if service_info != '':
+						args.log_txt.append(service_info)
 					args.log_txt.append('Exit the blacklist ...')
-					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+					if err != '':
+						args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 		if args.Delchain:
 			if (args.table != 'filter') ^ (args.chain != 'INPUT'):
 				print('Close the blacklist on NFTABLES ...')
 				print(f"Delete the сhain: «{args.chain}».")
 				service_info, err = shell_run(args.console, switch_nftables(args, 'del-chain'))
-				print(service_info)
+				if service_info != '':
+					print(service_info)
 				print('Exit the blacklist ...')
-				print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				if err != '':
+					print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 				if args.nolog:
 					args.log_txt.append('Close the blacklist  on NFTABLES ...')
 					args.log_txt.append(f"Delete the сhain: «{args.chain}».")
-					args.log_txt.append(service_info)
+					if service_info != '':
+						args.log_txt.append(service_info)
 					args.log_txt.append('Exit the blacklist ...')
-					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+					if err != '':
+						args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 		if args.cleartable:
 			if args.table != 'filter':
 				print('Close the blacklist on NFTABLES...')
 				print(f"Clear the table: «{args.table}».")
 				service_info, err = shell_run(args.console, switch_nftables(args, 'flush-table'))
-				print(service_info)
+				if service_info != '':
+					print(service_info)
 				print('Exit the blacklist ...')
-				print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				if err != '':
+					print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 				if args.nolog:
 					args.log_txt.append('Close the blacklist on NFTABLES ...')
 					args.log_txt.append(f"Clear the table: «{args.table}».")
-					args.log_txt.append(service_info)
+					if service_info != '':
+						args.log_txt.append(service_info)
 					args.log_txt.append('Exit the blacklist ...')
-					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+					if err != '':
+						args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 		if args.Deltable:
 			if args.table != 'filter':
 				print('Close the blacklist on NFTABLES ...')
 				print(f"Delete the table: «{args.table}».")
 				service_info, err = shell_run(args.console, switch_nftables(args, 'del-table'))
-				print(service_info)
+				if service_info != '':
+					print(service_info)
 				print('Exit the blacklist ...')
-				print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				if err != '':
+					print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 				if args.nolog:
 					args.log_txt.append('Close the blacklist on NFTABLES ...')
 					args.log_txt.append(f"Delete the table: «{args.table}».")
-					args.log_txt.append(service_info)
+					if service_info != '':
+						args.log_txt.append(service_info)
 					args.log_txt.append('Exit the blacklist ...')
-					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+					if err != '':
+						args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 	else:
 		if args.clearchain:
 			if args.chain != 'INPUT':		
 				print('Close the blacklist on {IP,IP6}TABLES ...')
 				print(f"Clear the сhain: «{args.chain}».")
 				service_info, err = shell_run(args.console, switch_iptables(args, 'flush-chain'))
-				print(service_info)
+				if service_info != '':
+					print(service_info)
 				print('Exit the blacklist ...')
-				print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				if err != '':
+					print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 				if args.nolog:
 					args.log_txt.append('Close the blacklist on {IP,IP6}TABLES ...')
 					args.log_txt.append(f"Clear the сhain: «{args.chain}».")
-					args.log_txt.append(service_info)
+					if service_info != '':
+						args.log_txt.append(service_info)
 					args.log_txt.append('Exit the blacklist ...')
-					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+					if err != '':
+						args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 		if args.Delinput:
 			if args.chain != 'INPUT':
 				print('Close the blacklist on {IP,IP6}TABLES ...')
 				print(f"Removing the symbolic link to the chain «{args.chain}» from «INPUT».")
 				service_info, err = shell_run(args.console, switch_iptables(args, 'del-input'))
-				print(service_info)
+				if service_info != '':
+					print(service_info)
 				print('Exit the blacklist ...')
-				print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				if err != '':
+					print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 				if args.nolog:
 					args.log_txt.append('Close the blacklist on {IP,IP6}TABLES ...')
 					args.log_txt.append(f"Removing the symbolic link to the chain «{args.chain}» from «INPUT».")
-					args.log_txt.append(service_info)
+					if service_info != '':
+						args.log_txt.append(service_info)
 					args.log_txt.append('Exit the blacklist ...')
-					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+					if err != '':
+						args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 		if args.Delchain:
 			if args.chain != 'INPUT':
 				print(f"Delete the сhain: «{args.chain}».")
 				service_info, err = shell_run(args.console, switch_iptables(args, 'del-chain'))
-				print(service_info)
+				if service_info != '':
+					print(service_info)
 				print('Exit the blacklist ...')
-				print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+				if err != '':
+					print(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 				if args.nolog:
 					args.log_txt.append('Close the blacklist on {IP,IP6}TABLES ...')
 					args.log_txt.append(f"Delete the сhain: «{args.chain}».")
-					args.log_txt.append(service_info)
+					if service_info != '':
+						args.log_txt.append(service_info)
 					args.log_txt.append('Exit the blacklist ...')
-					args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
+					if err != '':
+						args.log_txt.append(f"----- ERROR Info -----\n{err}\n----- ERROR Info -----")
 
 def AppExit(args: Arguments):
 	''' Shutting down the application. '''
@@ -388,7 +417,8 @@ def AppExit(args: Arguments):
 		if args.log_txt:
 			ondatetime = datetime.now().strftime("%a %d %b %Y %H:%M:%S %Z %z")
 			read_write_text(args.logfile, 'a', f"\n{ondatetime}\n")
-			read_write_text(args.logfile, 'a', '\n'.join(x.strip() for x in args.log_txt if x != '').strip() + '\n')
+			#read_write_text(args.logfile, 'a', '\n'.join(x.strip() for x in args.log_txt if x != '').strip() + '\n')
+			read_write_text(args.logfile, 'a', '\n'.join(args.log_txt).strip() + '\n')
 	sys.exit(0)
 
 def service_build(args: Arguments):
@@ -686,7 +716,7 @@ def systemdwork(args: Arguments):
 		if args.nolog:
 			args.log_txt.append(f"Create systemd «blacklist@.service»:")
 			args.log_txt.append(service_text)
-			args.log_txt.append(f"\nCreate systemd «blacklist@.timer»:")
+			args.log_txt.append(f"Create systemd «blacklist@.timer»:")
 			args.log_txt.append(timer_text)
 			args.log_txt.append(f"Exit the blacklist ...")
 		AppExit(args)
