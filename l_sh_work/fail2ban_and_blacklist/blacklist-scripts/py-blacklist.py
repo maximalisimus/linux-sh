@@ -1276,52 +1276,52 @@ def CreateTableChain(args: Arguments):
 	if args.cmd:
 		if args.nftables:
 			if args.newtable:
-				if args.table != 'filter':
-					print(switch_nftables(args, 'create-table'))
+				#if args.table != 'filter':
+				print(switch_nftables(args, 'create-table'))
 			if args.newchain:
-				if (args.table != 'filter') ^ (args.chain != 'INPUT'):
-					print(switch_nftables(args, 'create-chain'))
+				#if (args.table != 'filter') ^ (args.chain != 'INPUT'):
+				print(switch_nftables(args, 'create-chain'))
 	
 	if not args.cmd:
 		if args.nftables:
 			if args.newtable:
-				if args.table != 'filter':
-					print('Start the blacklist ...')
-					args.log_txt.append('Start the blacklist ...')
-					args.log_txt.append(f"New table in NFTABLES  = {args.table}")
-					print(f"New table in NFTABLES  = {args.table}")
-					service_info, err = shell_run(args.console, switch_nftables(args, 'create-table'))
-					_commands = switch_nftables(args, 'create-table')
+				#if args.table != 'filter':
+				print('Start the blacklist ...')
+				args.log_txt.append('Start the blacklist ...')
+				args.log_txt.append(f"New table in NFTABLES  = {args.table}")
+				print(f"New table in NFTABLES  = {args.table}")
+				service_info, err = shell_run(args.console, switch_nftables(args, 'create-table'))
+				_commands = switch_nftables(args, 'create-table')
+				if service_info != '':
+					print(service_info)
+				if err != '':
+					print(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
+				print('Exit the blacklist ...')
+				if args.nolog:
 					if service_info != '':
-						print(service_info)
+						args.log_txt.append(service_info)
+					args.log_txt.append('Exit the blacklist ...')
 					if err != '':
-						print(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
-					print('Exit the blacklist ...')
-					if args.nolog:
-						if service_info != '':
-							args.log_txt.append(service_info)
-						args.log_txt.append('Exit the blacklist ...')
-						if err != '':
-							args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
+						args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
 			if args.newchain:
-				if (args.table != 'filter') ^ (args.chain != 'INPUT'):
-					print('Start the blacklist ...')
-					args.log_txt.append('Start the blacklist ...')
-					args.log_txt.append(f"New chain in NFTABLES  = {args.chain}")
-					print(f"New chain in NFTABLES  = {args.chain}")
-					service_info, err = shell_run(args.console, switch_nftables(args, 'create-chain'))
-					_commands = switch_nftables(args, 'create-chain')
+				#if (args.table != 'filter') ^ (args.chain != 'INPUT'):
+				print('Start the blacklist ...')
+				args.log_txt.append('Start the blacklist ...')
+				args.log_txt.append(f"New chain in NFTABLES  = {args.chain}")
+				print(f"New chain in NFTABLES  = {args.chain}")
+				service_info, err = shell_run(args.console, switch_nftables(args, 'create-chain'))
+				_commands = switch_nftables(args, 'create-chain')
+				if service_info != '':
+					print(service_info)
+				if err != '':
+					print(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
+				print('Exit the blacklist ...')
+				if args.nolog:
 					if service_info != '':
-						print(service_info)
+						args.log_txt.append(service_info)
+					args.log_txt.append('Exit the blacklist ...')
 					if err != '':
-						print(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
-					print('Exit the blacklist ...')
-					if args.nolog:
-						if service_info != '':
-							args.log_txt.append(service_info)
-						args.log_txt.append('Exit the blacklist ...')
-						if err != '':
-							args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
+						args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
 			if args.exit:
 				AppExit(args)
 
