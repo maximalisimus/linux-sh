@@ -204,7 +204,7 @@ def createParser():
 	group2.add_argument("-wd", '--workdir', dest="workdir", metavar='WORKDIR', type=str, default=f"{workdir}", help='Working directory.')
 	group2.add_argument("-b", '--blacklist', dest="blacklist", metavar='BLACKLIST', type=str, default=f"{json_black}", help='Input blacklist file.')
 	group2.add_argument("-w", '--whitelist', dest="whitelist", metavar='WHITELIST', type=str, default=f"{json_white}", help='Input whitelist file.')
-	
+		
 	group3 = parser.add_argument_group('{IP,IP6,NF}TABLES', 'Configuration {IP,IP6,NF}TABLES.')
 	group3.add_argument ('-personal', '--personal', action='store_true', default=False, help='Personal settings of NFTABLES tables, regardless of the data entered.')
 	group3.add_argument ('-e', '-exit', '--exit', action='store_true', default=False, help='Finish creating the table/chain on NFTABLES.')
@@ -226,6 +226,7 @@ def createParser():
 	group4 = parser.add_argument_group('Settings', 'Configurations.')
 	group4.add_argument("-con", '--console', dest="console", metavar='CONSOLE', type=str, default='sh', help='Enther the console name (Default "sh").')
 	group4.add_argument ('-cmd', '--cmd', action='store_true', default=False, help='View the command and exit the program without executing it.')
+	group4.add_argument ('-sd', '--showdir', action='store_true', default=False, help='Show working directory.')
 	group4.add_argument("-logfile", '--logfile', dest="logfile", metavar='LOGFILE', type=str, default=f"{log_file}", help='Log file.')
 	group4.add_argument ('-nolog', '--nolog', action='store_false', default=True, help="Don't keep a log file.")
 	group4.add_argument ('-limit', '--limit', action='store_true', default=False, help='Limit the log file. Every day the contents of the log will be completely erased.')
@@ -1405,6 +1406,10 @@ def EditDirParam(args: Arguments):
 	
 	if not pathlib.Path(str(workdir)).resolve().exists():
 		pathlib.Path(str(workdir)).resolve().mkdir(parents=True)
+	
+	if args.showdir:
+		print(workdir)
+		sys.exit(0)
 
 def EditLogParam(args: Arguments):
 	''' Edit online Log Params. '''
