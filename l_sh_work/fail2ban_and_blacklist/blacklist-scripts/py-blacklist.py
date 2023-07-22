@@ -175,6 +175,7 @@ def createParser():
 	parser_blist.add_argument ('-j', '--json', action='store_true', default=False, help='JSON fromat show.')
 	parser_blist.add_argument ('-save', '--save', action='store_true', default=False, help='Save show info.')
 	parser_blist.add_argument("-o", '--output', dest="output", metavar='OUTPUT', type=str, default=f"{json_black}", help='Output blacklist file.')
+	parser_blist.add_argument ('-empty', '--empty', action='store_true', default=False, help='Clear the whitelist. Use carefully!')
 	parser_blist.set_defaults(onlist='black')
 	
 	pgroup1 = parser_blist.add_argument_group('Addressing', 'IP address management.')
@@ -190,6 +191,7 @@ def createParser():
 	parser_wlist.add_argument ('-j', '--json', action='store_true', default=False, help='JSON fromat show.')
 	parser_wlist.add_argument ('-save', '--save', action='store_true', default=False, help='Save show info.')
 	parser_wlist.add_argument("-o", '--output', dest="output", metavar='OUTPUT', type=str, default=f"{json_white}", help='Output whitelist file.')
+	parser_wlist.add_argument ('-empty', '--empty', action='store_true', default=False, help='Clear the whitelist. Use carefully!')
 	parser_wlist.set_defaults(onlist='white')
 	
 	pgroup2 = parser_wlist.add_argument_group('Addressing', 'IP address management.')
@@ -1139,6 +1141,13 @@ def listwork(args: Arguments):
 		if args.save:
 			read_write_text(args.output, 'w', data + '\n')
 	
+	def clear_list(args: Arguments):
+		''' Clear (reset) the list. '''
+		args.json_data = args.blacklist_json if args.onlist == 'black' else args.whitelist_json
+		args.json_data = dict()
+		if args.save:
+			read_write_json(args.output, 'w', args.json_data)
+	
 	def ban_unban_full(args: Arguments):
 		''' Ban or unban all entered ip addresses. '''
 		if not args.nftables:
@@ -1193,6 +1202,16 @@ def listwork(args: Arguments):
 		read_list(args)
 		show_list(args)
 		sys.exit(0)
+	if args.empty:
+		read_list(args)
+		clear_list(args)
+		args.file_data = args.blacklist if args.onlist == 'black' else args.whitelist
+		print(f"Clear the {args.onlist}list file {args.file_data.name} and {'save' if args.save else 'no save'} ...")
+		if args.nolog:
+			args.log_txt.append(f"Clear the {args.onlist}list file {args.file_data.name} and {'save' if args.save else 'no save'} ...")
+			args.log_txt.append(f"Exit the blacklist ...")
+		print(f"Exit the blacklist ...")
+		AppExit(args)
 	if args.ban:
 		if args.cmd:
 			args.current_ip = 'ip/mask'
