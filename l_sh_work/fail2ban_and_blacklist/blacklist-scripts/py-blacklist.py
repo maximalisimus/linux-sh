@@ -1186,17 +1186,12 @@ def listwork(args: Arguments):
 		args.json_data = None
 	
 	if not args.cmd:
-		print('Launching the blacklist ...')
 		if args.nolog:
 			args.log_txt.append(f"Launching the blacklist ...")
 	
 	if args.show:
-		print('Viewing a blacklist or whitelist of ip addresses ...')
-		args.log_txt.append('Viewing a blacklist or whitelist of ip addresses ...')
-		args.log_txt.append('Exit the blacklist ...')
 		read_list(args)
 		show_list(args)
-		print('Exit the blacklist ...')
 		sys.exit(0)
 	if args.ban:
 		if args.cmd:
