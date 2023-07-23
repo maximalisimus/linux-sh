@@ -146,6 +146,8 @@ def createParser():
 	parser_systemd.add_argument ('-create', '--create', action='store_true', default=False, help='Create «blacklist@.service» and «blacklist@.timer».')
 	parser_systemd.add_argument ('-delete', '--delete', action='store_true', default=False, help='Delete «blacklist@.service» and «blacklist@.timer».')
 	parser_systemd.add_argument ('-status', '--status', action='store_true', default=False, help='Status «blacklist@.service».')
+	parser_systemd.add_argument ('-istimer', '--istimer', action='store_true', default=False, help='Check the active is «blacklist@.timer».')
+	parser_systemd.add_argument ('-isservice', '--isservice', action='store_true', default=False, help='Check the active is «blacklist@.service».')
 	parser_systemd.add_argument ('-enable', '--enable', action='store_true', default=False, help='Enable «blacklist@.timer».')
 	parser_systemd.add_argument ('-disable', '--disable', action='store_true', default=False, help='Disable «blacklist@.timer».')
 	parser_systemd.add_argument ('-start', '--start', action='store_true', default=False, help='Start «blacklist@.service».')
@@ -537,9 +539,13 @@ def switch_systemd(case = None, counter = 3):
 			'enable': f"sudo systemctl enable blacklist@{counter}.timer",
 			'disable': f"sudo systemctl disable blacklist@{counter}.timer",
 			'start-timer': f"sudo systemctl start blacklist@{counter}.timer",
-			'stop-timer': f"sudo systemctl stop blacklist@{counter}.timer"
+			'stop-timer': f"sudo systemctl stop blacklist@{counter}.timer",
+			'is-timer': f"sudo systemctl is-active blacklist@{counter}.timer",
+			'is-service': f"sudo systemctl is-active blacklist@{counter}.service",
+			'is-enable-timer': f"sudo systemctl is-enabled blacklist@{counter}.timer",
+			'is-enable-service': f"sudo systemctl is-enabled blacklist@{counter}.service"
 	}.get(case, f"sudo systemctl status blacklist@{counter}.service")
-
+	
 def read_list(args: Arguments):
 	''' Read the input json files, if they are missing, 
 		replace them with an empty dictionary. '''
@@ -625,14 +631,46 @@ def systemdwork(args: Arguments):
 				sys.exit(0)
 			service_info, err = shell_run(args.console, switch_systemd('status', args.count))
 			if service_info != '':
-				print(f"----- Systemd Info -----\n{service_info}\n----- Systemd Info -----")
-				if args.nolog:
-					args.log_txt.append(f"----- Systemd Info -----\n{service_info}\n----- Systemd Info -----")
+				print(f"{service_info}")
 			if err != '':
 				_commands = switch_systemd('status', args.count)
-				if args.nolog:
-					args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
-				print(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
+				print(f"{err}{_commands}")
+			sys.exit(0)
+		if args.istimer:
+			if args.cmd:
+				print(switch_systemd('is-timer', args.count))
+				print(switch_systemd('is-enable-timer', args.count))
+				sys.exit(0)
+			service_info, err = shell_run(args.console, switch_systemd('is-timer', args.count))
+			if service_info != '':
+				print(f"{service_info}")
+			if err != '':
+				_commands = switch_systemd('is-timer', args.count)
+				print(f"{err}{_commands}")
+			service_info, err = shell_run(args.console, switch_systemd('is-enable-timer', args.count))
+			if service_info != '':
+				print(f"{service_info}")
+			if err != '':
+				_commands = switch_systemd('is-enable-timer', args.count)
+				print(f"{err}{_commands}")
+			sys.exit(0)
+		if args.isservice:
+			if args.cmd:
+				print(switch_systemd('is-service', args.count))
+				print(switch_systemd('is-enable-service', args.count))
+				sys.exit(0)
+			service_info, err = shell_run(args.console, switch_systemd('is-service', args.count))
+			if service_info != '':
+				print(f"{service_info}")
+			if err != '':
+				_commands = switch_systemd('is-service', args.count)
+				print(f"{err}{_commands}")
+			service_info, err = shell_run(args.console, switch_systemd('is-enable-service', args.count))
+			if service_info != '':
+				print(f"{service_info}")
+			if err != '':
+				_commands = switch_systemd('is-enable-service', args.count)
+				print(f"{err}{_commands}")
 			sys.exit(0)
 		if args.enable:
 			if args.cmd:
