@@ -1007,7 +1007,7 @@ def servicework(args: Arguments):
 			args4_to_args6(args)
 			args.ip6tables_info, err6 = shell_run(args.console, switch_iptables(args, 'read'))
 			if args.ip6tables_info != '':
-				print(f"\n----- IPTABLES Info -----\n{args.ip6tables_info}\n----- IPTABLES Info -----")
+				print(f"\n----- IP6TABLES Info -----\n{args.ip6tables_info}\n----- IP6TABLES Info -----")
 			if err6 != '':
 				_commands6 = switch_iptables(args, 'read')
 				print(f"----- ERROR Info -----\n{err6}{_commands6}\n----- ERROR Info -----")
@@ -1028,7 +1028,7 @@ def servicework(args: Arguments):
 			args4_to_args6(args)
 			args.ip6tables_info, err6 = shell_run(args.console, switch_nftables(args, 'read'))
 			if args.ip6tables_info != '':
-				print(f"\n----- NFTABLES Info -----\n{args.ip6tables_info}\n----- NFTABLES Info -----")
+				print(f"\n----- NF6TABLES Info -----\n{args.ip6tables_info}\n----- NF6TABLES Info -----")
 			if err6 != '':
 				_commands6 = switch_nftables(args, 'read')
 				print(f"----- ERROR Info -----\n{err6}{_commands6}\n----- ERROR Info -----")
