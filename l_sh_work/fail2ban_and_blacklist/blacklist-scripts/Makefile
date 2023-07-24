@@ -22,11 +22,9 @@ ssh=ssh.conf
 DESCENG="The Fail2Ban black and white list in Python."
 DESCRU="Черный и белый список Fail2Ban в Python."
 #
-.PHONY: all install install-f2b uninstall uninstall-f2b clear
-all: install install-f2b
-	echo ""
+.PHONY: all install install-action install-filter install-jail uninstall uninstall-all uninstall-action uninstall-filter uninstall-jail clear
+all: install install-all
 	echo "Installation complete!"
-	echo ""
 
 install:
 	rm -rf $(SETUPDIR)/
@@ -35,23 +33,37 @@ install:
 	ln -s $(EXEC) $(SETUPEXEC) 2>/dev/null
 	chmod +x $(EXEC)
 
-install-f2b:
-	install -dDm 755 $(F2BSETUP)/action.d/ $(F2BSETUP)/filter.d/ $(F2BSETUP)/jail.d/
+install-action:
+	install -dDm 755 $(F2BSETUP)/action.d/
 	install -Dm 755 $(SOURCES)/action.d/*.conf $(F2BSETUP)/action.d/
+
+install-filter:
+	install -dDm 755 $(F2BSETUP)/filter.d/
 	install -Dm 755 $(SOURCES)/filter.d/*.conf $(F2BSETUP)/filter.d/
+
+install-jail:
+	install -dDm 755 $(F2BSETUP)/jail.d/
 	install -Dm 755 $(SOURCES)/jail.d/*.conf $(F2BSETUP)/jail.d/
+
+install-all: install-action install-filter install-jail
+	echo "Installation fail2ban modules complete!"
 
 uninstall:
 	rm -rf $(SETUPDIR)
 	rm -rf $(SETUPEXEC)
 
-uninstall-f2b:
-	rm -rf $(SETUPDIR) $(F2BSETUP)/action.d/$(blackfull) $(F2BSETUP)/action.d/$(blacksimple) 
-	rm -rf $(F2BSETUP)/filter.d/$(nginx_access) $(F2BSETUP)/filter.d/$(nginx_error) 
-	rm -rf $(F2BSETUP)/jail.d/$(access_nginx) $(F2BSETUP)/jail.d/$(error_nginx) 
+uninstall-action:
+	rm -rf $(F2BSETUP)/action.d/$(blackfull) $(F2BSETUP)/action.d/$(blacksimple)
+
+uninstall-filter:
+	rm -rf $(F2BSETUP)/filter.d/$(nginx_access) $(F2BSETUP)/filter.d/$(nginx_error)
+
+uninstall-jail:
+	rm -rf $(F2BSETUP)/jail.d/$(access_nginx) $(F2BSETUP)/jail.d/$(error_nginx)
 	rm -rf $(F2BSETUP)/jail.d/$(nginx_ddos) $(F2BSETUP)/jail.d/$(ssh)
 
-clear: uninstall uninstall-f2b
-	echo ""
+uninstall-all: uninstall-action uninstall-filter uninstall-jail
+	echo "Uninstall fail2ban modules complete!"
+
+clear: uninstall uninstall-all
 	echo "Uninstal complete!"
-	echo ""
