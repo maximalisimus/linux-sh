@@ -1245,6 +1245,13 @@ def nft_ban_unban_one(args: Arguments):
 		mess = switch_messages(args.onlist).get(str(args.add), not_found)
 		on_handle = search_handle(args.iptables_info, args.current_ip)
 		service_info, err = shell_run(args.console, switch_nftables(args, comm, on_handle))
+		if err != '':
+			args4_to_args6(args)
+			comm = switch_cmds(args.onlist).get(str(args.add), not_found)
+			mess = switch_messages(args.onlist).get(str(args.add), not_found)
+			on_handle = search_handle(args.ip6tables_info, args.current_ip)
+			service_info, err = shell_run(args.console, switch_nftables(args, comm, on_handle))
+			args6_to_args4(args)
 		if args.nolog:
 			if service_info != '':
 				args.log_txt.append(f"{service_info}")
