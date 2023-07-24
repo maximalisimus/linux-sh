@@ -1106,19 +1106,27 @@ def servicework(args: Arguments):
 		if not args.nftables:
 			args.iptables_info, err = shell_run(args.console, switch_iptables(args, 'read'))
 			_commands = switch_iptables(args, 'read')
+			args4_to_args6(args)
+			args.ip6tables_info, err6 = shell_run(args.console, switch_iptables(args, 'read'))
+			_commands6 = switch_iptables(args, 'read')
+			args6_to_args4(args)
 		else:
 			args.iptables_info, err = shell_run(args.console, switch_nftables(args, 'search'))
 			_commands = switch_nftables(args, 'search').replace('\t','\\t')
+			args4_to_args6(args)
+			args.ip6tables_info, err6 = shell_run(args.console, switch_nftables(args, 'search'))
+			_commands6 = switch_nftables(args, 'search').replace('\t','\\t')
+			args6_to_args4(args)
 		if args.nolog:
 			args.log_txt.append('Start the blacklist ...')
 		service_start_stop(args)
 		print('Exit the blacklist ...')
-		if err != '':
-			print(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
+		if err != '' or err6 != '':
+			print(f"----- ERROR Info -----\n{err}{_commands}{err6}{_commands6}\n----- ERROR Info -----")
 		if args.nolog:
 			args.log_txt.append(f"Exit the blacklist ...")
-			if err != '':
-				args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
+			if err != '' or err6 != '':
+				args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}{err6}{_commands6}\n----- ERROR Info -----")
 		AppExit(args)
 	if args.stop:
 		if args.cmd:
@@ -1138,19 +1146,27 @@ def servicework(args: Arguments):
 		if not args.nftables:
 			args.iptables_info, err = shell_run(args.console, switch_iptables(args, 'read'))
 			_commands = switch_iptables(args, 'read')
+			args4_to_args6(args)
+			args.ip6tables_info, err6 = shell_run(args.console, switch_iptables(args, 'read'))
+			_commands6 = switch_iptables(args, 'read')
+			args6_to_args4(args)
 		else:
 			args.iptables_info, err = shell_run(args.console, switch_nftables(args, 'search'))
 			_commands = switch_nftables(args, 'search').replace('\t','\\t')
+			args4_to_args6(args)
+			args.ip6tables_info, err6 = shell_run(args.console, switch_nftables(args, 'search'))
+			_commands6 = switch_nftables(args, 'search').replace('\t','\\t')
+			args6_to_args4(args)
 		if args.nolog:
 			args.log_txt.append('Stopping the blacklist ...')
 		service_start_stop(args)
 		print('Exit the blacklist ...')
-		if err != '':
-			print(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
+		if err != '' or err6 != '':
+			print(f"----- ERROR Info -----\n{err}{_commands}{err6}{_commands6}\n----- ERROR Info -----")
 		if args.nolog:
 			args.log_txt.append(f"Exit the blacklist ...")
-			if err != '':
-				args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
+			if err != '' or err6 != '':
+				args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}{err6}{_commands6}\n----- ERROR Info -----")
 		AppExit(args)
 	if args.nostop:
 		print('No stopped the blacklist.')
@@ -1182,27 +1198,43 @@ def servicework(args: Arguments):
 		if not args.nftables:
 			args.iptables_info, err = shell_run(args.console, switch_iptables(args, 'read'))
 			_commands = switch_iptables(args, 'read')
+			args4_to_args6(args)
+			args.ip6tables_info, err6 = shell_run(args.console, switch_iptables(args, 'read'))
+			_commands6 = switch_iptables(args, 'read')
+			args6_to_args4(args)
 		else:
 			args.iptables_info, err = shell_run(args.console, switch_nftables(args, 'search'))
 			_commands = switch_nftables(args, 'search').replace('\t','\\t')
+			args4_to_args6(args)
+			args.ip6tables_info, err6 = shell_run(args.console, switch_nftables(args, 'search'))
+			_commands6 = switch_nftables(args, 'search').replace('\t','\\t')
+			args6_to_args4(args)
 		if args.nolog:
 			args.log_txt.append('Reload the blacklist ...')
-			if err != '':
-				args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
+			if err != '' or err6 != '':
+				args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}{err6}{_commands6}\n----- ERROR Info -----")
 		args.add = False
 		service_start_stop(args)
 		args.add = True
 		if not args.nftables:
 			args.iptables_info, err = shell_run(args.console, switch_iptables(args, 'read'))
 			_commands = switch_iptables(args, 'read')
+			args4_to_args6(args)
+			args.ip6tables_info, err6 = shell_run(args.console, switch_iptables(args, 'read'))
+			_commands6 = switch_iptables(args, 'read')
+			args6_to_args4(args)
 		else:
 			args.iptables_info, err = shell_run(args.console, switch_nftables(args, 'search'))
 			_commands = switch_nftables(args, 'search').replace('\t','\\t')
+			args4_to_args6(args)
+			args.ip6tables_info, err6 = shell_run(args.console, switch_nftables(args, 'search'))
+			_commands6 = switch_nftables(args, 'search').replace('\t','\\t')
+			args6_to_args4(args)
 		service_start_stop(args)
 		print('Exit the blacklist ...')
 		if args.nolog:
-			if err != '':
-				args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
+			if err != '' or err6 != '':
+				args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}{err6}{_commands6}\n----- ERROR Info -----")
 			args.log_txt.append(f"Exit the blacklist ...")
 		AppExit(args)
 	if not args.cmd:
@@ -1242,10 +1274,10 @@ def nft_ban_unban_one(args: Arguments):
 	mess = ''
 	on_handle = ''
 	if args.add:
-		if not nomask in args.iptables_info:
+		if not nomask in args.iptables_info and not nomask in args.ip6tables_info:
 			banunban_nohost('add-black')
 	else:
-		if nomask in args.iptables_info:
+		if nomask in args.iptables_info or nomask in args.ip6tables_info:
 			banunban_nohost('del-black')
 
 def ban_unban_one(args: Arguments):
@@ -1274,11 +1306,11 @@ def ban_unban_one(args: Arguments):
 		else:
 			print(f"{err}{_commands}")
 		if ishostname:
-			args.old = args.current_ip
+			args.oldip = args.current_ip
 			args.current_ip = hostname
 			service_info, err = shell_run(args.console, switch_iptables(args, comm))
-			args.current_ip = args.old
-			args.old = None
+			args.current_ip = args.oldip
+			args.oldip = None
 			if args.nolog:
 				if service_info != '':
 					args.log_txt.append(f"{service_info}")
@@ -1301,7 +1333,7 @@ def ban_unban_one(args: Arguments):
 		nonlocal hostname
 		nonlocal comm
 		if hostname != nomask:
-			if not hostname in args.iptables_info:
+			if not hostname in args.iptables_info and not hostname in args.ip6tables_info:
 				banunban_host_nohost(not_found, True)
 		else:
 			banunban_host_nohost(not_found, False)
@@ -1310,15 +1342,41 @@ def ban_unban_one(args: Arguments):
 	hostname = ip_to_hostname(nomask)
 	comm = ''
 	if args.add:
-		if not nomask in args.iptables_info:
+		if not nomask in args.iptables_info and not nomask in args.ip6tables_info:
 			quastion_hostname_nomask('add-black')
 	else:
-		if nomask in args.iptables_info:
+		if nomask in args.iptables_info or nomask in args.ip6tables_info :
 			quastion_hostname_nomask('del-black')
 		else:
 			if hostname != nomask:
-				if hostname in args.iptables_info:
+				if hostname in args.iptables_info or hostname in args.ip6tables_info:
 					banunban_host_nohost('del-black', True)
+
+def args4_to_args6(args: Arguments):
+	''' Convert args ipv4 to ipv6. '''
+	if not args.ipv6:
+		args.ischange = True
+		if args.nftproto != 'inet':
+			args.nftproto = 'ip6'
+		args.ipv6 = True
+		if not args.nftables:
+			args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
+		else:
+			args.protocol = 'ip' if not args.ipv6 else 'ip6'
+		minmaxmask(args)
+
+def args6_to_args4(args: Arguments):
+	''' Convert args ipv6 to ipv4. '''
+	if args.ipv6:
+		args.ischange = False
+		if args.nftproto != 'inet':
+			args.nftproto = 'ip'
+		args.ipv6 = False
+		if not args.nftables:
+			args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
+		else:
+			args.protocol = 'ip' if not args.ipv6 else 'ip6'
+		minmaxmask(args)
 
 def listwork(args: Arguments):
 	''' Working with lists. '''
@@ -1352,39 +1410,31 @@ def listwork(args: Arguments):
 		if not args.nftables:
 			args.iptables_info, err = shell_run(args.console, switch_iptables(args, 'read'))
 			_commands = switch_iptables(args, 'read')
+			args4_to_args6(args)
+			args.ip6tables_info, err6 = shell_run(args.console, switch_iptables(args, 'read'))
+			_commands6 = switch_iptables(args, 'read')
+			args6_to_args4(args)	
 		else:
 			args.iptables_info, err = shell_run(args.console, switch_nftables(args, 'search'))
 			_commands = switch_nftables(args, 'search').replace('\t','\\t')
-		if err != '':
-			args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
+			args4_to_args6(args)
+			args.ip6tables_info, err6 = shell_run(args.console, switch_nftables(args, 'search'))
+			_commands6 = switch_nftables(args, 'search').replace('\t','\\t')
+			args6_to_args4(args)	
+		if err != '' or err6 != '':
+			args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}{err6}{_commands6}\n----- ERROR Info -----")
 		for elem in range(len(args.ip)):
 			args.current_ip = ip_to_net(args.ip[elem], args.mask[elem]) if len(args.mask) > elem else ip_to_net(args.ip[elem], args.maxmask)
 			on_vers = ip_to_version(args.current_ip, args.maxmask)
 			if on_vers == 6:
-				if args.nftproto != 'inet':
-					args.nftproto = 'ip6'
-				args.ischange = True
-				args.ipv6 = True
-				if not args.nftables:
-					args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
-				else:
-					args.protocol = 'ip' if not args.ipv6 else 'ip6'
-				minmaxmask(args)
+				args4_to_args6(args)
 				args.current_ip = ip_to_net(args.ip[elem], args.mask[elem]) if len(args.mask) > elem else ip_to_net(args.ip[elem], args.maxmask)
 			if not args.nftables:
 				ban_unban_one(args)
 			else:
 				nft_ban_unban_one(args)
 			if args.ischange:
-				args.ischange = False
-				if args.nftproto != 'inet':
-						args.nftproto = 'ip'
-				args.ipv6 = False
-				if not args.nftables:
-					args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
-				else:
-					args.protocol = 'ip' if not args.ipv6 else 'ip6'
-				minmaxmask(args)
+				args6_to_args4(args)
 		args.current_ip = None
 	
 	def add_del_one(args: Arguments):
