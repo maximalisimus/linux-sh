@@ -478,7 +478,6 @@ def service_build(args: Arguments):
 	service_tmp_text = []
 	service_tmp_text.append(st1)
 	if args.nftables:
-		_ipv6 = '-ipv6' if args.ipv6 else ''
 		_proto = f"-protocol {args.protocol}"
 		_nfproto = f"-nftproto {args.nftproto}"
 		_tbl = f"-table {args.table}"
@@ -502,7 +501,7 @@ def service_build(args: Arguments):
 			_ctbl = ''
 			_cch = '-fine'
 		
-		_start_var = f"{_ipv6} -nft {_nfproto} {_proto} {_tbl} {_ch}".strip()
+		_start_var = f"-nft {_nfproto} {_proto} {_tbl} {_ch}".strip()
 		_exec_var = f"{_start_var} {_ntbl} {_nch}".strip()
 		_stop_var = f"{_start_var} {_cch} {_dch} {_ctbl} {_dtbl}".strip()
 		
@@ -524,7 +523,7 @@ def service_build(args: Arguments):
 		reload_sv_text = f""
 	
 	service_tmp_text.append(f"{st2} {start_sv_text} {st3}")
-	service_tmp_text.append(f"{st4} {stop_sv_text} {st5}")
+	service_tmp_text.append(f"{st4} {stop_sv_text} {st5} && blacklist -ipv6 {stop_sv_text} {st5}")
 	service_tmp_text.append(f"{st6} {reload_sv_text} {st7}")
 	service_tmp_text.append(st8)
 	service_tmp_text.append(st9)	
@@ -969,12 +968,15 @@ def servicework(args: Arguments):
 		for elem in range(len(data_white)):
 			args.current_ip = f"{data_white[elem]}"
 			on_vers = ip_to_version(args.current_ip, args.maxmask)
-			if on_vers == 6 and args.protocol == 'ip':
+			if on_vers == 6:
 				args.ischange = True
 				if args.nftproto != 'inet':
 					args.nftproto = 'ip6'
 				args.ipv6 = True
-				args.protocol = 'ip' if not args.ipv6 else 'ip6'
+				if not args.nftables:
+					args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
+				else:
+					args.protocol = 'ip' if not args.ipv6 else 'ip6'
 				minmaxmask(args)
 			if not args.nftables:
 				ban_unban_one(args)
@@ -985,7 +987,10 @@ def servicework(args: Arguments):
 				if args.nftproto != 'inet':
 						args.nftproto = 'ip6'
 				args.ipv6 = False
-				args.protocol = 'ip' if not args.ipv6 else 'ip6'
+				if not args.nftables:
+					args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
+				else:
+					args.protocol = 'ip' if not args.ipv6 else 'ip6'
 				minmaxmask(args)
 		args.current_ip = None
 		args.onlist = 'black'
@@ -997,7 +1002,10 @@ def servicework(args: Arguments):
 				if args.nftproto != 'inet':
 					args.nftproto = 'ip6'
 				args.ipv6 = True
-				args.protocol = 'ip' if not args.ipv6 else 'ip6'
+				if not args.nftables:
+					args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
+				else:
+					args.protocol = 'ip' if not args.ipv6 else 'ip6'
 				minmaxmask(args)
 			if not args.nftables:
 				ban_unban_one(args)
@@ -1008,7 +1016,10 @@ def servicework(args: Arguments):
 				if args.nftproto != 'inet':
 						args.nftproto = 'ip'
 				args.ipv6 = False
-				args.protocol = 'ip' if not args.ipv6 else 'ip6'
+				if not args.nftables:
+					args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
+				else:
+					args.protocol = 'ip' if not args.ipv6 else 'ip6'
 				minmaxmask(args)
 		args.current_ip = None
 		args.onlist = None
@@ -1354,7 +1365,10 @@ def listwork(args: Arguments):
 					args.nftproto = 'ip6'
 				args.ischange = True
 				args.ipv6 = True
-				args.protocol = 'ip' if not args.ipv6 else 'ip6'
+				if not args.nftables:
+					args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
+				else:
+					args.protocol = 'ip' if not args.ipv6 else 'ip6'
 				minmaxmask(args)
 				args.current_ip = ip_to_net(args.ip[elem], args.mask[elem]) if len(args.mask) > elem else ip_to_net(args.ip[elem], args.maxmask)
 			if not args.nftables:
@@ -1366,7 +1380,10 @@ def listwork(args: Arguments):
 				if args.nftproto != 'inet':
 						args.nftproto = 'ip'
 				args.ipv6 = False
-				args.protocol = 'ip' if not args.ipv6 else 'ip6'
+				if not args.nftables:
+					args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
+				else:
+					args.protocol = 'ip' if not args.ipv6 else 'ip6'
 				minmaxmask(args)
 		args.current_ip = None
 	
