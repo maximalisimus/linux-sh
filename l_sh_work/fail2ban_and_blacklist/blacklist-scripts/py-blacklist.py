@@ -216,7 +216,6 @@ def createParser():
 	group3.add_argument ('-fine', '--fine', action='store_true', default=False, help='Full clearing NFTABLES tables from all settings. Use carefully!')
 	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select {IP6/NF}TABLES.')
 	group3.add_argument ('-nft', '--nftables', action='store_true', default=False, help='Select the NFTABLES (IP,IP6) framework (Default {IP,IP6}TABLES).')
-	group3.add_argument("-protocol", '--protocol', default='ip', choices=['ip', 'ip6'], help='Select the protocol ip-addresses (Auto ipv4 on "ip" or -ipv6 to "ip6").')
 	group3.add_argument("-nftproto", '--nftproto', default='ip', choices=['ip', 'ip6', 'inet'], help='Select the protocol NFTABLES, before rule (Auto ipv4 on "ip" or -ipv6 to "ip6").')
 	group3.add_argument("-table", '--table', dest="table", metavar='TABLE', type=str, default='filter', help='Select the table for NFTABLES (Default "filter").')
 	group3.add_argument("-chain", '--chain', dest="chain", metavar='CHAIN', type=str, default='INPUT', help='Choosing a chain of rules (Default: "INPUT").')
@@ -284,12 +283,7 @@ def AppFine(args: Arguments):
 					if err != '':
 						args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
 				if args.nftproto != 'inet':
-					args.oldproto = args.nftproto
-					args.nftproto = 'ip6'
-					args.ipv6 = True
-					args.protoold = args.protocol
-					args.protocol = 'ip6'
-					minmaxmask(args)
+					args4_to_args6(args)
 					#
 					print(f"Clear the сhain: «{args.chain}», protocol = «{args.nftproto}», tables = {args.tables}».")
 					service_info, err = shell_run(args.console, switch_nftables(args, 'flush-chain'))
@@ -305,12 +299,7 @@ def AppFine(args: Arguments):
 						if err != '':
 							args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
 					#
-					args.ipv6 = False
-					args.nftproto = args.oldproto
-					args.old = None
-					args.protocol = args.protoold
-					args.protoold = None
-					minmaxmask(args)
+					args6_to_args4(args)
 				print('Exit the blacklist ...')
 				if args.nolog:
 					args.log_txt.append('Exit the blacklist ...')
@@ -331,12 +320,7 @@ def AppFine(args: Arguments):
 					if err != '':
 						args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
 				if args.nftproto != 'inet':
-					args.oldproto = args.nftproto
-					args.nftproto = 'ip6'
-					args.ipv6 = True
-					args.protoold = args.protocol
-					args.protocol = 'ip6'
-					minmaxmask(args)
+					args4_to_args6(args)
 					#
 					print(f"Delete the сhain: «{args.chain}», protocol = «{args.nftproto}», tables = {args.tables}».")
 					service_info, err = shell_run(args.console, switch_nftables(args, 'del-chain'))
@@ -352,12 +336,7 @@ def AppFine(args: Arguments):
 						if err != '':
 							args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
 					#
-					args.ipv6 = False
-					args.nftproto = args.oldproto
-					args.old = None
-					args.protocol = args.protoold
-					args.protoold = None
-					minmaxmask(args)
+					args6_to_args4(args)
 				print('Exit the blacklist ...')
 				if args.nolog:
 					args.log_txt.append('Exit the blacklist ...')
@@ -378,12 +357,7 @@ def AppFine(args: Arguments):
 					if err != '':
 						args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
 				if args.nftproto != 'inet':
-					args.oldproto = args.nftproto
-					args.nftproto = 'ip6'
-					args.ipv6 = True
-					args.protoold = args.protocol
-					args.protocol = 'ip6'
-					minmaxmask(args)
+					args4_to_args6(args)
 					#
 					print(f"Clear the table: «{args.table}», protocol = «{args.nftproto}».")
 					service_info, err = shell_run(args.console, switch_nftables(args, 'flush-table'))
@@ -399,12 +373,7 @@ def AppFine(args: Arguments):
 						if err != '':
 							args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
 					#
-					args.ipv6 = False
-					args.nftproto = args.oldproto
-					args.old = None
-					args.protocol = args.protoold
-					args.protoold = None
-					minmaxmask(args)
+					args6_to_args4(args)
 				print('Exit the blacklist ...')
 				if args.nolog:
 					args.log_txt.append('Exit the blacklist ...')
@@ -425,12 +394,7 @@ def AppFine(args: Arguments):
 					if err != '':
 						args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
 				if args.nftproto != 'inet':
-					args.oldproto = args.nftproto
-					args.nftproto = 'ip6'
-					args.ipv6 = True
-					args.protoold = args.protocol
-					args.protocol = 'ip6'
-					minmaxmask(args)
+					args4_to_args6(args)
 					#
 					print(f"Delete the table: «{args.table}», protocol = «{args.nftproto}».")
 					service_info, err = shell_run(args.console, switch_nftables(args, 'del-table'))
@@ -446,12 +410,7 @@ def AppFine(args: Arguments):
 						if err != '':
 							args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
 					#
-					args.ipv6 = False
-					args.nftproto = args.oldproto
-					args.old = None
-					args.protocol = args.protoold
-					args.protoold = None
-					minmaxmask(args)
+					args6_to_args4(args)
 				print('Exit the blacklist ...')
 				if args.nolog:
 					args.log_txt.append('Exit the blacklist ...')
@@ -478,7 +437,6 @@ def service_build(args: Arguments):
 	service_tmp_text = []
 	service_tmp_text.append(st1)
 	if args.nftables:
-		_proto = f"-protocol {args.protocol}"
 		_nfproto = f"-nftproto {args.nftproto}"
 		_tbl = f"-table {args.table}"
 		_ch = f"-chain {args.chain}"
@@ -501,7 +459,7 @@ def service_build(args: Arguments):
 			_ctbl = ''
 			_cch = '-fine'
 		
-		_start_var = f"-nft {_nfproto} {_proto} {_tbl} {_ch}".strip()
+		_start_var = f"-nft {_nfproto} {_tbl} {_ch}".strip()
 		_exec_var = f"{_start_var} {_ntbl} {_nch}".strip()
 		_stop_var = f"{_start_var} {_cch} {_dch} {_ctbl} {_dtbl}".strip()
 		
@@ -523,7 +481,7 @@ def service_build(args: Arguments):
 		reload_sv_text = f""
 	
 	service_tmp_text.append(f"{st2} {start_sv_text} {st3}")
-	service_tmp_text.append(f"{st4} {stop_sv_text} {st5} && blacklist -ipv6 {stop_sv_text} {st5}")
+	service_tmp_text.append(f"{st4} {stop_sv_text} {st5}")
 	service_tmp_text.append(f"{st6} {reload_sv_text} {st7}")
 	service_tmp_text.append(st8)
 	service_tmp_text.append(st9)	
@@ -969,58 +927,26 @@ def servicework(args: Arguments):
 			args.current_ip = f"{data_white[elem]}"
 			on_vers = ip_to_version(args.current_ip, args.maxmask)
 			if on_vers == 6:
-				args.ischange = True
-				if args.nftproto != 'inet':
-					args.nftproto = 'ip6'
-				args.ipv6 = True
-				if not args.nftables:
-					args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
-				else:
-					args.protocol = 'ip' if not args.ipv6 else 'ip6'
-				minmaxmask(args)
+				args4_to_args6(args)
 			if not args.nftables:
 				ban_unban_one(args)
 			else:
 				nft_ban_unban_one(args)
 			if args.ischange:
-				args.ischange = False
-				if args.nftproto != 'inet':
-						args.nftproto = 'ip6'
-				args.ipv6 = False
-				if not args.nftables:
-					args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
-				else:
-					args.protocol = 'ip' if not args.ipv6 else 'ip6'
-				minmaxmask(args)
+				args6_to_args4(args)
 		args.current_ip = None
 		args.onlist = 'black'
 		for elem in range(len(data_black)):
 			args.current_ip = f"{data_black[elem]}"
 			on_vers = ip_to_version(args.current_ip, args.maxmask)
 			if on_vers == 6:
-				args.ischange = True
-				if args.nftproto != 'inet':
-					args.nftproto = 'ip6'
-				args.ipv6 = True
-				if not args.nftables:
-					args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
-				else:
-					args.protocol = 'ip' if not args.ipv6 else 'ip6'
-				minmaxmask(args)
+				args4_to_args6(args)
 			if not args.nftables:
 				ban_unban_one(args)
 			else:
 				nft_ban_unban_one(args)
 			if args.ischange:
-				args.ischange = False
-				if args.nftproto != 'inet':
-						args.nftproto = 'ip'
-				args.ipv6 = False
-				if not args.nftables:
-					args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
-				else:
-					args.protocol = 'ip' if not args.ipv6 else 'ip6'
-				minmaxmask(args)
+				args6_to_args4(args)
 		args.current_ip = None
 		args.onlist = None
 		args.add = None
@@ -1068,6 +994,9 @@ def servicework(args: Arguments):
 		if not args.nftables:
 			if args.cmd:
 				print(switch_iptables(args, 'read'))
+				args4_to_args6(args)
+				print(switch_iptables(args, 'read'))
+				args6_to_args4(args)
 				sys.exit(0)
 			args.iptables_info, err = shell_run(args.console, switch_iptables(args, 'read'))
 			if args.iptables_info != '':
@@ -1075,18 +1004,35 @@ def servicework(args: Arguments):
 			if err != '':
 				_commands = switch_iptables(args, 'read')
 				print(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
+			args4_to_args6(args)
+			args.ip6tables_info, err6 = shell_run(args.console, switch_iptables(args, 'read'))
+			if args.ip6tables_info != '':
+				print(f"\n----- IPTABLES Info -----\n{args.ip6tables_info}\n----- IPTABLES Info -----")
+			if err6 != '':
+				_commands6 = switch_iptables(args, 'read')
+				print(f"----- ERROR Info -----\n{err6}{_commands6}\n----- ERROR Info -----")
+			args6_to_args4(args)
 		else:
 			if args.cmd:
 				print(switch_nftables(args, 'read'))
+				args4_to_args6(args)
+				print(switch_nftables(args, 'read'))
+				args6_to_args4(args)
 				sys.exit(0)
 			args.iptables_info, err = shell_run(args.console, switch_nftables(args, 'read'))
 			if args.iptables_info != '':
 				print(f"\n----- NFTABLES Info -----\n{args.iptables_info}\n----- NFTABLES Info -----")
-				if args.nolog:
-					args.log_txt.append(f"\n----- NFTABLES Info -----\n{args.iptables_info}\n----- NFTABLES Info -----")
 			if err != '':
 				_commands = switch_nftables(args, 'read')
 				print(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
+			args4_to_args6(args)
+			args.ip6tables_info, err6 = shell_run(args.console, switch_nftables(args, 'read'))
+			if args.ip6tables_info != '':
+				print(f"\n----- NFTABLES Info -----\n{args.ip6tables_info}\n----- NFTABLES Info -----")
+			if err6 != '':
+				_commands6 = switch_nftables(args, 'read')
+				print(f"----- ERROR Info -----\n{err6}{_commands6}\n----- ERROR Info -----")
+			args6_to_args4(args)
 		sys.exit(0)
 	if args.start:
 		if args.cmd:
@@ -1096,11 +1042,23 @@ def servicework(args: Arguments):
 				print('Repeat commands for all ip addresses:')
 				print('\t',switch_iptables(args, 'add-white'))
 				print('\t',switch_iptables(args, 'add-black'))
+				args4_to_args6(args)
+				print(switch_iptables(args, 'read'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_iptables(args, 'add-white'))
+				print('\t',switch_iptables(args, 'add-black'))
+				args6_to_args4(args)
 			else:
 				print(switch_nftables(args, 'search').replace('\t','\\t'))
 				print('Repeat commands for all ip addresses:')
 				print('\t',switch_nftables(args, 'add-white', 'NUM'))
 				print('\t',switch_nftables(args, 'add-black', 'NUM'))
+				args4_to_args6(args)
+				print(switch_nftables(args, 'search').replace('\t','\\t'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_nftables(args, 'add-white', 'NUM'))
+				print('\t',switch_nftables(args, 'add-black', 'NUM'))
+				args6_to_args4(args)
 			sys.exit(0)
 		print('Start the blacklist ...')
 		if not args.nftables:
@@ -1136,11 +1094,23 @@ def servicework(args: Arguments):
 				print('Repeat commands for all ip addresses:')
 				print('\t',switch_iptables(args, 'del-white'))
 				print('\t',switch_iptables(args, 'del-black'))
+				args4_to_args6(args)
+				print(switch_iptables(args, 'read'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_iptables(args, 'del-white'))
+				print('\t',switch_iptables(args, 'del-black'))
+				args6_to_args4(args)
 			else:
 				print(switch_nftables(args, 'search').replace('\t','\\t'))
 				print('Repeat commands for all ip addresses:')
 				print('\t',switch_nftables(args, 'del-white', 'NUM'))
 				print('\t',switch_nftables(args, 'del-black', 'NUM'))
+				args4_to_args6(args)
+				print(switch_nftables(args, 'search').replace('\t','\\t'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_nftables(args, 'del-white', 'NUM'))
+				print('\t',switch_nftables(args, 'del-black', 'NUM'))
+				args6_to_args4(args)
 			sys.exit(0)
 		print('Stopping the blacklist ...')
 		if not args.nftables:
@@ -1184,6 +1154,16 @@ def servicework(args: Arguments):
 				print('Repeat commands for all ip addresses:')
 				print('\t',switch_iptables(args, 'add-white'))
 				print('\t',switch_iptables(args, 'add-black'))
+				args4_to_args6(args)
+				print(switch_iptables(args, 'read'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_iptables(args, 'del-white'))
+				print('\t',switch_iptables(args, 'del-black'))
+				print(switch_iptables(args, 'read'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_iptables(args, 'add-white'))
+				print('\t',switch_iptables(args, 'add-black'))
+				args6_to_args4(args)
 			else:
 				print(switch_nftables(args, 'search').replace('\t','\\t'))
 				print('Repeat commands for all ip addresses:')
@@ -1193,6 +1173,16 @@ def servicework(args: Arguments):
 				print('Repeat commands for all ip addresses:')
 				print('\t',switch_nftables(args, 'add-white', 'NUM'))
 				print('\t',switch_nftables(args, 'add-black', 'NUM'))
+				args4_to_args6(args)
+				print(switch_nftables(args, 'search').replace('\t','\\t'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_nftables(args, 'del-white', 'NUM'))
+				print('\t',switch_nftables(args, 'del-black', 'NUM'))
+				print(switch_nftables(args, 'search').replace('\t','\\t'))
+				print('Repeat commands for all ip addresses:')
+				print('\t',switch_nftables(args, 'add-white', 'NUM'))
+				print('\t',switch_nftables(args, 'add-black', 'NUM'))
+				args6_to_args4(args)
 			sys.exit(0)
 		print('Reload the blacklist ...')
 		if not args.nftables:
@@ -1352,32 +1342,6 @@ def ban_unban_one(args: Arguments):
 				if hostname in args.iptables_info or hostname in args.ip6tables_info:
 					banunban_host_nohost('del-black', True)
 
-def args4_to_args6(args: Arguments):
-	''' Convert args ipv4 to ipv6. '''
-	if not args.ipv6:
-		args.ischange = True
-		if args.nftproto != 'inet':
-			args.nftproto = 'ip6'
-		args.ipv6 = True
-		if not args.nftables:
-			args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
-		else:
-			args.protocol = 'ip' if not args.ipv6 else 'ip6'
-		minmaxmask(args)
-
-def args6_to_args4(args: Arguments):
-	''' Convert args ipv6 to ipv4. '''
-	if args.ipv6:
-		args.ischange = False
-		if args.nftproto != 'inet':
-			args.nftproto = 'ip'
-		args.ipv6 = False
-		if not args.nftables:
-			args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
-		else:
-			args.protocol = 'ip' if not args.ipv6 else 'ip6'
-		minmaxmask(args)
-
 def listwork(args: Arguments):
 	''' Working with lists. '''
 	
@@ -1492,12 +1456,26 @@ def listwork(args: Arguments):
 					print(switch_iptables(args, 'add-black'))
 				else:
 					print(switch_iptables(args, 'add-white'))
+				args4_to_args6(args)
+				print(switch_iptables(args, 'read'))
+				if args.onlist == 'black':
+					print(switch_iptables(args, 'add-black'))
+				else:
+					print(switch_iptables(args, 'add-white'))
+				args6_to_args4(args)
 			else:
 				print(switch_nftables(args, 'read'))
 				if args.onlist == 'black':
 					print(switch_nftables(args, 'add-black', 'NUM'))
 				else:
 					print(switch_nftables(args, 'add-white', 'NUM'))
+				args4_to_args6(args)
+				print(switch_nftables(args, 'read'))
+				if args.onlist == 'black':
+					print(switch_nftables(args, 'add-black', 'NUM'))
+				else:
+					print(switch_nftables(args, 'add-white', 'NUM'))
+				args6_to_args4(args)
 			sys.exit(0)
 		print('Ban the blacklist or ignore the whitelist ip addresses ...')
 		if args.nolog:
@@ -1516,12 +1494,26 @@ def listwork(args: Arguments):
 					print(switch_iptables(args, 'del-black'))
 				else:
 					print(switch_iptables(args, 'del-white'))
+				args4_to_args6(args)
+				print(switch_iptables(args, 'read'))
+				if args.onlist == 'black':
+					print(switch_iptables(args, 'del-black'))
+				else:
+					print(switch_iptables(args, 'del-white'))
+				args6_to_args4(args)
 			else:
 				print(switch_nftables(args, 'search').replace('\t','\\t'))
 				if args.onlist == 'black':
 					print(switch_nftables(args, 'del-black', 'NUM'))
 				else:
 					print(switch_nftables(args, 'del-white', 'NUM'))
+				args4_to_args6(args)
+				print(switch_nftables(args, 'search').replace('\t','\\t'))
+				if args.onlist == 'black':
+					print(switch_nftables(args, 'del-black', 'NUM'))
+				else:
+					print(switch_nftables(args, 'del-white', 'NUM'))
+				args6_to_args4(args)
 			sys.exit(0)
 		print('Unban the blacklist or delete ignored the whitelist ip addresses ...')
 		if args.nolog:
@@ -1564,27 +1556,15 @@ def CreateTableChain(args: Arguments):
 			if args.newtable:
 				print(switch_nftables(args, 'create-table'))
 				if args.nftproto != 'inet':
-					args.oldproto = args.nftproto
-					args.nftproto = 'ip6'
-					args.ipv6 = True
-					minmaxmask(args)
+					args4_to_args6(args)
 					print(switch_nftables(args, 'create-table'))
-					args.ipv6 = False
-					args.nftproto = args.oldproto
-					args.old = None
-					minmaxmask(args)
+					args6_to_args4(args)
 			if args.newchain:
 				print(switch_nftables(args, 'create-chain'))
 				if args.nftproto != 'inet':
-					args.old = args.nftproto
-					args.nftproto = 'ip6'
-					args.ipv6 = True
-					minmaxmask(args)
+					args4_to_args6(args)
 					print(switch_nftables(args, 'create-chain'))
-					args.ipv6 = False
-					args.nftproto = args.old
-					args.old = None
-					minmaxmask(args)
+					args6_to_args4(args)
 	
 	if not args.cmd:
 		if args.nftables:
@@ -1605,10 +1585,7 @@ def CreateTableChain(args: Arguments):
 					if err != '':
 						args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
 				if args.nftproto != 'inet':
-					args.oldproto = args.nftproto
-					args.nftproto = 'ip6'
-					args.ipv6 = True
-					minmaxmask(args)
+					args4_to_args6(args)
 					#
 					args.log_txt.append(f"New table in NFTABLES  = {args.table}, protocol = {args.nftproto}")
 					print(f"New table in NFTABLES  = {args.table}, protocol = {args.nftproto}")
@@ -1624,10 +1601,7 @@ def CreateTableChain(args: Arguments):
 						if err != '':
 							args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
 					#
-					args.ipv6 = False
-					args.nftproto = args.oldproto
-					args.oldproto = None
-					minmaxmask(args)
+					args6_to_args4(args)
 				print('Exit the blacklist ...')
 				if args.nolog:
 					args.log_txt.append('Exit the blacklist ...')
@@ -1648,10 +1622,7 @@ def CreateTableChain(args: Arguments):
 					if err != '':
 						args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
 				if args.nftproto != 'inet':
-					args.oldproto = args.nftproto
-					args.nftproto = 'ip6'
-					args.ipv6 = True
-					minmaxmask(args)
+					args4_to_args6(args)
 					#
 					args.log_txt.append(f"New chain in NFTABLES  = {args.chain}, protocol = {args.nftproto}, tables = {args.table}")
 					print(f"New chain in NFTABLES  = {args.chain}, protocol = {args.nftproto}, tables = {args.table}")
@@ -1667,15 +1638,38 @@ def CreateTableChain(args: Arguments):
 						if err != '':
 							args.log_txt.append(f"----- ERROR Info -----\n{err}{_commands}\n----- ERROR Info -----")
 					#
-					args.ipv6 = False
-					args.nftproto = args.oldproto
-					args.oldproto = None
-					minmaxmask(args)
+					args6_to_args4(args)
 				print('Exit the blacklist ...')
 				if args.nolog:
 					args.log_txt.append('Exit the blacklist ...')
 			if args.exit:
 				AppExit(args)
+
+def args4_to_args6(args: Arguments):
+	''' Convert args ipv4 to ipv6. '''
+	if not args.ipv6:
+		args.ischange = True
+		if args.nftproto != 'inet':
+			args.nftproto = 'ip6'
+		args.ipv6 = True
+		if not args.nftables:
+			args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
+		else:
+			args.protocol = 'ip' if not args.ipv6 else 'ip6'
+		minmaxmask(args)
+
+def args6_to_args4(args: Arguments):
+	''' Convert args ipv6 to ipv4. '''
+	if args.ipv6:
+		args.ischange = False
+		if args.nftproto != 'inet':
+			args.nftproto = 'ip'
+		args.ipv6 = False
+		if not args.nftables:
+			args.protocol = 'iptables' if not args.ipv6 else 'ip6tables'
+		else:
+			args.protocol = 'ip' if not args.ipv6 else 'ip6'
+		minmaxmask(args)
 
 def minmaxmask(args: Arguments):
 	''' Edit min max mask on protocol. '''
