@@ -585,25 +585,6 @@ def systemdwork(args: Arguments):
 	if args.count == 0:
 		args.count = 3
 	
-	if args.delete:
-		if args.cmd:
-			print(switch_systemd('stop-timer', args.count))
-			print(switch_systemd('stop-service', args.count))
-			print(switch_systemd('disable', args.count))
-			print(f"sudo rm -rf {systemd_service_file.resolve()}")
-			print(f"sudo rm -rf {systemd_timer_file.resolve()}")
-			sys.exit(0)
-		print('Delete systemd «blacklist@.service» and «blacklist@.timer» ...')
-		shell_run(args.console, switch_systemd('stop-timer', args.count))
-		shell_run(args.console, switch_systemd('stop-service', args.count))
-		shell_run(args.console, switch_systemd('disable', args.count))
-		systemd_service_file.unlink(missing_ok=True)
-		systemd_timer_file.unlink(missing_ok=True)
-		print('Exit the blacklist ...')
-		if args.nolog:
-			args.log_txt.append(f"Delete systemd «blacklist@.service» and «blacklist@.timer» ...")
-			args.log_txt.append(f"Exit the blacklist ...")
-		AppExit(args)
 	if args.create:
 		service_build(args)
 		if args.cmd:
@@ -622,6 +603,25 @@ def systemdwork(args: Arguments):
 			args.log_txt.append(service_text)
 			args.log_txt.append(f"Create systemd «blacklist@.timer»:")
 			args.log_txt.append(timer_text)
+			args.log_txt.append(f"Exit the blacklist ...")
+		AppExit(args)
+	if args.delete:
+		if args.cmd:
+			print(switch_systemd('stop-timer', args.count))
+			print(switch_systemd('stop-service', args.count))
+			print(switch_systemd('disable', args.count))
+			print(f"sudo rm -rf {systemd_service_file.resolve()}")
+			print(f"sudo rm -rf {systemd_timer_file.resolve()}")
+			sys.exit(0)
+		print('Delete systemd «blacklist@.service» and «blacklist@.timer» ...')
+		shell_run(args.console, switch_systemd('stop-timer', args.count))
+		shell_run(args.console, switch_systemd('stop-service', args.count))
+		shell_run(args.console, switch_systemd('disable', args.count))
+		systemd_service_file.unlink(missing_ok=True)
+		systemd_timer_file.unlink(missing_ok=True)
+		print('Exit the blacklist ...')
+		if args.nolog:
+			args.log_txt.append(f"Delete systemd «blacklist@.service» and «blacklist@.timer» ...")
 			args.log_txt.append(f"Exit the blacklist ...")
 		AppExit(args)
 	if systemd_service_file.exists() and systemd_timer_file.exists():
