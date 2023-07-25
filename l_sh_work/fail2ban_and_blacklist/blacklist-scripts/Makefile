@@ -1,9 +1,11 @@
 DESTDIR=./
+POSTDIR=etc
+INSTALLDIR=/
 TARGET=blacklist-scripts
 SCRIPT=py-blacklist.py
 SYMLINK=blacklist
-SETUPDIR=$(DESTDIR)etc/$(TARGET)
-EXEC=$(SETUPDIR)/$(SCRIPT)
+SETUPDIR=$(DESTDIR)$(POSTDIR)/$(TARGET)
+EXEC=$(INSTALLDIR)$(POSTDIR)/$(TARGET)/$(SCRIPT)
 SETUPEXEC=$(DESTDIR)usr/bin/$(SYMLINK)
 SOURCES=f2b
 F2BSETUP=$(DESTDIR)etc/fail2ban
@@ -25,11 +27,11 @@ all: install install-all
 	echo "Installation complete!"
 
 install:
-	rm -rf $(SETUPDIR)/
-	mkdir -p $(SETUPDIR)/ $(DESTDIR)usr/bin/
+	rm -rf $(SETUPDIR)
+	mkdir -p $(SETUPDIR) $(DESTDIR)usr/bin/
 	install -Dm 755 $(SCRIPT) $(SETUPDIR)/
 	ln -s $(EXEC) $(SETUPEXEC) 2>/dev/null
-	chmod +x $(EXEC)
+	chmod +x $(DESTDIR)$(POSTDIR)/$(TARGET)/$(SCRIPT) 2>/dev/null
 
 install-action:
 	install -dDm 755 $(F2BSETUP)/action.d/
