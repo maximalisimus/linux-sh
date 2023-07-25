@@ -909,7 +909,7 @@ def systemdwork(args: Arguments):
 			AppExit(args)
 	else:
 		print(f"\nSystemd file «{systemd_service_file.name}» and «{systemd_timer_file.name}» not found!")
-		print(f"Please enter «-create» to create systemd files!\n")
+		print(f"Please enter «-create» to create system files before accessing Systemd functions!\n")
 	if not args.log_txt:
 		parser.parse_args(['systemd', '-h'])
 		sys.exit(0)
