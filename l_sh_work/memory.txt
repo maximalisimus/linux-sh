@@ -1,0 +1,27 @@
+
+
+ps -aux --sort -rss
+USER   Пользователь, от имени которого работает процесс
+PID      Идентификатор процесса
+RSS      Физическая память, занятая процессом
+VSZ      Виртуальная память
+
+/proc/pid/status
+free -h
+
+ps -p <PID> v
+
+
+ps -aux | grep -Ei "program"
+pgrep program
+free -h
+echo -e -n "$(ps -aux --sort -rss | sed '2,$d')\n$(ps -aux --sort -rss | grep -Ei 'program')\n"
+ps -p PID v
+
+sudo cat /proc/PID/status
+
+ps -eo size,pid,user,command --sort -size
+ps -eo size,vsz,rss,command --sort -size
+ps -eo size --sort -size | sed '1d' | awk '{ sum += $1 } END { print sum }'
+ps -eo rss --sort -size | sed '1d' | awk '{ sum += $1 } END { print sum }'
+ps -eo vsz --sort -size | sed '1d' | awk '{ sum += $1 } END { print sum }'
