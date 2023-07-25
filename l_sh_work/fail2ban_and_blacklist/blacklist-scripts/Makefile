@@ -8,16 +8,14 @@ SETUPEXEC=$(DESTDIR)usr/bin/$(SYMLINK)
 SOURCES=f2b
 F2BSETUP=$(DESTDIR)etc/fail2ban
 # action.d
-blackfull=blackfull.conf
-blacksimple=blacksimple.conf
+action_dir=$(SOURCES)/action.d/*.conf
+action_files=$(notdir $(wildcard $(action_dir)))
 # filter.d
-nginx_access=nginx-access.conf
-nginx_error=nginx-error.conf
+filter_dir=$(SOURCES)/filter.d/*.conf
+filter_files=$(notdir $(wildcard $(filter_dir)))
 # jail.d
-access_nginx=access-nginx.conf
-error_nginx=error-nginx.conf
-nginx_ddos=nginx-ddos.conf
-ssh=ssh.conf
+jail_dir=$(SOURCES)/jail.d/*.conf
+jail_files=$(notdir $(wildcard $(jail_dir)))
 #
 DESCENG="The Fail2Ban black and white list in Python."
 DESCRU="Черный и белый список Fail2Ban в Python."
@@ -53,14 +51,19 @@ uninstall:
 	rm -rf $(SETUPEXEC)
 
 uninstall-action:
-	rm -rf $(F2BSETUP)/action.d/$(blackfull) $(F2BSETUP)/action.d/$(blacksimple)
+	for i in $(action_files) ; do \
+		rm -rf $(F2BSETUP)/action.d/$$i ; \
+	done
 
 uninstall-filter:
-	rm -rf $(F2BSETUP)/filter.d/$(nginx_access) $(F2BSETUP)/filter.d/$(nginx_error)
+	for i in $(filter_files) ; do \
+		rm -rf $(F2BSETUP)/filter.d/$$i ; \
+	done
 
 uninstall-jail:
-	rm -rf $(F2BSETUP)/jail.d/$(access_nginx) $(F2BSETUP)/jail.d/$(error_nginx)
-	rm -rf $(F2BSETUP)/jail.d/$(nginx_ddos) $(F2BSETUP)/jail.d/$(ssh)
+	for i in $(jail_files) ; do \
+		rm -rf $(F2BSETUP)/jail.d/$$i ; \
+	done
 
 uninstall-all: uninstall-action uninstall-filter uninstall-jail
 	echo "Uninstall fail2ban modules complete!"
