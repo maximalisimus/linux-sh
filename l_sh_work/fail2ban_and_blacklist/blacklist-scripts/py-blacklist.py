@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-The Fail2Ban black and white list in Python.
+The Fail2Ban black and white lists in Python.
 
 Artamonov Mikhail [https://github.com/maximalisimus]
 maximalis171091@yandex.ru
@@ -136,7 +136,7 @@ def createParser():
 		as well as groups of parsers, if any. '''
 	global json_black, json_white, workdir, log_file
 	
-	parser = argparse.ArgumentParser(prog=__progname__,description='The Fail2Ban black and white list in Python.')
+	parser = argparse.ArgumentParser(prog=__progname__,description='The Fail2Ban black and white lists in Python.')
 	parser.add_argument ('-v', '--version', action='version', version=f'{__progname__} {__version__}',  help='Version.')
 	parser.add_argument ('-info', '--info', action='store_true', default=False, help='Information about the author.')
 	
@@ -208,14 +208,14 @@ def createParser():
 	group2.add_argument("-wd", '--workdir', dest="workdir", metavar='WORKDIR', type=str, default=f"{workdir}", help='Working directory.')
 	group2.add_argument("-b", '--blacklist', dest="blacklist", metavar='BLACKLIST', type=str, default=f"{json_black}", help='Input blacklist file.')
 	group2.add_argument("-w", '--whitelist', dest="whitelist", metavar='WHITELIST', type=str, default=f"{json_white}", help='Input whitelist file.')
-		
-	group3 = parser.add_argument_group('{IP,IP6,NF}TABLES', 'Configuration {IP,IP6,NF}TABLES.')
+	
+	group3 = parser.add_argument_group('NFTABLES', 'Configuration NFTABLES.')
 	group3.add_argument ('-personal', '--personal', action='store_true', default=False, help='Personal settings of NFTABLES tables, regardless of the data entered.')
 	group3.add_argument ('-e', '-exit', '--exit', action='store_true', default=False, help='Finish creating the table/chain on NFTABLES.')
 	group3.add_argument ('-run', '--run', action='store_true', default=False, help='Full starting NFTABLES tables from all settings. Use carefully!')
 	group3.add_argument ('-fine', '--fine', action='store_true', default=False, help='Full clearing NFTABLES tables from all settings. Use carefully!')
-	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Select {IP6/NF}TABLES.')
-	group3.add_argument ('-nft', '--nftables', action='store_true', default=False, help='Select the NFTABLES (IP,IP6) framework (Default {IP,IP6}TABLES).')
+	group3.add_argument ('-ipv6', '--ipv6', action='store_true', default=False, help='Forced IPV6 protocol selection.')
+	group3.add_argument ('-nft', '--nftables', action='store_true', default=False, help='Select the NFTABLES framework (Default IP(6)TABLES).')
 	group3.add_argument("-nftproto", '--nftproto', default='ip', choices=['ip', 'ip6', 'inet'], help='Select the protocol NFTABLES, before rule (Auto ipv4 on "ip" or -ipv6 to "ip6").')
 	group3.add_argument("-table", '--table', dest="table", metavar='TABLE', type=str, default='filter', help='Select the table for NFTABLES (Default "filter").')
 	group3.add_argument("-chain", '--chain', dest="chain", metavar='CHAIN', type=str, default='INPUT', help='Choosing a chain of rules (Default: "INPUT").')
@@ -231,7 +231,7 @@ def createParser():
 	group4.add_argument ('-cmd', '--cmd', action='store_true', default=False, help='View the command and exit the program without executing it.')
 	group4.add_argument ('-sd', '--showdir', action='store_true', default=False, help='Show working directory.')
 	group4.add_argument("-logfile", '--logfile', dest="logfile", metavar='LOGFILE', type=str, default=f"{log_file}", help='Log file.')
-	group4.add_argument ('-nolog', '--nolog', action='store_false', default=True, help="Don't keep a log file.")
+	group4.add_argument ('-nolog', '--nolog', action='store_false', default=True, help="Do not log events.")
 	group4.add_argument ('-limit', '--limit', action='store_true', default=False, help='Limit the log file. Every day the contents of the log will be completely erased.')
 	group4.add_argument ('-viewlog', '--viewlog', action='store_true', default=False, help='View the log file.')
 	group4.add_argument ('-resetlog', '--resetlog', action='store_true', default=False, help='Reset the log file.')
