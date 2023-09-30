@@ -20,3 +20,13 @@ sed -i '/^#\s*\[multilib\]$/{N;s/^#\s*//gm}' /etc/pacman.conf
 По умолчанию эти символы соответствуют началу и концу области шаблона, а не началу и концу строк.
 
 
+
+
+var1=`echo "start_string_end" | sed 's/string.*//g'
+var2=`echo "start_string_end" | sed 's/.*string//g'
+
+
+
+
+
+
